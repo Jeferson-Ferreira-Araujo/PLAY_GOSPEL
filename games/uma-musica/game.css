@@ -1,0 +1,65 @@
+.brand-dot{
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffc107;
+  display: inline-block;
+}
+
+.presenter{
+  height: calc(100vh - 57px);
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(1000px 600px at 10% 10%, rgba(255,193,7,.18), transparent 55%),
+    radial-gradient(900px 500px at 90% 30%, rgba(13,110,253,.10), transparent 50%),
+    linear-gradient(180deg, #000, #111);
+}
+
+.presenter-top{
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 14px 16px;
+  gap: 12px;
+}
+
+.presenter-badges{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.presenter-center{
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 10px 16px;
+}
+
+.word{
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1.05;
+
+  font-size: clamp(56px, 10vw, 180px);
+
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.35);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+
+  width: min(1200px, 96vw);
+  user-select: none;
+}
+
+.presenter-bottom{
+  padding: 14px 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}

@@ -1,0 +1,40 @@
+{
+  "settings": [
+    {
+      "key": "difficulty",
+      "label": "Dificuldade",
+      "type": "select",
+      "default": "easy",
+      "options": [
+        { "value": "easy", "label": "Fácil" },
+        { "value": "medium", "label": "Médio" },
+        { "value": "hard", "label": "Difícil" }
+      ]
+    },
+    {
+      "key": "time",
+      "label": "Tempo (segundos)",
+      "type": "select",
+      "default": 30,
+      "options": [
+        { "value": 0, "label": "Sem tempo" },
+        { "value": 20, "label": "20s" },
+        { "value": 30, "label": "30s" },
+        { "value": 45, "label": "45s" },
+        { "value": 60, "label": "60s" },
+        { "value": 90, "label": "90s" }
+      ]
+    }
+  ],
+  "howTo": [
+    "Um versículo aparecerá na tela.",
+    "O grupo deve dizer a passagem bíblica correta (ex: João 3:16).",
+    "Clique em “Revelar” para mostrar a resposta.",
+    "Quando acabar o tempo, a rodada continua (você controla o “Próximo”)."
+  ],
+  "tips": [
+    "Excelente para jogar em grupo (célula/culto).",
+    "Use tela cheia para apresentação em telão.",
+    "Atalhos: F (fullscreen), N (próximo), R (revelar), T (reiniciar tempo)."
+  ]
+}

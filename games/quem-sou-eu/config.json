@@ -1,0 +1,12 @@
+{
+  "settings": [],
+  "howTo": [
+    "Revele uma dica por vez para o grupo tentar adivinhar.",
+    "Depois da última dica, se ninguém acertar, revele a resposta.",
+    "Clique em Próximo para avançar para o próximo personagem."
+  ],
+  "tips": [
+    "Atalhos: D (dica), N (próximo), F (tela cheia).",
+    "Ótimo para jogar em grupo."
+  ]
+}

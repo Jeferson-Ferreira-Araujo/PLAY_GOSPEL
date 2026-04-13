@@ -1,0 +1,43 @@
+{
+  "categories": [
+    {
+      "id": "livros",
+      "name": "Livros da Bíblia",
+      "words": [
+        "Gênesis",
+        "Êxodo",
+        "Levítico",
+        "Números",
+        "Deuteronômio",
+        "Atos dos Apóstolos",
+        "Cânticos de Salomão",
+        "1 Coríntios",
+        "2 Coríntios"
+      ]
+    },
+    {
+      "id": "personagens",
+      "name": "Personagens",
+      "words": [
+        "Abraão",
+        "Moisés",
+        "Davi",
+        "Ester",
+        "Neemias",
+        "João Batista",
+        "Apóstolo Paulo"
+      ]
+    },
+    {
+      "id": "lugares",
+      "name": "Lugares",
+      "words": [
+        "Jerusalém",
+        "Belém",
+        "Nazaré",
+        "Monte Sinai",
+        "Mar da Galileia"
+      ]
+    }
+  ]
+}

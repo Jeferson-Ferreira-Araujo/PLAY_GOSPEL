@@ -1,0 +1,105 @@
+{
+  "items": [
+
+    {
+      "name": "Melquisedeque",
+      "hints": [
+        "Fui rei e sacerdote ao mesmo tempo",
+        "Apareci antes da Lei ser dada",
+        "Recebi dízimos de Abraão"
+      ],
+      "reference": "Gênesis 14:18-20; Hebreus 7"
+    },
+
+    {
+      "name": "Débora",
+      "hints": [
+        "Julguei Israel debaixo de uma palmeira",
+        "Convidei um homem para liderar uma batalha",
+        "Uma mulher matou o inimigo com uma estaca"
+      ],
+      "reference": "Juízes 4–5"
+    },
+
+    {
+      "name": "Eúde",
+      "hints": [
+        "Era canhoto",
+        "Usei uma arma escondida",
+        "Derrotei o rei de Moabe"
+      ],
+      "reference": "Juízes 3:12-30"
+    },
+
+    {
+      "name": "Urias",
+      "hints": [
+        "Recusei voltar para minha casa",
+        "Fui colocado na frente da batalha",
+        "Minha morte encobriu um pecado"
+      ],
+      "reference": "2 Samuel 11"
+    },
+
+    {
+      "name": "Naamã",
+      "hints": [
+        "Era estrangeiro",
+        "Mergulhei sete vezes",
+        "Levei terra para adorar ao Senhor"
+      ],
+      "reference": "2 Reis 5"
+    },
+
+    {
+      "name": "Estêvão",
+      "hints": [
+        "Tive o rosto como de anjo",
+        "Vi os céus abertos",
+        "Fui apedrejado"
+      ],
+      "reference": "Atos 6–7"
+    },
+
+    {
+      "name": "Eutíquio",
+      "hints": [
+        "Estava em uma janela",
+        "Adormeci durante um discurso longo",
+        "Caí do terceiro andar"
+      ],
+      "reference": "Atos 20:7-12"
+    },
+
+    {
+      "name": "Onésimo",
+      "hints": [
+        "Fui considerado inútil",
+        "Fugi do meu senhor",
+        "Recebi uma carta especial"
+      ],
+      "reference": "Filemom"
+    },
+
+    {
+      "name": "Lídia",
+      "hints": [
+        "Vendia tecidos caros",
+        "Morava em uma cidade europeia",
+        "Abriu sua casa aos missionários"
+      ],
+      "reference": "Atos 16:11-15"
+    },
+
+    {
+      "name": "Jabes",
+      "hints": [
+        "Meu nome significa dor",
+        "Fiz uma oração curta",
+        "Pedi que meu território fosse ampliado"
+      ],
+      "reference": "1 Crônicas 4:9-10"
+    }
+
+  ]
+}

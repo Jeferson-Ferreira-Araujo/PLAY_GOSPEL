@@ -1,0 +1,38 @@
+{
+  "settings": [
+    {
+      "key": "category",
+      "label": "Categoria",
+      "type": "select",
+      "dynamic": "categories",
+      "help": "Escolha o tema das palavras."
+    },
+    {
+      "key": "time",
+      "label": "Tempo (segundos)",
+      "type": "select",
+      "default": 30,
+      "options": [
+        { "value": 0,  "label": "Sem tempo" },
+        { "value": 15, "label": "15s" },
+        { "value": 30, "label": "30s" },
+        { "value": 45, "label": "45s" },
+        { "value": 60, "label": "60s" },
+        { "value": 90, "label": "90s" }
+      ],
+      "help": "Se o tempo acabar, troca automaticamente de palavra."
+    }
+  ],
+  "howTo": [
+    "Escolha a categoria e o tempo.",
+    "Uma palavra ou frase aparecerá embaralhada.",
+    "Descubra antes do tempo acabar.",
+    "Quando as palavras terminarem, o jogo encerra."
+  ],
+  "tips": [
+    "Funciona muito bem em telão.",
+    "Frases com espaços também embaralham.",
+    "Use 'Mostrar resposta' para dinâmica em grupo.",
+    "Espaço: próxima palavra • F: tela cheia"
+  ]
+}

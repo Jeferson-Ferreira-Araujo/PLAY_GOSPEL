@@ -1,0 +1,34 @@
+{
+  "settings": [
+    {
+      "key": "difficulty",
+      "type": "select",
+      "label": "Dificuldade",
+      "default": "hard",
+      "options": [
+        { "value": "easy", "label": "Fácil" },
+        { "value": "medium", "label": "Médio" },
+        { "value": "hard", "label": "Difícil" }
+      ],
+      "help": "Fácil: mais direto • Médio: misto • Difícil: mais pegadinhas"
+    },
+    {
+      "key": "time",
+      "type": "select",
+      "label": "Tempo (segundos)",
+      "default": 20,
+      "options": [0, 15, 20, 30, 45, 60, 90],
+      "help": "Quando o tempo acabar, a resposta é revelada automaticamente."
+    }
+  ],
+  "howTo": [
+    "Leia a afirmação em voz alta.",
+    "Escolha: Verdadeiro (V) ou Falso (F).",
+    "Use “Mostrar explicação” para ver a referência.",
+    "Clique em “Próximo” para avançar."
+  ],
+  "tips": [
+    "Atalhos: V = verdadeiro • F = falso • N/Barra de espaço = próximo • R = explicação",
+    "Se estiver em modo ensino, você pode mostrar a explicação antes de responder."
+  ]
+}

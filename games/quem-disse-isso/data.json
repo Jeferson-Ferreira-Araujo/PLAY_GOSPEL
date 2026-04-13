@@ -1,0 +1,58 @@
+{
+  "easy": [
+    {
+      "quote": "Eu sou o caminho, e a verdade, e a vida.",
+      "answer": "Jesus",
+      "reference": "João 14:6"
+    },
+    {
+      "quote": "Eis-me aqui, envia-me a mim.",
+      "answer": "Isaías",
+      "reference": "Isaías 6:8"
+    },
+    {
+      "quote": "O Senhor é o meu pastor; nada me faltará.",
+      "answer": "Davi",
+      "reference": "Salmos 23:1"
+    },
+    {
+      "quote": "Fala, Senhor, porque o teu servo ouve.",
+      "answer": "Samuel",
+      "reference": "1 Samuel 3:10"
+    },
+    {
+      "quote": "Porventura sou eu guardador do meu irmão?",
+      "answer": "Caim",
+      "reference": "Gênesis 4:9"
+    }
+  ],
+  "medium": [
+    {
+      "quote": "Sei que o meu Redentor vive.",
+      "answer": "Jó",
+      "reference": "Jó 19:25"
+    },
+    {
+      "quote": "Não morrerei, mas viverei.",
+      "answer": "Davi",
+      "reference": "Salmos 118:17"
+    },
+    {
+      "quote": "Ainda que ele me mate, nele esperarei.",
+      "answer": "Jó",
+      "reference": "Jó 13:15"
+    }
+  ],
+  "hard": [
+    {
+      "quote": "Deus deu, Deus tomou; bendito seja o nome do Senhor.",
+      "answer": "Jó",
+      "reference": "Jó 1:21"
+    },
+    {
+      "quote": "Eis aqui a serva do Senhor; cumpra-se em mim segundo a tua palavra.",
+      "answer": "Maria",
+      "reference": "Lucas 1:38"
+    }
+  ]
+}

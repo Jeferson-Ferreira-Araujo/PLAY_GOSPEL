@@ -1,0 +1,75 @@
+[
+  {
+    "id": "palavras-misturadas",
+    "title": "PALAVRAS MISTURADAS",
+    "description": "Descubra a palavra/frase bíblica com as letras embaralhadas antes do tempo acabar.",
+    "cover": "games/palavras-misturadas/palavras-misturadas.png",
+    "tags": ["desafio", "ao ar livre", "grupo"],
+    "controls": ["Espaço: nova palavra", "F: tela cheia", "Botões na tela"],
+    "version": "0.1.0",
+    "route": "games/palavras-misturadas/index.html"
+    },
+    {
+      "id": "uma-musica",
+      "title": "UMA MÚSICA",
+      "description": "Uma palavra aparece na tela e o jogador precisa cantar uma música que tenha essa palavra. Sem repetição até reiniciar.",
+      "cover": "games/uma-musica/uma-musica.png",
+      "tags": ["grupo", "louvor", "dinâmica"],
+      "controls": ["Espaço: nova palavra", "F: tela cheia"],
+      "version": "0.1.0",
+      "route": "games/uma-musica/index.html"
+    },
+    {
+      "id": "quem-sou-eu",
+      "title": "Quem sou eu?",
+      "description": "Descubra o personagem bíblico com 3 dicas reveladas uma por vez. Sem tempo e sem repetição até reiniciar.",
+      "cover": "games/quem-sou-eu/quem-sou-eu.png",
+      "tags": ["grupo", "desafio", "bíblia"],
+      "controls": ["D: mostrar dica", "N: próximo", "F: tela cheia"],
+      "version": "0.1.0",
+      "route": "games/quem-sou-eu/index.html"
+    },
+    {
+      "id": "complete-o-versiculo",
+      "title": "Complete o Versículo",
+      "description": "Complete o versículo da Bíblia (King James Version) preenchendo as palavras que faltam. Com sistema de dificuldade e timer.",
+      "cover": "games/complete-o-versiculo/complete-o-versiculo.png",
+      "tags": ["bíblia", "memorização", "versículos", "desafio"],
+      "controls": ["Escolha dificuldade", "Timer opcional", "Botões na tela"],
+      "version": "0.1.0",
+      "route": "games/complete-o-versiculo/index.html"
+    },
+    {
+      "id": "quem-disse-isso",
+      "title": "Quem disse isso?",
+      "description": "Uma frase bíblica aparece na tela. Descubra quem falou isso. Ideal para jogar em grupo, com dificuldade e timer opcional.",
+      "cover": "games/quem-disse-isso/quem-disse-isso.png",
+      "tags": ["bíblia", "personagens", "memorização", "grupo"],
+      "controls": ["Escolha dificuldade", "Timer opcional", "Botões na tela"],
+      "version": "0.1.0",
+      "route": "games/quem-disse-isso/index.html"
+    },
+    {
+      "id": "verdadeiro-ou-falso",
+      "title": "Verdadeiro ou Falso?",
+      "description": "Decida se a afirmação bíblica é verdadeira ou falsa. Pegadinhas, explicação e referência para conferência. Ideal para jogar em grupo, com timer opcional.",
+      "cover": "games/verdadeiro-ou-falso/verdadeiro-ou-falso.png",
+      "tags": ["bíblia", "quiz", "pegadinhas", "grupo"],
+      "controls": ["Verdadeiro/Falso", "Timer opcional", "Atalhos (V/F/N)"],
+      "version": "0.1.0",
+      "route": "games/verdadeiro-ou-falso/index.html"
+    },
+    {
+  "id": "qual-a-passagem",
+  "title": "Qual a Passagem?",
+  "description": "Um versículo aparece na tela e o grupo deve dizer a passagem correta. Use Revelar para mostrar a referência.",
+  "cover": "games/qual-a-passagem/qual-a-passagem.png",
+  "route": "games/qual-a-passagem/index.html",
+  "version": "1.0.0",
+  "tags": ["Grupo", "Versículos", "Referências", "Memorização"],
+  "controls": ["R: revelar", "N: próximo", "F: tela cheia", "T: reiniciar tempo"]
+}
+
+
+
+]

@@ -1,0 +1,166 @@
+{
+  "hard": [
+    { "statement": "A Bíblia afirma que os três magos eram reis.", "answer": false, "reference": "Mateus 2:1-11", "note": "O texto chama de 'magos' (sábios), não de reis." },
+    { "statement": "A Bíblia afirma que eram exatamente três magos.", "answer": false, "reference": "Mateus 2:1", "note": "A quantidade não é informada; o 'três' vem dos três presentes." },
+    { "statement": "Os magos visitaram Jesus na noite do seu nascimento.", "answer": false, "reference": "Mateus 2:11; Lucas 2:7-16", "note": "Mateus relata a visita na 'casa'; não diz que foi na noite do nascimento." },
+    { "statement": "O fruto proibido era uma maçã.", "answer": false, "reference": "Gênesis 3:6", "note": "A Bíblia não diz qual fruta era." },
+    { "statement": "Paulo caiu de um cavalo quando foi convertido.", "answer": false, "reference": "Atos 9:3-6", "note": "O texto diz que ele caiu por terra; não menciona cavalo." },
+    { "statement": "Maria Madalena era prostituta segundo a Bíblia.", "answer": false, "reference": "Lucas 8:2-3", "note": "A Bíblia diz que dela saíram sete demônios, mas não a chama de prostituta." },
+
+    { "statement": "O número 666 aparece apenas uma vez na Bíblia.", "answer": false, "reference": "Apocalipse 13:18; Esdras 2:13", "note": "O número 666 também aparece no AT (ex.: Esdras 2:13 em algumas traduções)." },
+    { "statement": "O diabo é chamado de Lúcifer no Novo Testamento.", "answer": false, "reference": "Isaías 14:12", "note": "‘Lúcifer’ aparece em Isaías 14:12 (contexto do rei da Babilônia), não no NT." },
+
+    { "statement": "Jesus escreveu algo na areia quando a mulher foi acusada.", "answer": true, "reference": "João 8:6" },
+    { "statement": "A Bíblia diz que Jesus escreveu o nome dos pecadores na areia.", "answer": false, "reference": "João 8:6-8", "note": "O texto não revela o conteúdo do que Jesus escreveu." },
+
+    { "statement": "Enoque morreu.", "answer": false, "reference": "Gênesis 5:24", "note": "O texto diz que Deus o tomou; não relata sua morte." },
+    { "statement": "Elias morreu.", "answer": false, "reference": "2 Reis 2:11", "note": "Elias foi levado ao céu num redemoinho; não há relato de morte ali." },
+
+    { "statement": "Moisés entrou na Terra Prometida.", "answer": false, "reference": "Deuteronômio 34:4-5", "note": "Ele viu a terra de longe, mas não entrou." },
+    { "statement": "Josué escreveu o livro de Juízes.", "answer": false, "reference": "Juízes 1:1", "note": "O livro não atribui autoria a Josué e começa após a morte dele." },
+
+    { "statement": "Sansão perdeu sua força quando cortaram sua barba.", "answer": false, "reference": "Juízes 16:19-20", "note": "O texto cita o cabelo da cabeça (as tranças), não a barba." },
+
+    { "statement": "A serpente no Éden é identificada como Satanás em Gênesis.", "answer": false, "reference": "Gênesis 3", "note": "Gênesis não identifica a serpente como Satanás; essa ligação aparece em Apocalipse 12:9." },
+
+    { "statement": "Judas morreu enforcado.", "answer": true, "reference": "Mateus 27:5" },
+    { "statement": "Judas caiu e se partiu ao meio.", "answer": true, "reference": "Atos 1:18" },
+
+    { "statement": "A Bíblia afirma que os animais entraram na arca dois a dois apenas.", "answer": false, "reference": "Gênesis 7:2-3", "note": "Animais limpos entram em maior quantidade; não foi 'apenas dois a dois'." },
+
+    { "statement": "O maná caía todos os dias inclusive no sábado.", "answer": false, "reference": "Êxodo 16:25-26", "note": "No sábado não caía; recolhiam dobrado no dia anterior." },
+
+    { "statement": "Pedro foi o primeiro papa segundo a Bíblia.", "answer": false, "reference": "Mateus 16:18", "note": "A Bíblia não usa o título 'papa' nem define essa função." },
+
+    { "statement": "Tomé nunca acreditou na ressurreição.", "answer": false, "reference": "João 20:27-28", "note": "Depois de ver Jesus, Tomé confessa: 'Senhor meu e Deus meu'." },
+
+    { "statement": "Ambos os ladrões zombaram de Jesus até o fim.", "answer": false, "reference": "Lucas 23:39-43", "note": "Um blasfemou; o outro reconheceu e pediu para ser lembrado." },
+
+    { "statement": "Jesus transformou pedras em pão no deserto.", "answer": false, "reference": "Mateus 4:3-4", "note": "Foi uma tentação; Jesus não fez isso." },
+
+    { "statement": "Salomão pediu riqueza a Deus.", "answer": false, "reference": "1 Reis 3:9-13", "note": "Ele pediu sabedoria; Deus acrescentou riquezas." },
+
+    { "statement": "A Bíblia afirma que Davi era o filho mais velho de Jessé.", "answer": false, "reference": "1 Samuel 16:10-11", "note": "Davi é apresentado como o mais jovem (ou não incluído entre os mais velhos apresentados)." },
+
+    { "statement": "Jesus nasceu no ano zero.", "answer": false, "reference": "Mateus 2:1", "note": "O texto situa o nascimento nos dias de Herodes; 'ano zero' é convenção histórica posterior." },
+
+    { "statement": "O livro de Ester menciona o nome de Deus explicitamente.", "answer": false, "reference": "Livro de Ester", "note": "Ester é conhecido por não mencionar explicitamente o nome de Deus." },
+
+    { "statement": "O livro de Hebreus identifica claramente seu autor.", "answer": false, "reference": "Hebreus", "note": "O texto não declara o autor pelo nome." },
+
+    { "statement": "O Espírito Santo aparece apenas no Novo Testamento.", "answer": false, "reference": "Gênesis 1:2", "note": "Já aparece no AT (ex.: Gênesis 1:2)." },
+
+    { "statement": "A Bíblia diz que Jesus tinha irmãos.", "answer": true, "reference": "Mateus 13:55-56" },
+
+    { "statement": "Jesus chamou Mateus enquanto ele pescava.", "answer": false, "reference": "Mateus 9:9", "note": "Mateus estava na coletoria (cobrador de impostos), não pescando." },
+
+    { "statement": "O Anticristo é mencionado no Apocalipse pelo nome.", "answer": false, "reference": "1 João 2:18; Apocalipse", "note": "O termo 'anticristo' aparece nas cartas de João, não como personagem nomeado no Apocalipse." },
+
+    { "statement": "A Bíblia afirma que Balaão montou um jumento.", "answer": true, "reference": "Números 22:21" },
+    { "statement": "O jumento falou com Balaão por milagre.", "answer": true, "reference": "Números 22:28" },
+
+    { "statement": "Daniel escreveu o livro de Apocalipse.", "answer": false, "reference": "Apocalipse 1:9", "note": "Apocalipse é atribuído a João em Patmos." },
+
+    { "statement": "O livro de Jó diz exatamente quem escreveu o livro.", "answer": false, "reference": "Jó", "note": "O livro não identifica o autor de forma explícita." },
+
+    { "statement": "Jesus disse que veríamos anjos subindo e descendo sobre o Filho do Homem.", "answer": true, "reference": "João 1:51" },
+
+    { "statement": "A Bíblia afirma que Jesus tinha 33 anos quando morreu.", "answer": false, "reference": "Lucas 3:23", "note": "Há apenas indicação aproximada de idade no início do ministério; não fixa 33 na morte." },
+
+    { "statement": "A Bíblia afirma que Lázaro escreveu um livro.", "answer": false, "reference": "João 11", "note": "Não há indicação bíblica de autoria de livro por Lázaro." },
+
+    { "statement": "O livro de Juízes afirma que não havia rei em Israel.", "answer": true, "reference": "Juízes 21:25" },
+
+    { "statement": "A Bíblia afirma que os discípulos sempre entenderam as parábolas de Jesus.", "answer": false, "reference": "Marcos 4:13", "note": "Jesus pergunta se eles não entendem e explica; nem sempre entendiam." },
+
+    { "statement": "O número 7 aparece mais de 700 vezes na Bíblia.", "answer": false, "reference": "Estudo textual", "note": "Isso é uma afirmação popular/estatística variável; não é afirmado na Bíblia." },
+
+    { "statement": "Jesus escreveu cartas às igrejas da Ásia.", "answer": true, "reference": "Apocalipse 2–3", "note": "No texto, as mensagens são ditas por Cristo a João para as igrejas." },
+
+    { "statement": "A Bíblia afirma que Jesus era fisicamente bonito.", "answer": false, "reference": "Isaías 53:2", "note": "O texto profético diz que não havia formosura/beleza que o desejássemos." },
+
+    { "statement": "A Bíblia afirma que Paulo era um dos 12 apóstolos originais.", "answer": false, "reference": "Lucas 6:13-16; Atos 9", "note": "Os 12 originais são listados nos evangelhos; Paulo converte depois." },
+
+    { "statement": "A Bíblia afirma que Maria subiu ao céu.", "answer": false, "reference": "Novo Testamento", "note": "A Escritura não registra a assunção de Maria." },
+
+    { "statement": "O livro de Gênesis afirma que a Terra tem exatamente 6 mil anos.", "answer": false, "reference": "Gênesis", "note": "Essa conta é inferência de genealogias por alguns, não uma afirmação explícita do texto." },
+
+    { "statement": "Jesus amaldiçoou uma figueira.", "answer": true, "reference": "Marcos 11:14" },
+
+    { "statement": "A Bíblia afirma que a esposa de Noé se chamava Noema.", "answer": false, "reference": "Gênesis 6–9", "note": "O nome da esposa de Noé não é informado." },
+
+    { "statement": "A Bíblia afirma que Golias era filisteu.", "answer": true, "reference": "1 Samuel 17:4" },
+
+    { "statement": "O livro de Apocalipse menciona explicitamente um arrebatamento secreto.", "answer": false, "reference": "Apocalipse", "note": "O Apocalipse fala da vinda de Cristo e eventos finais, mas não usa esse termo/descrição explícita." },
+
+    { "statement": "Jesus disse que ninguém sabe o dia nem a hora.", "answer": true, "reference": "Mateus 24:36" },
+
+    { "statement": "O livro de Atos termina com a morte de Paulo.", "answer": false, "reference": "Atos 28:30-31", "note": "Atos termina com Paulo pregando em Roma; não relata sua morte." },
+
+    { "statement": "A Bíblia afirma que Satanás governa o inferno.", "answer": false, "reference": "Apocalipse 20:10", "note": "Satanás é lançado no lago de fogo; não é descrito como governante do inferno." },
+
+    { "statement": "Jesus disse que veríamos guerras e rumores de guerras.", "answer": true, "reference": "Mateus 24:6" },
+
+    { "statement": "O livro de Apocalipse foi escrito em Jerusalém.", "answer": false, "reference": "Apocalipse 1:9", "note": "João afirma estar na ilha de Patmos." },
+
+    { "statement": "A Bíblia afirma que Davi nunca pecou depois de matar Golias.", "answer": false, "reference": "2 Samuel 11", "note": "O pecado com Bate-Seba e Urias ocorre depois." },
+
+    { "statement": "A Bíblia afirma que Pedro nunca mais falhou depois de negar Jesus.", "answer": false, "reference": "Gálatas 2:11-14", "note": "Paulo repreende Pedro em Antioquia por hipocrisia/temor." },
+
+    { "statement": "Jesus disse que era antes de Abraão.", "answer": true, "reference": "João 8:58" },
+
+    { "statement": "A Bíblia afirma que todos os discípulos morreram como mártires.", "answer": false, "reference": "Atos; História da igreja", "note": "A Bíblia não registra o fim de todos; muitos detalhes vêm de tradição." },
+
+    { "statement": "O livro de Cânticos menciona diretamente Deus.", "answer": false, "reference": "Cântico dos Cânticos", "note": "Não menciona explicitamente o nome de Deus." },
+
+    { "statement": "Jesus disse que o maior mandamento é amar a Deus.", "answer": true, "reference": "Mateus 22:37-38" },
+
+    { "statement": "A Bíblia afirma que Jesus tinha casa própria.", "answer": false, "reference": "Mateus 8:20", "note": "Jesus diz que o Filho do Homem não tem onde reclinar a cabeça." },
+
+    { "statement": "O livro de Jonas termina com Jonas obedecendo alegremente.", "answer": false, "reference": "Jonas 4", "note": "Termina com Jonas irritado e Deus ensinando sobre compaixão." },
+
+    { "statement": "A Bíblia afirma que Satanás foi expulso do céu antes da criação do homem.", "answer": false, "reference": "Gênesis; Apocalipse 12", "note": "A Bíblia não dá data cronológica explícita desse evento antes da criação do homem." },
+
+    { "statement": "Jesus chamou Herodes de raposa.", "answer": true, "reference": "Lucas 13:32" },
+
+    { "statement": "A Bíblia afirma que Jesus escreveu os Evangelhos.", "answer": false, "reference": "Evangelhos", "note": "Os evangelhos são atribuídos a autores humanos; não a Jesus como escritor." },
+
+    { "statement": "O livro de Tiago afirma que a fé sem obras é morta.", "answer": true, "reference": "Tiago 2:26" },
+
+    { "statement": "A Bíblia afirma que Paulo foi casado.", "answer": false, "reference": "1 Coríntios 7:7-8", "note": "Paulo indica estado de solteiro/continência; não afirma que foi casado." },
+
+    { "statement": "A Bíblia afirma que Jesus riu.", "answer": false, "reference": "Evangelhos", "note": "Não há registro explícito de Jesus rindo." },
+
+    { "statement": "Jesus chorou.", "answer": true, "reference": "João 11:35" },
+
+    { "statement": "A Bíblia afirma que o Espírito Santo é uma força impessoal.", "answer": false, "reference": "João 14:26", "note": "O Espírito é apresentado ensinando e lembrando (atributos pessoais)." },
+
+    { "statement": "Jesus chamou Satanás de pai da mentira.", "answer": true, "reference": "João 8:44" },
+
+    { "statement": "A Bíblia afirma que o inferno foi criado para os seres humanos.", "answer": false, "reference": "Mateus 25:41", "note": "O texto diz 'preparado para o diabo e seus anjos'." },
+
+    { "statement": "A Bíblia afirma que o livro de Apocalipse tem 22 capítulos.", "answer": true, "reference": "Apocalipse 22" },
+
+    { "statement": "Jesus disse que veríamos o Filho do Homem vindo nas nuvens.", "answer": true, "reference": "Mateus 24:30" },
+
+    { "statement": "A Bíblia afirma que Jesus tinha casa em Cafarnaum.", "answer": false, "reference": "Mateus 8:20", "note": "Mesmo vivendo/atuando em Cafarnaum, o texto não afirma casa própria de Jesus." },
+
+    { "statement": "A Bíblia afirma que todos os anjos têm asas.", "answer": false, "reference": "Hebreus 1:14; Gênesis 19:1", "note": "Anjos aparecem como mensageiros/homens; asas aparecem em querubins/serafins em visões." },
+
+    { "statement": "O livro de Hebreus menciona Melquisedeque.", "answer": true, "reference": "Hebreus 7" },
+
+    { "statement": "A Bíblia afirma que Jesus criou o mundo.", "answer": true, "reference": "João 1:3; Colossenses 1:16" },
+
+    { "statement": "A Bíblia afirma que Maria foi coroada rainha dos céus.", "answer": false, "reference": "Novo Testamento", "note": "Não há esse ensino explícito na Escritura." },
+
+    { "statement": "Jesus disse que devemos amar nossos inimigos.", "answer": true, "reference": "Mateus 5:44" },
+
+    { "statement": "A Bíblia afirma que o céu é descrito como feito de ouro puro.", "answer": true, "reference": "Apocalipse 21:18" },
+
+    { "statement": "A Bíblia afirma que Jesus foi tentado em tudo, mas sem pecado.", "answer": true, "reference": "Hebreus 4:15" },
+
+    { "statement": "A Bíblia afirma que a salvação vem pelas obras.", "answer": false, "reference": "Efésios 2:8-9", "note": "O texto diz que é pela graça, mediante a fé, não por obras." },
+
+    { "statement": "O livro de Apocalipse fala de sete selos.", "answer": true, "reference": "Apocalipse 6" }
+  ]
+}

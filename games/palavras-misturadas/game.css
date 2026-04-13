@@ -1,0 +1,98 @@
+:root{
+  --panel: #0b0b0b;
+}
+
+.brand-dot{
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffc107;
+  display: inline-block;
+}
+
+/* Tela de apresentação ocupa tudo */
+.presenter{
+  height: calc(100vh - 57px); /* altura da navbar */
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(1000px 600px at 10% 10%, rgba(255,193,7,.20), transparent 55%),
+    radial-gradient(900px 500px at 90% 30%, rgba(13,110,253,.12), transparent 50%),
+    linear-gradient(180deg, #000, #111);
+}
+
+.presenter-top{
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 14px 16px;
+  gap: 12px;
+}
+
+.presenter-badges{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.timer-wrap{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.timer-text{
+  font-weight: 700;
+  font-size: 20px;
+  color: #ffc107;
+}
+
+.presenter-center{
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 10px 16px;
+}
+
+.scrambled{
+  /* Fonte gigante e responsiva */
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1.05;
+
+  /* O segredo: clamp cresce conforme a tela */
+  font-size: clamp(42px, 8vw, 140px);
+
+  padding: 10px 12px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.35);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+
+  width: min(1200px, 96vw);
+  user-select: none;
+}
+
+.presenter-bottom{
+  padding: 14px 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.answer{
+  width: min(900px, 96vw);
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.35);
+}
+
+.answer-text{
+  font-size: 22px;
+  font-weight: 700;
+}

@@ -1,0 +1,9 @@
+{
+  "settings": [
+    { "key": "difficulty", "label": "Dificuldade", "type": "select",
+      "default": "easy", "options": ["easy", "medium", "hard"] },
+
+    { "key": "time", "label": "Tempo (segundos)", "type": "select",
+      "default": 30, "options": [0, 20, 30, 45, 60, 90] }
+  ]
+}

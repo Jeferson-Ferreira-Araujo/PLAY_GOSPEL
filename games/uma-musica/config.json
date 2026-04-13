@@ -1,0 +1,21 @@
+{
+  "settings": [
+    {
+      "key": "custom",
+      "type": "textarea",
+      "label": "Palavras extras (opcional)",
+      "placeholder": "Ex: perdão, graça, esperança\nPode separar por vírgula, ponto e vírgula ou quebra de linha.",
+      "rows": 4,
+      "default": "",
+      "help": "Essas palavras serão adicionadas à rodada atual. Separadores aceitos: vírgula, ; ou Enter."
+    }
+  ],
+  "howTo": [
+    "Clique em Nova palavra para sortear a próxima.",
+    "Use em grupo: alguém escolhe uma música e o grupo tenta adivinhar a palavra."
+  ],
+  "tips": [
+    "Atalho: Espaço = próxima palavra • F = tela cheia",
+    "Se acabar a lista, clique em Jogar novamente."
+  ]
+}
