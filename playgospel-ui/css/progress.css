@@ -1,0 +1,79 @@
+/* =====================================================
+   PLAYGOSPEL UI — PROGRESSO
+   Duas variantes: linear (rótulo + barra) e circular (anel de %).
+   progress.js calcula a porcentagem e anima o preenchimento.
+   ===================================================== */
+
+/* ---- Linear ---- */
+.pgui-progress__label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--pgui-space-8);
+  font-size: var(--pgui-fs-small);
+  color: var(--pgui-text-secondary);
+}
+
+.pgui-progress__percent {
+  font-weight: 700;
+  color: var(--pgui-color-primary);
+}
+
+.pgui-progress__track {
+  height: 8px;
+  border-radius: var(--pgui-radius-pill);
+  background: rgba(255, 255, 255, .08);
+  overflow: hidden;
+}
+
+.pgui-progress__fill {
+  height: 100%;
+  width: 0%;
+  border-radius: var(--pgui-radius-pill);
+  background: linear-gradient(90deg, var(--pgui-color-primary-active), var(--pgui-color-primary));
+  transition: width var(--pgui-transition-base);
+}
+
+/* ---- Circular ---- */
+.pgui-progress-circular {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+}
+
+.pgui-progress-circular svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.pgui-progress-circular__track {
+  fill: none;
+  stroke: rgba(255, 255, 255, .08);
+  stroke-width: 6;
+}
+
+.pgui-progress-circular__fill {
+  fill: none;
+  stroke: var(--pgui-color-primary);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset var(--pgui-transition-base);
+}
+
+.pgui-progress-circular__label {
+  position: absolute;
+  font-size: var(--pgui-fs-small);
+  font-weight: 800;
+  color: var(--pgui-text-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pgui-progress__fill,
+  .pgui-progress-circular__fill {
+    transition: none;
+  }
+}

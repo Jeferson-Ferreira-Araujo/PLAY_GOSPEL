@@ -1,74 +1,5 @@
-.presenter{
-  height: calc(100vh - 57px);
-  display: flex;
-  flex-direction: column;
-  background:
-    radial-gradient(1000px 600px at 10% 10%, rgba(255,193,7,.18), transparent 55%),
-    radial-gradient(900px 500px at 90% 30%, rgba(13,110,253,.10), transparent 50%),
-    linear-gradient(180deg, #000, #111);
-}
-
-.presenter-top{
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 14px 16px;
-  gap: 12px;
-}
-
-.presenter-badges{
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.presenter-center{
-  flex: 1;
-  display: grid;
-  place-items: center;
-  padding: 10px 16px;
-  text-align: center;
-}
-
-.verse-display{
-  font-weight: 900;
-  letter-spacing: 0.05em;
-  line-height: 1.1;
-  font-size: clamp(28px, 4.5vw, 70px);
-  max-width: 1200px;
-}
-
-.blank{
-  background: #ffc107;
-  color: black;
-  padding: 4px 8px;
-  border-radius: 6px;
-}
-
 .reference-display{
   font-size: 20px;
-}
-
-.timer-wrap{
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-}
-
-.timer-text{
-  font-weight: bold;
-}
-
-
-.top-bar{
-  display: flex;
-  justify-content: space-between;
-  font-weight: bold;
-}
-
-.verse-display{
-  line-height: 1.18;
 }
 
 .blank{
@@ -94,12 +25,3 @@
   transition: all 0.25s ease;
   transform: scale(1.05);
 }
-
-
-.controls{
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-}
-
-

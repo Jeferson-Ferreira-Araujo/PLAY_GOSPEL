@@ -1,0 +1,124 @@
+/* =====================================================
+   PLAYGOSPEL UI — TOKENS
+   Toda cor, espaçamento, radius, sombra, transição e escala
+   tipográfica do design system vive aqui. Nenhum componente
+   deve usar um valor "solto" — sempre uma var(--pgui-*).
+   Prefixo --pgui- para nunca colidir com o tema atual do site
+   (--gold, --bg-main etc. em assets/css/), caso um dia convivam
+   na mesma página.
+   ===================================================== */
+
+:root {
+  /* ---- Cores de ação ---- */
+  --pgui-color-primary: #FFC107;
+  --pgui-color-primary-hover: #FFD54F;
+  --pgui-color-primary-active: #E6AC00;
+
+  --pgui-color-success: #22C55E;
+  --pgui-color-success-hover: #4ADE80;
+  --pgui-color-success-active: #16A34A;
+
+  --pgui-color-danger: #EF4444;
+  --pgui-color-danger-hover: #F87171;
+  --pgui-color-danger-active: #DC2626;
+
+  --pgui-color-info: #3B82F6;
+  --pgui-color-info-hover: #60A5FA;
+  --pgui-color-info-active: #2563EB;
+
+  --pgui-color-warning: #F59E0B;
+  --pgui-color-warning-hover: #FBBF24;
+  --pgui-color-warning-active: #D97706;
+
+  --pgui-color-purple: #8B5CF6;
+  --pgui-color-purple-hover: #A78BFA;
+  --pgui-color-purple-active: #7C3AED;
+
+  /* Texto sobre cada cor de ação — primary/warning são claras demais
+     para texto branco (falharia contraste AA), por isso usam texto
+     escuro; as demais são saturadas/escuras o bastante para texto claro. */
+  --pgui-on-primary: #14110A;
+  --pgui-on-warning: #14110A;
+  --pgui-on-success: #F1F5F9;
+  --pgui-on-danger: #F1F5F9;
+  --pgui-on-info: #F1F5F9;
+  --pgui-on-purple: #F1F5F9;
+
+  /* ---- Fundo e superfícies ---- */
+  --pgui-bg-main: #090B12;
+  --pgui-bg-surface: #111827;
+  --pgui-bg-card: rgba(18, 18, 18, .80);
+  --pgui-border: rgba(255, 255, 255, .08);
+  --pgui-border-strong: rgba(255, 255, 255, .16);
+
+  /* ---- Texto ---- */
+  --pgui-text-primary: #F1F5F9;
+  --pgui-text-secondary: #CBD5E1;
+  --pgui-text-muted: rgba(203, 213, 225, .6);
+
+  /* ---- Espaçamento (múltiplos de 8) ---- */
+  --pgui-space-4: 4px;
+  --pgui-space-8: 8px;
+  --pgui-space-12: 12px;
+  --pgui-space-16: 16px;
+  --pgui-space-24: 24px;
+  --pgui-space-32: 32px;
+  --pgui-space-40: 40px;
+  --pgui-space-48: 48px;
+  --pgui-space-64: 64px;
+  --pgui-space-80: 80px;
+  --pgui-space-96: 96px;
+
+  /* ---- Radius ---- */
+  --pgui-radius-sm: 4px;
+  --pgui-radius-md: 8px;
+  --pgui-radius-lg: 12px;
+  --pgui-radius-xl: 16px;
+  --pgui-radius-2xl: 24px;
+  --pgui-radius-full: 50%;
+  --pgui-radius-pill: 999px;
+
+  /* ---- Sombras ---- */
+  --pgui-shadow-card: 0 10px 30px rgba(0, 0, 0, .30);
+  --pgui-shadow-floating: 0 20px 40px rgba(0, 0, 0, .40);
+  --pgui-shadow-modal: 0 30px 60px rgba(0, 0, 0, .50);
+  --pgui-shadow-button: 0 4px 12px rgba(0, 0, 0, .25);
+  --pgui-glow-primary: 0 0 30px rgba(255, 193, 7, .25);
+  --pgui-glow-danger: 0 0 30px rgba(239, 68, 68, .25);
+  --pgui-overlay: rgba(4, 5, 9, .72);
+
+  /* ---- Transições ---- */
+  --pgui-transition-fast: 200ms ease;
+  --pgui-transition-base: 350ms ease;
+
+  /* ---- Tipografia ---- */
+  --pgui-font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --pgui-fs-display-xl: 96px; --pgui-fw-display-xl: 800; --pgui-lh-display-xl: 1.05;
+  --pgui-fs-display-l: 72px;  --pgui-fw-display-l: 800;  --pgui-lh-display-l: 1.08;
+  --pgui-fs-heading-xl: 56px; --pgui-fw-heading-xl: 800; --pgui-lh-heading-xl: 1.1;
+  --pgui-fs-heading-l: 40px;  --pgui-fw-heading-l: 700;  --pgui-lh-heading-l: 1.15;
+  --pgui-fs-heading-m: 32px;  --pgui-fw-heading-m: 700;  --pgui-lh-heading-m: 1.2;
+  --pgui-fs-title: 24px;      --pgui-fw-title: 600;      --pgui-lh-title: 1.3;
+  --pgui-fs-subtitle: 20px;   --pgui-fw-subtitle: 500;   --pgui-lh-subtitle: 1.35;
+  --pgui-fs-body: 16px;       --pgui-fw-body: 400;       --pgui-lh-body: 1.5;
+  --pgui-fs-small: 14px;      --pgui-fw-small: 400;      --pgui-lh-small: 1.5;
+  --pgui-fs-caption: 12px;    --pgui-fw-caption: 400;    --pgui-lh-caption: 1.4;
+  --pgui-fs-label: 12px;      --pgui-fw-label: 500;      --pgui-lh-label: 1.4;
+
+  /* ---- Camadas (z-index) ---- */
+  --pgui-z-dropdown: 100;
+  --pgui-z-tooltip: 200;
+  --pgui-z-modal-overlay: 900;
+  --pgui-z-modal: 1000;
+  --pgui-z-toast: 1100;
+}
+
+/* Reduz/zera animações para quem pede — respeitado por animations.css,
+   mas a preferência do usuário fica registrada aqui como token de base. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --pgui-transition-fast: 1ms linear;
+    --pgui-transition-base: 1ms linear;
+  }
+}

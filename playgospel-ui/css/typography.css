@@ -1,0 +1,57 @@
+/* =====================================================
+   PLAYGOSPEL UI — TIPOGRAFIA
+   Poppins como fonte principal, Inter como fallback. Escala
+   completa em classes reutilizáveis (.pgui-display-xl ... .pgui-label).
+   ===================================================== */
+
+/* Self-host: descomente e coloque os arquivos .woff2 reais em
+   ../fonts/ (veja fonts/README.md — eles NÃO estão inclusos aqui).
+   Enquanto isso, quem consome esta biblioteca deve carregar a fonte
+   via <link> do Google Fonts (é o que design-system.html faz). */
+/*
+@font-face {
+  font-family: 'Poppins';
+  src: url('../fonts/Poppins-Regular.woff2') format('woff2');
+  font-weight: 400 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('../fonts/Inter-Regular.woff2') format('woff2');
+  font-weight: 400 800;
+  font-display: swap;
+}
+*/
+
+.pgui-display-xl,
+.pgui-display-l,
+.pgui-heading-xl,
+.pgui-heading-l,
+.pgui-heading-m,
+.pgui-title,
+.pgui-subtitle,
+.pgui-body,
+.pgui-small,
+.pgui-caption,
+.pgui-label {
+  font-family: var(--pgui-font-family);
+  margin: 0;
+  color: var(--pgui-text-primary);
+}
+
+.pgui-display-xl { font-size: var(--pgui-fs-display-xl); font-weight: var(--pgui-fw-display-xl); line-height: var(--pgui-lh-display-xl); letter-spacing: -0.02em; }
+.pgui-display-l  { font-size: var(--pgui-fs-display-l);  font-weight: var(--pgui-fw-display-l);  line-height: var(--pgui-lh-display-l);  letter-spacing: -0.02em; }
+.pgui-heading-xl  { font-size: var(--pgui-fs-heading-xl);  font-weight: var(--pgui-fw-heading-xl);  line-height: var(--pgui-lh-heading-xl); letter-spacing: -0.01em; }
+.pgui-heading-l   { font-size: var(--pgui-fs-heading-l);   font-weight: var(--pgui-fw-heading-l);   line-height: var(--pgui-lh-heading-l); }
+.pgui-heading-m   { font-size: var(--pgui-fs-heading-m);   font-weight: var(--pgui-fw-heading-m);   line-height: var(--pgui-lh-heading-m); }
+.pgui-title       { font-size: var(--pgui-fs-title);       font-weight: var(--pgui-fw-title);       line-height: var(--pgui-lh-title); }
+.pgui-subtitle    { font-size: var(--pgui-fs-subtitle);    font-weight: var(--pgui-fw-subtitle);    line-height: var(--pgui-lh-subtitle); color: var(--pgui-text-secondary); }
+.pgui-body        { font-size: var(--pgui-fs-body);        font-weight: var(--pgui-fw-body);        line-height: var(--pgui-lh-body); }
+.pgui-small       { font-size: var(--pgui-fs-small);       font-weight: var(--pgui-fw-small);       line-height: var(--pgui-lh-small);       color: var(--pgui-text-secondary); }
+.pgui-caption     { font-size: var(--pgui-fs-caption);     font-weight: var(--pgui-fw-caption);     line-height: var(--pgui-lh-caption);     color: var(--pgui-text-muted); }
+.pgui-label       { font-size: var(--pgui-fs-label);       font-weight: var(--pgui-fw-label);       line-height: var(--pgui-lh-label);       color: var(--pgui-text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
+
+.pgui-text-primary   { color: var(--pgui-text-primary) !important; }
+.pgui-text-secondary { color: var(--pgui-text-secondary) !important; }
+.pgui-text-muted     { color: var(--pgui-text-muted) !important; }
+.pgui-text-gold       { color: var(--pgui-color-primary) !important; }

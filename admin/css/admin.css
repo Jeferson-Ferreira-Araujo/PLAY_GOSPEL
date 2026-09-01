@@ -1,0 +1,976 @@
+/* =====================================================
+   PLAYGOSPEL ADMIN — Editor de Músicas
+   ===================================================== */
+
+:root {
+  --admin-bg: #0A0D16;
+  --admin-sidebar-bg: #0D1019;
+  --admin-card-bg: #131728;
+  --admin-card-bg-soft: #10141F;
+  --admin-border: rgba(255, 255, 255, 0.08);
+  --admin-purple: #7C5CFF;
+  --admin-purple-hover: #8F72FF;
+  --admin-purple-soft: rgba(124, 92, 255, 0.14);
+  --admin-text: #F2F4F8;
+  --admin-text-muted: #8A90A6;
+  --admin-danger: #FF5C7A;
+  --admin-success: #34D399;
+  --admin-radius: 14px;
+}
+
+.admin-body {
+  background: var(--admin-bg);
+  color: var(--admin-text);
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+}
+
+.admin-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ==============================
+   SIDEBAR
+================================= */
+
+.admin-sidebar {
+  width: 240px;
+  flex: 0 0 240px;
+  background: var(--admin-sidebar-bg);
+  border-right: 1px solid var(--admin-border);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 14px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.admin-brand {
+  padding: 6px 10px 22px;
+}
+
+.admin-logo {
+  height: 30px;
+}
+
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  color: var(--admin-text-muted);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.admin-nav-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--admin-text);
+}
+
+.admin-nav-item.is-active {
+  background: var(--admin-purple-soft);
+  color: var(--admin-purple-hover);
+  font-weight: 600;
+}
+
+.admin-nav-item[data-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.admin-nav-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+.admin-sidebar-footer {
+  border-top: 1px solid var(--admin-border);
+  padding-top: 16px;
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.admin-help {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.82rem;
+}
+
+.admin-help strong {
+  color: var(--admin-text);
+  font-size: 0.85rem;
+}
+
+.admin-help span {
+  color: var(--admin-text-muted);
+}
+
+.admin-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+}
+
+.admin-profile-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--admin-purple-soft);
+  color: var(--admin-purple-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.admin-profile-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+  min-width: 0;
+}
+
+.admin-profile-info strong {
+  font-size: 0.85rem;
+}
+
+.admin-profile-info span {
+  font-size: 0.78rem;
+  color: var(--admin-text-muted);
+}
+
+/* ==============================
+   CONTENT
+================================= */
+
+.admin-content {
+  flex: 1;
+  min-width: 0;
+  padding: 28px 32px 60px;
+}
+
+.admin-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.admin-header-titles {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.admin-back-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-card-bg);
+  color: var(--admin-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: 0 0 auto;
+  text-decoration: none;
+}
+
+.admin-back-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.admin-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.admin-subtitle {
+  color: var(--admin-text-muted);
+  font-size: 0.92rem;
+  margin: 4px 0 0;
+}
+
+/* Botões */
+
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 10px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-card-bg);
+  color: var(--admin-text);
+  padding: 10px 18px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.1s ease, background 0.15s ease, opacity 0.15s ease;
+}
+
+.admin-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.admin-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.admin-btn-primary {
+  background: var(--admin-purple);
+  border-color: var(--admin-purple);
+  color: #fff;
+}
+
+.admin-btn-primary:hover {
+  background: var(--admin-purple-hover);
+}
+
+.admin-btn-danger {
+  color: var(--admin-danger);
+  border-color: rgba(255, 92, 122, 0.35);
+}
+
+.admin-btn-danger:hover {
+  background: rgba(255, 92, 122, 0.12);
+}
+
+.admin-btn-rec {
+  background: #DC2645;
+  border-color: #DC2645;
+  color: #fff;
+}
+
+.admin-btn-rec:hover {
+  background: #E8385A;
+}
+
+.admin-btn-rec.is-recording {
+  animation: admin-rec-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes admin-rec-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 69, 0.55); }
+  50% { box-shadow: 0 0 0 8px rgba(220, 38, 69, 0); }
+}
+
+/* ==============================
+   CARDS / SEÇÕES
+================================= */
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+  align-items: start;
+}
+
+.admin-main-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.admin-card {
+  background: var(--admin-card-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  padding: 22px;
+}
+
+.admin-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.02rem;
+  font-weight: 700;
+  margin: 0 0 18px;
+}
+
+.admin-step-badge {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--admin-purple);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+
+.admin-field-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.admin-field-grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.admin-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-field label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--admin-text);
+}
+
+.admin-field label .req {
+  color: var(--admin-purple-hover);
+}
+
+.admin-field input,
+.admin-field select {
+  background: var(--admin-card-bg-soft);
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--admin-text);
+  font-size: 0.92rem;
+  font-family: inherit;
+  outline: none;
+}
+
+.admin-field input:focus,
+.admin-field select:focus {
+  border-color: var(--admin-purple);
+}
+
+.admin-field-hint {
+  font-size: 0.76rem;
+  color: var(--admin-text-muted);
+}
+
+.admin-field-error {
+  font-size: 0.76rem;
+  color: var(--admin-danger);
+  min-height: 1em;
+}
+
+/* ==============================
+   GRAVAÇÃO
+================================= */
+
+.admin-rec-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.admin-rec-readout {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.admin-rec-stat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-rec-stat-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-rec-stat-label {
+  font-size: 0.75rem;
+  color: var(--admin-text-muted);
+}
+
+.admin-keyboard-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 0.85rem;
+  color: var(--admin-text-muted);
+}
+
+.admin-switch {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.admin-switch.is-on {
+  background: var(--admin-purple);
+}
+
+.admin-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s ease;
+}
+
+.admin-switch.is-on::after {
+  transform: translateX(18px);
+}
+
+.admin-keyboard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.admin-keyboard-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-keyboard-row-label {
+  flex: 0 0 64px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--admin-text-muted);
+  text-align: right;
+}
+
+.admin-keyboard-row[data-octave="mid"] .admin-keyboard-row-label {
+  color: var(--admin-purple-hover);
+}
+
+.admin-keyboard-row-keys {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+}
+
+.admin-keyboard-row[data-octave="mid"] .admin-key {
+  border-color: rgba(124, 92, 255, 0.35);
+}
+
+.admin-key {
+  background: var(--admin-card-bg-soft);
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  padding: 10px 4px;
+  text-align: center;
+  transition: background 0.08s ease, border-color 0.08s ease, transform 0.08s ease;
+}
+
+.admin-key-code {
+  display: block;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.admin-key-note {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--admin-text-muted);
+  margin-top: 4px;
+  line-height: 1.2;
+}
+
+.admin-key.is-active {
+  background: var(--admin-purple);
+  border-color: var(--admin-purple);
+  transform: translateY(1px);
+}
+
+.admin-key.is-active .admin-key-note {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ==============================
+   DICAS EXTRAS (texto livre)
+================================= */
+
+.admin-hints-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-hint-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-hint-input {
+  flex: 1;
+  background: var(--admin-card-bg-soft);
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--admin-text);
+  font-size: 0.92rem;
+  font-family: inherit;
+  outline: none;
+}
+
+.admin-hint-input:focus {
+  border-color: var(--admin-purple);
+}
+
+.admin-tips-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.admin-tip-box {
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 0.83rem;
+}
+
+.admin-tip-box.gold {
+  background: rgba(244, 196, 48, 0.08);
+  border: 1px solid rgba(244, 196, 48, 0.25);
+}
+
+.admin-tip-box.blue {
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.admin-tip-box strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.admin-tip-box ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--admin-text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-tip-box dl {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-tip-box dt {
+  font-weight: 700;
+  display: inline;
+}
+
+.admin-tip-box dd {
+  display: inline;
+  margin: 0 0 0 6px;
+  color: var(--admin-text-muted);
+}
+
+.admin-tip-box dt::after { content: ''; }
+
+/* ==============================
+   SIDEBAR DIREITA (como funciona / prévia)
+================================= */
+
+.admin-side-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.admin-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-info-list li {
+  display: flex;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: var(--admin-text-muted);
+  line-height: 1.4;
+}
+
+.admin-info-badge {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--admin-purple-soft);
+  color: var(--admin-purple-hover);
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+.admin-preview-desc {
+  font-size: 0.83rem;
+  color: var(--admin-text-muted);
+  margin: 0 0 16px;
+}
+
+.admin-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.admin-preview-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--admin-card-bg-soft);
+}
+
+.admin-preview-play {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--admin-border);
+  background: transparent;
+  color: var(--admin-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.admin-preview-play:hover {
+  background: var(--admin-purple);
+  border-color: var(--admin-purple);
+}
+
+.admin-preview-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  flex: 1;
+}
+
+.admin-preview-time {
+  font-size: 0.8rem;
+  color: var(--admin-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-preview-empty {
+  font-size: 0.85rem;
+  color: var(--admin-text-muted);
+  text-align: center;
+  padding: 20px 0;
+}
+
+.admin-preview-total {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--admin-border);
+  font-size: 0.85rem;
+  color: var(--admin-purple-hover);
+  font-weight: 700;
+}
+
+/* ==============================
+   BARRA INFERIOR (salvar)
+================================= */
+
+.admin-save-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.admin-save-status {
+  margin-right: auto;
+  font-size: 0.85rem;
+  color: var(--admin-text-muted);
+}
+
+.admin-save-status.is-error {
+  color: var(--admin-danger);
+}
+
+.admin-save-status.is-success {
+  color: var(--admin-success);
+}
+
+/* ==============================
+   LISTA DE MÚSICAS
+================================= */
+
+.admin-list-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.admin-search-input {
+  flex: 1;
+  max-width: 320px;
+  background: var(--admin-card-bg-soft);
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: var(--admin-text);
+  font-size: 0.9rem;
+}
+
+.admin-search-input:focus {
+  outline: none;
+  border-color: var(--admin-purple);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th {
+  text-align: left;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--admin-text-muted);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-table td {
+  padding: 14px;
+  border-bottom: 1px solid var(--admin-border);
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table-song {
+  font-weight: 600;
+}
+
+.admin-table-artist {
+  color: var(--admin-text-muted);
+  font-size: 0.82rem;
+}
+
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--admin-purple-soft);
+  color: var(--admin-purple-hover);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.admin-table-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.admin-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--admin-border);
+  background: transparent;
+  color: var(--admin-text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.admin-icon-btn:hover {
+  color: var(--admin-text);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.admin-icon-btn.danger:hover {
+  color: var(--admin-danger);
+  border-color: rgba(255, 92, 122, 0.4);
+  background: rgba(255, 92, 122, 0.1);
+}
+
+.admin-icon-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.admin-icon-btn.is-playing {
+  background: var(--admin-purple);
+  border-color: var(--admin-purple);
+  color: #fff;
+}
+
+.admin-icon-btn.is-active {
+  background: var(--admin-purple-soft);
+  border-color: var(--admin-purple);
+  color: var(--admin-purple-hover);
+  transform: rotate(180deg);
+}
+
+/* ==============================
+   LINHA DE DETALHES (dicas + música original)
+================================= */
+
+.admin-detail-row td {
+  background: var(--admin-card-bg-soft);
+  padding: 18px 14px;
+}
+
+.admin-detail-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.admin-detail-block strong {
+  display: block;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
+.admin-detail-block ul {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--admin-text-muted);
+}
+
+.admin-detail-block .admin-field-hint {
+  margin-left: 10px;
+}
+
+.admin-youtube-embed {
+  margin-top: 12px;
+}
+
+.admin-youtube-embed iframe {
+  border-radius: 10px;
+  max-width: 360px;
+}
+
+@media (max-width: 720px) {
+  .admin-detail-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--admin-text-muted);
+}
+
+.admin-empty-state strong {
+  display: block;
+  color: var(--admin-text);
+  font-size: 1.05rem;
+  margin-bottom: 6px;
+}
+
+@media (max-width: 1080px) {
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+  .admin-field-grid,
+  .admin-field-grid-4 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .admin-sidebar {
+    display: none;
+  }
+  .admin-content {
+    padding: 20px;
+  }
+  .admin-field-grid,
+  .admin-field-grid-4 {
+    grid-template-columns: 1fr;
+  }
+  .admin-keyboard-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+  }
+  .admin-keyboard-row-label {
+    text-align: left;
+    flex: none;
+  }
+  .admin-keyboard-row-keys {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

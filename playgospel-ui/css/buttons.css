@@ -1,0 +1,126 @@
+/* =====================================================
+   PLAYGOSPEL UI — BOTÕES
+   Base .pgui-btn + variantes de cor + .pgui-btn-icon (só ícone) +
+   modificador --stacked (ícone + título + descrição, como o botão
+   "Revelar Resposta / -1 PONTO" do mockup).
+   Markup esperado:
+   <button class="pgui-btn pgui-btn-primary">
+     <span class="pgui-btn__icon">...svg...</span>
+     <span class="pgui-btn__label">Confirmar</span>
+   </button>
+   ===================================================== */
+
+.pgui-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pgui-space-8);
+  min-height: 44px;
+  padding: var(--pgui-space-12) var(--pgui-space-24);
+  border: 2px solid transparent;
+  border-radius: var(--pgui-radius-md);
+  background: var(--pgui-bg-surface);
+  color: var(--pgui-text-primary);
+  font-family: var(--pgui-font-family);
+  font-weight: 600;
+  font-size: var(--pgui-fs-body);
+  line-height: 1;
+  box-shadow: var(--pgui-shadow-button);
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--pgui-transition-fast), border-color var(--pgui-transition-fast),
+              color var(--pgui-transition-fast), transform var(--pgui-transition-fast);
+}
+
+.pgui-btn:hover   { transform: translateY(-1px); }
+.pgui-btn:active  { transform: translateY(0); }
+
+.pgui-btn:disabled,
+.pgui-btn[aria-disabled="true"] {
+  opacity: .45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ---- Variantes ---- */
+.pgui-btn-primary   { background: var(--pgui-color-primary); color: var(--pgui-on-primary); }
+.pgui-btn-primary:hover  { background: var(--pgui-color-primary-hover); }
+.pgui-btn-primary:active{ background: var(--pgui-color-primary-active); }
+
+.pgui-btn-secondary  { background: var(--pgui-bg-surface); color: var(--pgui-text-primary); border-color: var(--pgui-border-strong); }
+.pgui-btn-secondary:hover { background: rgba(255, 255, 255, .06); }
+
+.pgui-btn-success    { background: var(--pgui-color-success); color: var(--pgui-on-success); }
+.pgui-btn-success:hover  { background: var(--pgui-color-success-hover); }
+.pgui-btn-success:active { background: var(--pgui-color-success-active); }
+
+.pgui-btn-danger     { background: var(--pgui-color-danger); color: var(--pgui-on-danger); }
+.pgui-btn-danger:hover   { background: var(--pgui-color-danger-hover); }
+.pgui-btn-danger:active  { background: var(--pgui-color-danger-active); }
+
+.pgui-btn-warning    { background: var(--pgui-color-warning); color: var(--pgui-on-warning); }
+.pgui-btn-warning:hover  { background: var(--pgui-color-warning-hover); }
+.pgui-btn-warning:active { background: var(--pgui-color-warning-active); }
+
+.pgui-btn-ghost {
+  background: transparent;
+  color: var(--pgui-text-primary);
+  box-shadow: none;
+}
+.pgui-btn-ghost:hover { background: rgba(255, 255, 255, .06); }
+
+.pgui-btn-outline {
+  background: transparent;
+  color: var(--pgui-text-primary);
+  border-color: var(--pgui-border-strong);
+  box-shadow: none;
+}
+.pgui-btn-outline:hover { border-color: var(--pgui-color-primary); color: var(--pgui-color-primary); }
+
+/* ---- Tamanhos ---- */
+.pgui-btn-sm { min-height: 36px; padding: var(--pgui-space-8) var(--pgui-space-16); font-size: var(--pgui-fs-small); }
+.pgui-btn-lg { min-height: 52px; padding: var(--pgui-space-16) var(--pgui-space-32); font-size: var(--pgui-fs-subtitle); }
+
+/* ---- Somente ícone ---- */
+.pgui-btn-icon {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border-radius: var(--pgui-radius-md);
+}
+.pgui-btn-icon.pgui-btn-sm { min-width: 36px; min-height: 36px; }
+
+/* ---- Empilhado: ícone + título + descrição ---- */
+.pgui-btn--stacked {
+  flex-direction: column;
+  gap: var(--pgui-space-4);
+  padding: var(--pgui-space-12) var(--pgui-space-16);
+  min-height: 64px;
+}
+.pgui-btn__title { font-size: var(--pgui-fs-body); font-weight: 700; }
+.pgui-btn__desc  { font-size: var(--pgui-fs-caption); font-weight: 600; opacity: .8; text-transform: uppercase; letter-spacing: .03em; }
+
+/* ---- Loading ---- */
+.pgui-btn.is-loading { cursor: wait; }
+.pgui-btn.is-loading .pgui-btn__icon,
+.pgui-btn.is-loading .pgui-btn__label,
+.pgui-btn.is-loading .pgui-btn__title,
+.pgui-btn.is-loading .pgui-btn__desc {
+  opacity: 0;
+}
+.pgui-btn.is-loading::after {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  animation: pgui-spin 700ms linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pgui-btn.is-loading::after { animation-duration: 1400ms; }
+}

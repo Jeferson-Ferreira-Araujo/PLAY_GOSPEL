@@ -1,0 +1,106 @@
+/* =====================================================
+   PLAYGOSPEL UI — CRONÔMETRO
+   Circular, animado, 100% JS puro (timer.js). A cor troca sozinha
+   conforme o tempo restante (normal → aviso → perigo) e pulsa
+   suavemente perto do fim. Estado pausado fica visualmente claro
+   (anel cinza + ícone de pausa).
+   Markup:
+   <div class="pgui-timer" data-state="normal">
+     <svg viewBox="0 0 100 100">
+       <circle class="pgui-timer__track" cx="50" cy="50" r="44"/>
+       <circle class="pgui-timer__fill" cx="50" cy="50" r="44"/>
+     </svg>
+     <div class="pgui-timer__center">
+       <span class="pgui-timer__label">TEMPO</span>
+       <span class="pgui-timer__time">00:18</span>
+     </div>
+     <span class="pgui-timer__pause-icon">⏸</span>
+   </div>
+   ===================================================== */
+
+.pgui-timer {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+}
+
+.pgui-timer svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.pgui-timer__track {
+  fill: none;
+  stroke: rgba(255, 255, 255, .08);
+  stroke-width: 6;
+}
+
+.pgui-timer__fill {
+  fill: none;
+  stroke: var(--pgui-color-primary);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset var(--pgui-transition-fast), stroke var(--pgui-transition-base);
+}
+
+.pgui-timer__center {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.pgui-timer__label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: var(--pgui-text-muted);
+}
+
+.pgui-timer__time {
+  font-size: var(--pgui-fs-subtitle);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--pgui-text-primary);
+}
+
+.pgui-timer__pause-icon {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--pgui-bg-surface);
+  border: 1px solid var(--pgui-border-strong);
+  font-size: 12px;
+}
+
+/* ---- Estados (trocados automaticamente pelo timer.js via data-state) ---- */
+.pgui-timer[data-state="normal"]  .pgui-timer__fill { stroke: var(--pgui-color-primary); }
+.pgui-timer[data-state="warning"] .pgui-timer__fill { stroke: var(--pgui-color-warning); }
+
+.pgui-timer[data-state="danger"] .pgui-timer__fill { stroke: var(--pgui-color-danger); }
+.pgui-timer[data-state="danger"] .pgui-timer__center { animation: pgui-pulse 1s ease-in-out infinite; }
+
+.pgui-timer[data-state="paused"] .pgui-timer__track,
+.pgui-timer[data-state="paused"] .pgui-timer__fill { stroke: var(--pgui-text-muted); }
+.pgui-timer[data-state="paused"] .pgui-timer__pause-icon { display: flex; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pgui-timer[data-state="danger"] .pgui-timer__center { animation: none; }
+}
+
+/* Tamanhos */
+.pgui-timer-sm { width: 64px; height: 64px; }
+.pgui-timer-sm .pgui-timer__time { font-size: var(--pgui-fs-small); }
+.pgui-timer-lg { width: 140px; height: 140px; }
+.pgui-timer-lg .pgui-timer__time { font-size: var(--pgui-fs-heading-m); }

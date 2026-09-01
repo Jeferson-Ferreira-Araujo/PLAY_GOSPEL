@@ -1,0 +1,130 @@
+/* =====================================================
+   PLAYGOSPEL UI — FORMULÁRIOS
+   Input, textarea, checkbox, radio, select — estados padrão,
+   foco, erro e disabled, sempre com :focus-visible.
+   ===================================================== */
+
+.pgui-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pgui-space-8);
+}
+
+.pgui-field__label {
+  font-size: var(--pgui-fs-label);
+  font-weight: var(--pgui-fw-label);
+  color: var(--pgui-text-secondary);
+}
+
+.pgui-input,
+.pgui-textarea,
+.pgui-select {
+  width: 100%;
+  background: var(--pgui-bg-surface);
+  border: 1px solid var(--pgui-border-strong);
+  border-radius: var(--pgui-radius-md);
+  padding: var(--pgui-space-12) var(--pgui-space-16);
+  color: var(--pgui-text-primary);
+  font-family: var(--pgui-font-family);
+  font-size: var(--pgui-fs-body);
+  transition: border-color var(--pgui-transition-fast), box-shadow var(--pgui-transition-fast);
+}
+
+.pgui-textarea { min-height: 96px; resize: vertical; }
+
+.pgui-input::placeholder,
+.pgui-textarea::placeholder {
+  color: var(--pgui-text-muted);
+}
+
+.pgui-input:hover,
+.pgui-textarea:hover,
+.pgui-select:hover {
+  border-color: var(--pgui-border-strong);
+}
+
+.pgui-input:focus,
+.pgui-textarea:focus,
+.pgui-select:focus {
+  outline: none;
+  border-color: var(--pgui-color-primary);
+  box-shadow: 0 0 0 3px rgba(255, 193, 7, .18);
+}
+
+.pgui-field.is-error .pgui-input,
+.pgui-field.is-error .pgui-textarea,
+.pgui-field.is-error .pgui-select {
+  border-color: var(--pgui-color-danger);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, .16);
+}
+
+.pgui-field__error {
+  font-size: var(--pgui-fs-caption);
+  color: var(--pgui-color-danger-hover);
+}
+
+.pgui-input:disabled,
+.pgui-textarea:disabled,
+.pgui-select:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+/* ---- Checkbox / Radio ---- */
+.pgui-checkbox,
+.pgui-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pgui-space-8);
+  cursor: pointer;
+  font-size: var(--pgui-fs-body);
+  color: var(--pgui-text-primary);
+}
+
+.pgui-checkbox input,
+.pgui-radio input {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  border: 2px solid var(--pgui-border-strong);
+  background: var(--pgui-bg-surface);
+  cursor: pointer;
+  position: relative;
+  transition: border-color var(--pgui-transition-fast), background var(--pgui-transition-fast);
+}
+
+.pgui-checkbox input { border-radius: var(--pgui-radius-sm); }
+.pgui-radio input    { border-radius: 50%; }
+
+.pgui-checkbox input:checked,
+.pgui-radio input:checked {
+  border-color: var(--pgui-color-primary);
+  background: var(--pgui-color-primary);
+}
+
+.pgui-checkbox input:checked::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 6px;
+  height: 10px;
+  border: solid var(--pgui-on-primary);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.pgui-radio input:checked::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: var(--pgui-on-primary);
+}
+
+.pgui-checkbox input:disabled,
+.pgui-radio input:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}

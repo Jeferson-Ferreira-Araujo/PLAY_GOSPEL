@@ -1,98 +1,81 @@
-:root{
-  --panel: #0b0b0b;
-}
-
-.brand-dot{
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #ffc107;
-  display: inline-block;
-}
-
-/* Tela de apresentação ocupa tudo */
-.presenter{
-  height: calc(100vh - 57px); /* altura da navbar */
-  display: flex;
-  flex-direction: column;
-  background:
-    radial-gradient(1000px 600px at 10% 10%, rgba(255,193,7,.20), transparent 55%),
-    radial-gradient(900px 500px at 90% 30%, rgba(13,110,253,.12), transparent 50%),
-    linear-gradient(180deg, #000, #111);
-}
-
-.presenter-top{
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 14px 16px;
-  gap: 12px;
-}
-
-.presenter-badges{
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.timer-wrap{
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-}
-
-.timer-text{
-  font-weight: 700;
-  font-size: 20px;
-  color: #ffc107;
-}
-
-.presenter-center{
-  flex: 1;
-  display: grid;
-  place-items: center;
-  padding: 10px 16px;
-}
-
 .scrambled{
-  /* Fonte gigante e responsiva */
-  font-weight: 900;
-  letter-spacing: 0.06em;
   text-transform: uppercase;
-  text-align: center;
-  line-height: 1.05;
-
-  /* O segredo: clamp cresce conforme a tela */
-  font-size: clamp(42px, 8vw, 140px);
-
-  padding: 10px 12px;
+  padding: 14px 16px;
   border-radius: 18px;
   border: 1px solid rgba(255,255,255,.14);
   background: rgba(0,0,0,.35);
   box-shadow: 0 10px 30px rgba(0,0,0,.35);
-
-  width: min(1200px, 96vw);
-  user-select: none;
+  font-size: clamp(36px, 8vw, 140px);
 }
 
-.presenter-bottom{
-  padding: 14px 16px 18px;
+/* Contagem "3, 2, 1" antes de cada palavra aparecer */
+@keyframes pm-countdown-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+
+.scrambled.pm-countdown {
+  color: var(--gold, #F5C518);
+  animation: pm-countdown-pulse 1s ease-in-out infinite;
+}
+
+/* Formato "disputa": um botão de pontuação por equipe ativa — todas as
+   equipes veem a mesma palavra, e quem acertar primeiro ganha o ponto. */
+.team-score-row {
+  flex: 0 0 auto;
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 12px;
+  padding: 0 16px 4px;
+}
+
+.pm-team-btn {
+  display: inline-flex;
   align-items: center;
-}
-
-.answer{
-  width: min(900px, 96vw);
-  padding: 12px 14px;
+  gap: 10px;
+  min-height: 52px;
+  padding: 10px 22px;
   border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.14);
-  background: rgba(0,0,0,.35);
+  border: none;
+  background: var(--team-color, var(--gold));
+  color: #0b1220;
+  font-weight: 800;
+  font-size: 1.05rem;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .25);
+  transition: transform .15s ease, filter .15s ease;
 }
 
-.answer-text{
-  font-size: 22px;
-  font-weight: 700;
+.pm-team-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.pm-team-btn:active {
+  transform: translateY(0);
+}
+
+.pm-team-btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pm-team-btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, .18);
+}
+
+@media (max-width: 420px) {
+  .pm-team-btn {
+    width: 100%;
+    justify-content: center;
+  }
 }

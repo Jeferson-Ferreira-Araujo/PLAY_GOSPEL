@@ -1,0 +1,947 @@
+{
+  "categories": [
+    {
+      "id": "biblia",
+      "name": "Bíblia (exemplo)",
+      "items": [
+        {
+          "emojis": [
+            "🍎",
+            "🐍",
+            "🌳"
+          ],
+          "answer": "Adão e Eva"
+        },
+        {
+          "emojis": [
+            "🌈",
+            "🕊️",
+            "🚢"
+          ],
+          "answer": "Arca de Noé"
+        },
+        {
+          "emojis": [
+            "⛵",
+            "🐳",
+            "🌊"
+          ],
+          "answer": "Jonas e o grande peixe"
+        },
+        {
+          "emojis": [
+            "👶",
+            "⭐",
+            "🐑"
+          ],
+          "answer": "Nascimento de Jesus"
+        },
+        {
+          "emojis": [
+            "🍞",
+            "🐟",
+            "👨‍👩‍👧‍👦"
+          ],
+          "answer": "Multiplicação dos pães e peixes"
+        },
+        {
+          "emojis": [
+            "🏛️",
+            "📯",
+            "💥"
+          ],
+          "answer": "Queda dos muros de Jericó"
+        },
+        {
+          "emojis": [
+            "📖",
+            "🦁",
+            "🕳️"
+          ],
+          "answer": "Daniel na cova dos leões"
+        },
+        {
+          "emojis": [
+            "🌊",
+            "🚶",
+            "🌊"
+          ],
+          "answer": "Travessia do Mar Vermelho"
+        },
+        {
+          "emojis": [
+            "✝️",
+            "🪨",
+            "🌅"
+          ],
+          "answer": "Ressurreição de Jesus"
+        },
+        {
+          "emojis": [
+            "🗡️",
+            "🪨",
+            "👹"
+          ],
+          "answer": "Davi e Golias"
+        },
+        {
+          "emojis": [
+            "🏗️",
+            "🗼",
+            "🌍"
+          ],
+          "answer": "Torre de Babel"
+        },
+        {
+          "emojis": [
+            "🔪",
+            "🐏",
+            "⛰️"
+          ],
+          "answer": "Sacrifício de Isaque"
+        },
+        {
+          "emojis": [
+            "🌈",
+            "👘",
+            "👦"
+          ],
+          "answer": "José e a túnica colorida"
+        },
+        {
+          "emojis": [
+            "👑",
+            "💭",
+            "🌾"
+          ],
+          "answer": "José interpreta o sonho do Faraó"
+        },
+        {
+          "emojis": [
+            "🐸",
+            "🩸",
+            "🦗"
+          ],
+          "answer": "As dez pragas do Egito"
+        },
+        {
+          "emojis": [
+            "🪨",
+            "✍️",
+            "🔟"
+          ],
+          "answer": "Os Dez Mandamentos"
+        },
+        {
+          "emojis": [
+            "💇",
+            "💪",
+            "✂️"
+          ],
+          "answer": "Sansão e Dalila"
+        },
+        {
+          "emojis": [
+            "🌾",
+            "💍",
+            "👩"
+          ],
+          "answer": "Rute e Boaz"
+        },
+        {
+          "emojis": [
+            "💧",
+            "🕊️",
+            "🙏"
+          ],
+          "answer": "Batismo de Jesus"
+        },
+        {
+          "emojis": [
+            "🍷",
+            "🏺",
+            "💒"
+          ],
+          "answer": "Bodas de Caná"
+        },
+        {
+          "emojis": [
+            "🚶",
+            "🌊",
+            "⛵"
+          ],
+          "answer": "Jesus anda sobre as águas"
+        },
+        {
+          "emojis": [
+            "⛈️",
+            "⛵",
+            "🤚"
+          ],
+          "answer": "Jesus acalma a tempestade"
+        },
+        {
+          "emojis": [
+            "👨‍🌾",
+            "🐷",
+            "🏠"
+          ],
+          "answer": "Filho pródigo"
+        },
+        {
+          "emojis": [
+            "🩹",
+            "🐴",
+            "🛣️"
+          ],
+          "answer": "Bom samaritano"
+        },
+        {
+          "emojis": [
+            "🍞",
+            "🍷",
+            "🕯️"
+          ],
+          "answer": "Última Ceia"
+        },
+        {
+          "emojis": [
+            "💰",
+            "😘",
+            "🗡️"
+          ],
+          "answer": "Traição de Judas"
+        },
+        {
+          "emojis": [
+            "🔥",
+            "🕊️",
+            "👥"
+          ],
+          "answer": "Pentecostes"
+        },
+        {
+          "emojis": [
+            "⚡",
+            "👁️",
+            "🐴"
+          ],
+          "answer": "Conversão de Paulo na estrada de Damasco"
+        },
+        {
+          "emojis": [
+            "⛵",
+            "⛈️",
+            "🏝️"
+          ],
+          "answer": "Naufrágio de Paulo"
+        },
+        {
+          "emojis": [
+            "🌍",
+            "☀️",
+            "🌙"
+          ],
+          "answer": "Criação do mundo"
+        }
+      ]
+    },
+    {
+      "id": "musicas",
+      "name": "Músicas",
+      "items": [
+        {
+          "emojis": [
+            "🌧️"
+          ],
+          "answer": "Faz Chover — Fernandinho"
+        },
+        {
+          "emojis": [
+            "🆕",
+            "📖"
+          ],
+          "answer": "Uma Nova História — Fernandinho"
+        },
+        {
+          "emojis": [
+            "🙌",
+            "✨"
+          ],
+          "answer": "Grandes Coisas — Fernandinho"
+        },
+        {
+          "emojis": [
+            "☝️",
+            "❤️",
+            "👤"
+          ],
+          "answer": "Deus da Minha Vida — Thalles Roberto"
+        },
+        {
+          "emojis": [
+            "🔥",
+            "🔄"
+          ],
+          "answer": "Arde Outra Vez — Thalles Roberto"
+        },
+        {
+          "emojis": [
+            "🏠",
+            "👨"
+          ],
+          "answer": "Casa do Pai — Aline Barros"
+        },
+        {
+          "emojis": [
+            "🫵",
+            "⭐"
+          ],
+          "answer": "Você é Especial — Aline Barros"
+        },
+        {
+          "emojis": [
+            "☝️",
+            "🚫",
+            "❌"
+          ],
+          "answer": "Deus do Impossível — Toque no Altar"
+        },
+        {
+          "emojis": [
+            "🔄",
+            "❤️"
+          ],
+          "answer": "Restitui — Toque no Altar"
+        },
+        {
+          "emojis": [
+            "🙏",
+            "❤️",
+            "✋"
+          ],
+          "answer": "Tua Graça Me Basta — Toque no Altar"
+        },
+        {
+          "emojis": [
+            "👀",
+            "🫵"
+          ],
+          "answer": "Olha Pra Mim — Toque no Altar"
+        },
+        {
+          "emojis": [
+            "🙌",
+            "🎵"
+          ],
+          "answer": "Com Muito Louvor — Cassiane"
+        },
+        {
+          "emojis": [
+            "🌡️",
+            "🔥",
+            "5️⃣0️⃣0️⃣"
+          ],
+          "answer": "500 Graus — Cassiane"
+        },
+        {
+          "emojis": [
+            "🎵",
+            "🏆"
+          ],
+          "answer": "Hino da Vitória — Cassiane"
+        },
+        {
+          "emojis": [
+            "🤝",
+            "❤️"
+          ],
+          "answer": "Fiel a Mim — Eyshila"
+        },
+        {
+          "emojis": [
+            "🌎",
+            "💥"
+          ],
+          "answer": "Terremoto — Eyshila"
+        },
+        {
+          "emojis": [
+            "🩹",
+            "❤️"
+          ],
+          "answer": "Cura-me — Fernanda Brum"
+        },
+        {
+          "emojis": [
+            "👤"
+          ],
+          "answer": "Sou Humano — Bruna Karla"
+        },
+        {
+          "emojis": [
+            "⚖️",
+            "🤝"
+          ],
+          "answer": "Advogado Fiel — Bruna Karla"
+        },
+        {
+          "emojis": [
+            "⏰"
+          ],
+          "answer": "O Tempo — Oficina G3"
+        },
+        {
+          "emojis": [
+            "🌎",
+            "🌌"
+          ],
+          "answer": "Meu Universo — PG"
+        },
+        {
+          "emojis": [
+            "✋",
+            "📜",
+            "🤝"
+          ],
+          "answer": "Marca da Promessa — Trazendo a Arca"
+        },
+        {
+          "emojis": [
+            "👤",
+            "🌊"
+          ],
+          "answer": "Sobre as Águas — Trazendo a Arca"
+        },
+        {
+          "emojis": [
+            "💧",
+            "🌊"
+          ],
+          "answer": "Manancial — Diante do Trono"
+        },
+        {
+          "emojis": [
+            "🙏",
+            "🫵"
+          ],
+          "answer": "Preciso de Ti — Diante do Trono"
+        },
+        {
+          "emojis": [
+            "❤️",
+            "🦁",
+            "🔥"
+          ],
+          "answer": "Ousado Amor — Isaías Saad"
+        },
+        {
+          "emojis": [
+            "❤️",
+            "☝️",
+            "✨"
+          ],
+          "answer": "Bondade de Deus — Isaías Saad"
+        },
+        {
+          "emojis": [
+            "🏠",
+            "➡️",
+            "🫵"
+          ],
+          "answer": "A Casa É Sua — Casa Worship"
+        },
+        {
+          "emojis": [
+            "👷",
+            "🧱",
+            "🏠"
+          ],
+          "answer": "Eu Vou Construir — Casa Worship"
+        },
+        {
+          "emojis": [
+            "👀",
+            "🫵",
+            "🌎"
+          ],
+          "answer": "Eu Te Vejo em Tudo — Casa Worship"
+        },
+        {
+          "emojis": [
+            "🎯",
+            "🫵"
+          ],
+          "answer": "É Tudo Sobre Você — Morada"
+        },
+        {
+          "emojis": [
+            "🧭",
+            "❓"
+          ],
+          "answer": "Pra Onde Iremos — Morada"
+        },
+        {
+          "emojis": [
+            "🙏",
+            "♾️"
+          ],
+          "answer": "Santo Pra Sempre — Fernandinho"
+        },
+        {
+          "emojis": [
+            "🧲",
+            "❤️"
+          ],
+          "answer": "Me Atraiu — Gabriela Rocha"
+        },
+        {
+          "emojis": [
+            "📍",
+            "🤫",
+            "🔒"
+          ],
+          "answer": "Lugar Secreto — Gabriela Rocha"
+        },
+        {
+          "emojis": [
+            "🚢",
+            "🌊"
+          ],
+          "answer": "Eu Navegarei — Gabriela Rocha"
+        },
+        {
+          "emojis": [
+            "📖",
+            "2️⃣",
+            "🔥"
+          ],
+          "answer": "Atos 2 — Gabriela Rocha"
+        },
+        {
+          "emojis": [
+            "💎",
+            "⭐"
+          ],
+          "answer": "Raridade — Anderson Freire"
+        },
+        {
+          "emojis": [
+            "🪪",
+            "👤"
+          ],
+          "answer": "Identidade — Anderson Freire"
+        },
+        {
+          "emojis": [
+            "😰",
+            "❤️",
+            "😌"
+          ],
+          "answer": "Acalma o Meu Coração — Anderson Freire"
+        },
+        {
+          "emojis": [
+            "🏜️"
+          ],
+          "answer": "Deserto — Maria Marçal"
+        },
+        {
+          "emojis": [
+            "🙏",
+            "🎁",
+            "♾️"
+          ],
+          "answer": "Bênçãos Que Não Têm Fim — Isadora Pompeo"
+        },
+        {
+          "emojis": [
+            "😢",
+            "➡️",
+            "😁"
+          ],
+          "answer": "Todavia Me Alegrarei — Samuel Messias"
+        },
+        {
+          "emojis": [
+            "👨",
+            "❤️",
+            "🫵"
+          ],
+          "answer": "Eu Sou Teu Pai — Valesca Mayssa"
+        },
+        {
+          "emojis": [
+            "📜",
+            "🤝"
+          ],
+          "answer": "A Promessa — Damares"
+        },
+        {
+          "emojis": [
+            "❓",
+            "👤"
+          ],
+          "answer": "Quem É Esse? — Julliany Souza"
+        },
+        {
+          "emojis": [
+            "🔥",
+            "🔄"
+          ],
+          "answer": "Acende Outra Vez — Jefferson & Suellen"
+        },
+        {
+          "emojis": [
+            "🌅",
+            "✨"
+          ],
+          "answer": "Um Novo Dia — Get Worship"
+        },
+        {
+          "emojis": [
+            "🚶",
+            "🏠",
+            "✝️"
+          ],
+          "answer": "Passa Lá em Casa Jesus — Kailane Frauches"
+        },
+        {
+          "emojis": [
+            "❤️",
+            "🫵"
+          ],
+          "answer": "Eu Tenho Você — Marcelo Markes"
+        },
+        {
+          "emojis": [
+            "🧎",
+            "🏆"
+          ],
+          "answer": "Vencendo de Joelhos — Kemilly Santos"
+        },
+        {
+          "emojis": [
+            "☝️",
+            "🍞",
+            "✨"
+          ],
+          "answer": "Deus Proverá — Gabriela Gomes"
+        },
+        {
+          "emojis": [
+            "💭",
+            "☝️"
+          ],
+          "answer": "Os Sonhos de Deus — Ludmila Ferber"
+        },
+        {
+          "emojis": [
+            "🌙",
+            "⚠️"
+          ],
+          "answer": "Noites Traiçoeiras — Padre Marcelo Rossi"
+        },
+        {
+          "emojis": [
+            "☝️",
+            "📜",
+            "🤝"
+          ],
+          "answer": "Deus de Promessas — Davi Sacer"
+        },
+        {
+          "emojis": [
+            "🛑",
+            "❌",
+            "🏃"
+          ],
+          "answer": "Não Pare — Midian Lima"
+        },
+        {
+          "emojis": [
+            "👨‍🦱",
+            "🙏"
+          ],
+          "answer": "Jó — Midian Lima"
+        },
+        {
+          "emojis": [
+            "🥇",
+            "❤️"
+          ],
+          "answer": "Prioridade — Midian Lima"
+        },
+        {
+          "emojis": [
+            "🍯"
+          ],
+          "answer": "Sabor de Mel — Damares"
+        },
+        {
+          "emojis": [
+            "📖",
+            "🔥",
+            "🌎"
+          ],
+          "answer": "Apocalipse — Damares"
+        },
+        {
+          "emojis": [
+            "☝️",
+            "=",
+            "☝️"
+          ],
+          "answer": "Deus é Deus — Delino Marçal"
+        },
+        {
+          "emojis": [
+            "☝️",
+            "🚶",
+            "➡️"
+          ],
+          "answer": "Deus Vai na Frente — Wilian Nascimento"
+        },
+        {
+          "emojis": [
+            "✨",
+            "🙏"
+          ],
+          "answer": "Maravilhosa Graça (hino tradicional)"
+        },
+        {
+          "emojis": [
+            "🌊",
+            "👣",
+            "❌"
+          ],
+          "answer": "Oceans (Onde Meus Pés Podem Falhar) — Hillsong United"
+        },
+        {
+          "emojis": [
+            "⚰️",
+            "➡️",
+            "🙌"
+          ],
+          "answer": "Ressuscita-me — Aline Barros"
+        },
+        {
+          "emojis": [
+            "🙏",
+            "🕊️"
+          ],
+          "answer": "Consagração — Aline Barros"
+        },
+        {
+          "emojis": [
+            "🔍",
+            "🛠️"
+          ],
+          "answer": "Sonda-me, Usa-me — Aline Barros"
+        },
+        {
+          "emojis": [
+            "👨",
+            "↪️"
+          ],
+          "answer": "Homenzinho Torto — Aline Barros"
+        },
+        {
+          "emojis": [
+            "👤",
+            "➡️",
+            "✝️"
+          ],
+          "answer": "Diante da Cruz — Aline Barros"
+        },
+        {
+          "emojis": [
+            "☝️",
+            "❤️",
+            "🛡️"
+          ],
+          "answer": "Deus Cuida de Mim — Kleber Lucas"
+        },
+        {
+          "emojis": [
+            "👣",
+            "✝️"
+          ],
+          "answer": "Aos Pés da Cruz — Kleber Lucas"
+        },
+        {
+          "emojis": [
+            "☝️",
+            "🔨",
+            "🏗️"
+          ],
+          "answer": "Deus de Obras Completas — Diante do Trono"
+        },
+        {
+          "emojis": [
+            "🤝",
+            "🙏"
+          ],
+          "answer": "Na Comunhão — Fernandinho"
+        },
+        {
+          "emojis": [
+            "🙏",
+            "✨",
+            "👤"
+          ],
+          "answer": "Faz Um Milagre em Mim — Régis Danese"
+        },
+        {
+          "emojis": [
+            "🚪",
+            "🏠",
+            "🙏"
+          ],
+          "answer": "Entra na Minha Casa — Régis Danese"
+        },
+        {
+          "emojis": [
+            "🤝",
+            "✋",
+            "☝️"
+          ],
+          "answer": "Segura na Mão de Deus (hino tradicional)"
+        },
+        {
+          "emojis": [
+            "✝️",
+            "⚰️",
+            "🙌"
+          ],
+          "answer": "Porque Ele Vive (hino tradicional)"
+        },
+        {
+          "emojis": [
+            "🌎",
+            "✨",
+            "☝️"
+          ],
+          "answer": "Grandioso És Tu (hino tradicional)"
+        },
+        {
+          "emojis": [
+            "🪵",
+            "✝️"
+          ],
+          "answer": "Rude Cruz (hino tradicional)"
+        },
+        {
+          "emojis": [
+            "🫵",
+            "➡️",
+            "❤️"
+          ],
+          "answer": "Mais Perto Quero Estar (hino tradicional)"
+        },
+        {
+          "emojis": [
+            "☝️",
+            "🤝",
+            "❤️"
+          ],
+          "answer": "Tu És Fiel, Senhor (hino tradicional)"
+        },
+        {
+          "emojis": [
+            "✉️",
+            "✝️"
+          ],
+          "answer": "A Mensagem da Cruz (hino tradicional)"
+        },
+        {
+          "emojis": [
+            "🎯",
+            "❄️"
+          ],
+          "answer": "Alvo Mais Que a Neve (hino tradicional)"
+        },
+        {
+          "emojis": [
+            "🏰",
+            "🛡️"
+          ],
+          "answer": "Castelo Forte (hino tradicional)"
+        },
+        {
+          "emojis": [
+            "😊",
+            "❤️"
+          ],
+          "answer": "Sou Feliz (hino tradicional)"
+        },
+        {
+          "emojis": [
+            "🔄",
+            "🙏"
+          ],
+          "answer": "Renova-me — Marcos Witt"
+        },
+        {
+          "emojis": [
+            "✍️",
+            "🙏"
+          ],
+          "answer": "Autor da Minha Fé — Grupo Logos"
+        },
+        {
+          "emojis": [
+            "🛣️",
+            "😢"
+          ],
+          "answer": "Via Dolorosa (hino tradicional)"
+        },
+        {
+          "emojis": [
+            "❓",
+            "❤️"
+          ],
+          "answer": "Se Isso Não For Amor (hino tradicional)"
+        },
+        {
+          "emojis": [
+            "👑",
+            "❓",
+            "☝️"
+          ],
+          "answer": "Faraó ou Deus — Fernandinho"
+        },
+        {
+          "emojis": [
+            "💧",
+            "🙇"
+          ],
+          "answer": "Me Derramar — Vineyard"
+        },
+        {
+          "emojis": [
+            "👉",
+            "⏰"
+          ],
+          "answer": "Vem, Esta é a Hora — Vineyard"
+        },
+        {
+          "emojis": [
+            "👀",
+            "❤️",
+            "🔓"
+          ],
+          "answer": "Abre os Olhos do Meu Coração — Paul Baloche"
+        },
+        {
+          "emojis": [
+            "💪",
+            "🙏",
+            "🛟"
+          ],
+          "answer": "Poder Pra Salvar — Hillsong"
+        }
+      ]
+    }
+  ]
+}

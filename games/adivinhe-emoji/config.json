@@ -1,0 +1,39 @@
+{
+  "settings": [
+    {
+      "key": "category",
+      "label": "Categoria",
+      "type": "select",
+      "dynamic": "categories",
+      "dynamicSource": "emojis.json",
+      "help": "Escolha o tema dos emojis."
+    },
+    {
+      "key": "time",
+      "label": "Tempo (segundos)",
+      "type": "select",
+      "default": 30,
+      "options": [
+        { "value": 0,  "label": "Sem tempo" },
+        { "value": 15, "label": "15s" },
+        { "value": 20, "label": "20s" },
+        { "value": 30, "label": "30s" },
+        { "value": 45, "label": "45s" },
+        { "value": 60, "label": "60s" }
+      ],
+      "help": "Se o tempo acabar, a resposta é revelada automaticamente."
+    }
+  ],
+  "howTo": [
+    "Escolha a categoria e o tempo.",
+    "Uma contagem de 3 segundos prepara as equipes.",
+    "Uma sequência de emojis aparece — adivinhe o que ela representa antes do tempo acabar.",
+    "Depois de 10 rodadas a partida encerra e mostra a pontuação."
+  ],
+  "tips": [
+    "Funciona muito bem em telão.",
+    "Todas as equipes veem os mesmos emojis ao mesmo tempo (formato disputa).",
+    "Use 'Mostrar resposta' para conferir antes de dar o ponto pra equipe certa.",
+    "Espaço: próxima rodada"
+  ]
+}

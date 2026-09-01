@@ -1,0 +1,75 @@
+/* =====================================================
+   PLAYGOSPEL UI — RESET
+   Reset moderno e mínimo. Só o necessário para partir de uma
+   base previsível — não é um reset "agressivo" que some com
+   estilos nativos úteis (ex: outline em :focus-visible fica).
+   ===================================================== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--pgui-bg-main);
+  color: var(--pgui-text-primary);
+  font-family: var(--pgui-font-family);
+  font-size: var(--pgui-fs-body);
+  line-height: var(--pgui-lh-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+button, input, textarea, select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul, ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+h1, h2, h3, h4, h5, h6, p {
+  margin: 0;
+}
+
+/* Foco visível e consistente em todo componente interativo —
+   requisito de acessibilidade, nunca removido só por estética. */
+:focus-visible {
+  outline: 2px solid var(--pgui-color-primary);
+  outline-offset: 2px;
+  border-radius: var(--pgui-radius-sm);
+}
+
+/* Elementos escondidos via atributo nativo continuam escondidos
+   mesmo se alguma regra de display for aplicada por engano. */
+[hidden] {
+  display: none !important;
+}

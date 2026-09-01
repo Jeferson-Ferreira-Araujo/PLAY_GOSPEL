@@ -1,5 +1,10 @@
 import { createCountdownTimer, shuffleArray } from "../../assets/js/utils.js";
+import { Teams } from "../../assets/js/teams.js";
+import { renderTeamScoreboard } from "../../assets/js/scoreboard-ui.js";
+import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
+import { icon } from "../../playgospel-ui/js/core.js";
 
+/* ===== ELEMENTS ===== */
 const setupScreen = document.getElementById("setupScreen");
 const gameScreen = document.getElementById("gameScreen");
 
@@ -7,11 +12,7 @@ const categorySelect = document.getElementById("categorySelect");
 const timeSelect = document.getElementById("timeSelect");
 const startBtn = document.getElementById("startBtn");
 
-const btnFullscreen = document.getElementById("btnFullscreen");
-
 const scrambledWordEl = document.getElementById("scrambledWord");
-const answerBox = document.getElementById("answerBox");
-const answerText = document.getElementById("answerText");
 
 const badgeCategory = document.getElementById("badgeCategory");
 const badgeRound = document.getElementById("badgeRound");
@@ -23,11 +24,15 @@ const newWordBtn = document.getElementById("newWordBtn");
 const showAnswerBtn = document.getElementById("showAnswerBtn");
 const restartTimerBtn = document.getElementById("restartTimerBtn");
 const exitBtn = document.getElementById("exitBtn");
+const brandLink = document.getElementById("brandLink");
 
-// NOVOS
 const playAgainBtn = document.getElementById("playAgainBtn");
 const gameOverNotice = document.getElementById("gameOverNotice");
 
+const teamsScoreboard = document.getElementById("teamsScoreboard");
+const teamScoreButtons = document.getElementById("teamScoreButtons");
+
+/* ===== STATE ===== */
 let data = null;
 let currentCategory = null;
 let currentWord = "";
@@ -36,36 +41,154 @@ let round = 0;
 let timer = null;
 let selectedDurationSec = 30;
 
-// pool sem repetição (sessão atual)
 let wordPool = [];
 let poolIndex = 0;
 
 let gameOver = false;
 
+let answerRevealed = false;
+let timeExpired = false;
+
+// Fases da rodada: "countdown" (3,2,1 antes da palavra aparecer),
+// "playing" (palavra visível, times podem pontuar) e "ended" (alguém
+// pontuou ou o tempo acabou — só resta clicar em "Nova palavra").
+let roundPhase = "idle";
+let countdownInterval = null;
+
+/* ========================= INIT ========================= */
 document.addEventListener("DOMContentLoaded", async () => {
   await loadWords();
   wireUI();
-  checkAutoStartFromURL(); // NOVO
+  renderTeamScoreboard(teamsScoreboard, { clickable: false });
+  renderTeamScoreButtons();
+  window.addEventListener("bibflix:teams:change", renderTeamScoreButtons);
+  applyParamsFromURL();
 });
 
+/* ===== Formato "disputa": um botão de pontuação por equipe ativa =====
+   Todas as equipes veem a mesma palavra ao mesmo tempo; quem administra o
+   jogo clica no botão da equipe que falar a resposta certa primeiro. */
+function escapeHtml(str) {
+  return String(str ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
+}
+
+function teamIconName(team) {
+  return Teams.teamIconNames.includes(team.icon) ? team.icon : "star";
+}
+
+function renderTeamScoreButtons() {
+  // Só aparecem depois que a resposta certa foi revelada na tela — assim
+  // quem administra confere a palavra antes de dar o ponto pra equipe
+  // certa (evita pontuar a equipe errada por engano).
+  if (!Teams.isEnabled() || !answerRevealed || gameOver) {
+    teamScoreButtons.innerHTML = "";
+    teamScoreButtons.classList.add("d-none");
+    return;
+  }
+
+  const state = Teams.getState();
+  teamScoreButtons.classList.remove("d-none");
+
+  const locked = roundPhase !== "playing";
+
+  teamScoreButtons.innerHTML = state.teams.map((team, index) => `
+    <button
+      type="button"
+      class="pm-team-btn"
+      data-index="${index}"
+      style="--team-color:${escapeHtml(team.color)}"
+      ${locked ? "disabled" : ""}
+    >
+      <span class="pm-team-btn-icon">${icon(teamIconName(team), { size: 16 })}</span>
+      <span>${escapeHtml(team.name)} acertou</span>
+    </button>
+  `).join("");
+
+  teamScoreButtons.querySelectorAll(".pm-team-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (gameOver || roundPhase !== "playing") return;
+
+      const index = Number(btn.dataset.index);
+      Teams.setTurn(index);
+      Teams.addPoint(1);
+
+      revealAnswer();
+      playPointSound();
+      afterPoint();
+      setRoundPhase("ended");
+    });
+  });
+}
+
+/* ===== Fase da rodada (countdown / playing / ended) ===== */
+function setRoundPhase(phase) {
+  roundPhase = phase;
+
+  newWordBtn.disabled = gameOver || phase === "countdown";
+  restartTimerBtn.disabled = gameOver || phase !== "playing";
+
+  renderTeamScoreButtons();
+}
+
+function clearCountdown() {
+  if (countdownInterval) clearInterval(countdownInterval);
+  countdownInterval = null;
+}
+
+/* ========================= LOAD ========================= */
 async function loadWords() {
   const res = await fetch("./words.json", { cache: "no-store" });
   data = await res.json();
 
   categorySelect.innerHTML =
     `<option value="" disabled selected>Selecione...</option>` +
-    data.categories
-      .map(c => `<option value="${escapeAttr(c.id)}">${escapeHtml(c.name)}</option>`)
-      .join("");
+    data.categories.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
 
   if (data.categories.length) {
     categorySelect.value = data.categories[0].id;
   }
 }
 
-function wireUI() {
-  btnFullscreen.addEventListener("click", toggleFullscreen);
+/* ========================= URL ========================= */
+function applyParamsFromURL() {
+  const params = new URLSearchParams(window.location.search);
 
+  if (params.get("play") !== "1") return;
+
+  const categoryFromUrl = params.get("category");
+  const timeFromUrl = params.get("time");
+
+  if (categoryFromUrl) categorySelect.value = categoryFromUrl;
+
+  if (timeFromUrl !== null) {
+    timeSelect.value = timeFromUrl;
+    selectedDurationSec = Number(timeFromUrl);
+  }
+
+  const catId = categorySelect.value;
+  if (!catId) return;
+
+  currentCategory = data.categories.find(c => c.id === catId);
+
+  startGame();
+}
+
+/* ===== Sair (confirma antes de deixar o jogo, com ou sem equipes) ===== */
+function confirmExit() {
+  clearCountdown();
+  stopTimer();
+  const goToCatalog = () => { window.location.href = "../../index.html"; };
+  const shown = showScorePopup({
+    title: "👋 Sair do jogo?",
+    footer: buildExitFooter(goToCatalog),
+  });
+  if (!shown) goToCatalog();
+}
+
+/* ========================= UI ========================= */
+function wireUI() {
   timeSelect.addEventListener("change", () => {
     selectedDurationSec = Number(timeSelect.value || 0);
   });
@@ -81,68 +204,61 @@ function wireUI() {
   });
 
   newWordBtn.addEventListener("click", () => {
-    if (gameOver) return;
+    if (gameOver || roundPhase === "countdown") return;
     nextWord();
-    if (!gameOver) startOrResetTimer(true);
   });
 
   showAnswerBtn.addEventListener("click", () => {
-    answerBox.classList.toggle("d-none");
-    showAnswerBtn.textContent = answerBox.classList.contains("d-none")
-      ? "Mostrar resposta"
-      : "Ocultar resposta";
+    toggleAnswer();
   });
 
   restartTimerBtn.addEventListener("click", () => {
-    if (gameOver) return;
-    startOrResetTimer(true);
+    if (gameOver || roundPhase !== "playing") return;
+
+    if (!answerRevealed) {
+      scrambledWordEl.textContent = scrambleKeepSpaces(currentWord);
+    }
+
+    timeExpired = false;
+    answerRevealed = false;
+
+    showAnswerBtn.textContent = "Mostrar resposta";
+
+    startOrResetTimer();
   });
 
   playAgainBtn.addEventListener("click", () => {
-    // reinicia a sessão do jogo na mesma categoria e tempo
     round = 0;
+    gameOver = false;
     setGameOverUI(false);
+
     buildWordPool();
     nextWord();
-    if (!gameOver) startOrResetTimer(true);
   });
 
-  exitBtn.addEventListener("click", () => {
-    stopTimer();
-  setGameOverUI(false);
-  gameOver = false;
-
-  gameScreen.classList.add("d-none");
-  setupScreen.classList.remove("d-none");
-
-  answerBox.classList.add("d-none");
-  showAnswerBtn.textContent = "Mostrar resposta";
-
-  window.location.href = "../../index.html";
-
-    
+  exitBtn.addEventListener("click", confirmExit);
+  brandLink.addEventListener("click", (e) => {
+    // Só confirma se o jogo já estiver em andamento — na tela de
+    // configuração não há nada a perder, deixa navegar direto.
+    if (gameScreen.classList.contains("d-none")) return;
+    e.preventDefault();
+    confirmExit();
   });
 
-  // atalhos (modo apresentação)
   document.addEventListener("keydown", (e) => {
     if (gameScreen.classList.contains("d-none")) return;
 
     if (e.code === "Space") {
       e.preventDefault();
-      if (gameOver) return;
+      if (gameOver || roundPhase === "countdown") return;
       nextWord();
-      if (!gameOver) startOrResetTimer(true);
     }
-
-    if (e.key.toLowerCase() === "f") toggleFullscreen();
   });
 }
 
+/* ========================= GAME ========================= */
 function startGame() {
-
-
-  answerBox.classList.add("d-none");
-  showAnswerBtn.textContent = "Mostrar resposta";
+  if (!currentCategory) return;
 
   setupScreen.classList.add("d-none");
   gameScreen.classList.remove("d-none");
@@ -150,157 +266,164 @@ function startGame() {
   badgeCategory.textContent = currentCategory.name;
 
   round = 0;
-  setGameOverUI(false);
   gameOver = false;
+  setGameOverUI(false);
 
   buildWordPool();
 
-  createOrUpdateTimer();
   nextWord();
-  if (!gameOver) startOrResetTimer(true);
-}
-
-/* ===========================
-   Pool sem repetição
-=========================== */
-
-function buildWordPool() {
-  const words = (currentCategory?.words ?? []).filter(Boolean);
-  wordPool = shuffleArray(words);
-  poolIndex = 0;
-}
-
-function getNextWordNoRepeat() {
-  if (!wordPool.length) return null;
-  if (poolIndex >= wordPool.length) return null; // acabou => encerra
-  const w = wordPool[poolIndex];
-  poolIndex += 1;
-  return w;
-}
-
-/* ===========================
-   Game flow
-=========================== */
-
-function setGameOverUI(isOver) {
-  gameOver = isOver;
-
-  newWordBtn.disabled = isOver;
-  restartTimerBtn.disabled = isOver;
-
-  playAgainBtn.classList.toggle("d-none", !isOver);
-  gameOverNotice.classList.toggle("d-none", !isOver);
-}
-
-function endGame() {
-  stopTimer();
-
-  scrambledWordEl.textContent = "FIM DE JOGO";
-  timerText.textContent = "Encerrado";
-  timerBar.style.width = "0%";
-  timerBar.classList.remove("bg-danger");
-
-  setGameOverUI(true);
 }
 
 function nextWord() {
-  const words = currentCategory?.words ?? [];
-  if (!words.length) {
-    currentWord = "";
-    scrambledWordEl.textContent = "SEM PALAVRAS";
-    endGame();
-    return;
-  }
-
   const next = getNextWordNoRepeat();
+
   if (!next) {
     endGame();
     return;
   }
 
-  round += 1;
-  badgeRound.textContent = `Rodada ${round}`;
-
-  answerBox.classList.add("d-none");
-  showAnswerBtn.textContent = "Mostrar resposta";
+  round++;
+  badgeRound.textContent = `Rodada ${round}/${wordPool.length}`;
 
   currentWord = next;
-  answerText.textContent = currentWord;
+  answerRevealed = false;
+  timeExpired = false;
 
-  scrambledWordEl.textContent = scrambleKeepSpaces(currentWord);
+  startCountdown();
 }
 
-/* ===========================
-   Scramble
-=========================== */
-
-function scrambleKeepSpaces(phrase) {
-  // Mantém espaços. Embaralha cada token separado por espaço.
-  return phrase
-    .split(" ")
-    .map(word => scrambleToken(word))
-    .join(" ");
-}
-
-function scrambleToken(token) {
-  const chars = Array.from(token);
-  if (chars.length <= 1) return token;
-
-  const original = chars.join("");
-  for (let tries = 0; tries < 6; tries++) {
-    const shuffled = shuffleArray(chars).join("");
-    if (shuffled !== original) return shuffled;
-  }
-  return token;
-}
-
-/* ===========================
-   Timer (global util)
-=========================== */
-
-function createOrUpdateTimer() {
+/* ===== Contagem "3, 2, 1" antes de cada palavra — dá tempo das equipes
+   se prepararem antes da palavra aparecer na tela. ===== */
+function startCountdown() {
+  clearCountdown();
   stopTimer();
+  setRoundPhase("countdown");
+
+  showAnswerBtn.classList.add("d-none");
+  scrambledWordEl.classList.add("pm-countdown");
+
+  timerBar.style.width = "0%";
+
+  let n = 3;
+  timerText.textContent = "Prepare-se!";
+  scrambledWordEl.textContent = String(n);
+
+  countdownInterval = setInterval(() => {
+    n -= 1;
+
+    if (n > 0) {
+      scrambledWordEl.textContent = String(n);
+      return;
+    }
+
+    clearCountdown();
+    beginRound();
+  }, 1000);
+}
+
+function beginRound() {
+  scrambledWordEl.classList.remove("pm-countdown");
+  scrambledWordEl.textContent = scrambleKeepSpaces(currentWord);
+
+  showAnswerBtn.classList.remove("d-none");
+  showAnswerBtn.textContent = "Mostrar resposta";
+
+  setRoundPhase("playing");
+  startOrResetTimer();
 
   if (selectedDurationSec <= 0) {
     timerText.textContent = "Sem tempo";
     timerBar.style.width = "0%";
-    timerBar.classList.remove("bg-danger");
-    timer = null;
-    return;
   }
+}
+
+function toggleAnswer() {
+  if (!currentWord) return;
+
+  if (!answerRevealed) {
+    revealAnswer();
+  } else {
+    hideAnswer();
+  }
+}
+
+function revealAnswer() {
+  answerRevealed = true;
+
+  // 🔥 PARA O TEMPO
+  stopTimer();
+  timerText.textContent = "Resposta revelada";
+  timerBar.style.width = "0%";
+
+  // 🔥 MOSTRA NO CENTRO
+  scrambledWordEl.textContent = currentWord;
+
+  showAnswerBtn.textContent = "Ocultar resposta";
+  renderTeamScoreButtons();
+}
+
+function hideAnswer() {
+  answerRevealed = false;
+
+  scrambledWordEl.textContent = scrambleKeepSpaces(currentWord);
+
+  showAnswerBtn.textContent = "Mostrar resposta";
+  renderTeamScoreButtons();
+}
+
+function endGame() {
+  gameOver = true;
+  clearCountdown();
+  stopTimer();
+
+  scrambledWordEl.classList.remove("pm-countdown");
+  scrambledWordEl.textContent = "FIM DE JOGO";
+  setGameOverUI(true);
+
+  showScorePopup({
+    title: "🏁 Fim de jogo!",
+    footer: buildPlayAgainFooter(() => playAgainBtn.click()),
+  });
+}
+
+/* ========================= AFTER POINT ========================= */
+function afterPoint() {
+  stopTimer();
+
+  timerText.textContent = "Ponto registrado!";
+  timerBar.style.width = "0%";
+}
+
+/* ========================= TIMER ========================= */
+function createOrUpdateTimer() {
+  stopTimer();
+
+  if (selectedDurationSec <= 0) return;
 
   timer = createCountdownTimer({
     durationSec: selectedDurationSec,
     onTick: ({ remainingSec, progress01 }) => {
       timerText.textContent = `${remainingSec}s`;
-      timerBar.style.width = `${Math.round(progress01 * 100)}%`;
-
-      if (remainingSec <= 5) timerBar.classList.add("bg-danger");
-      else timerBar.classList.remove("bg-danger");
+      timerBar.style.width = `${progress01 * 100}%`;
     },
     onEnd: () => {
-      timerText.textContent = "Tempo!";
+      timerText.textContent = "Tempo esgotado!";
       timerBar.style.width = "0%";
-      timerBar.classList.add("bg-danger");
 
-      // troca automaticamente para a próxima palavra.
-      // se acabar o pool => endGame()
-      setTimeout(() => {
-        if (gameOver) return;
-        nextWord();
-        if (!gameOver) startOrResetTimer(true);
-      }, 350);
+      timeExpired = true;
+
+      // A palavra some da tela; só resta clicar em "Nova palavra".
+      scrambledWordEl.textContent = "⏱️";
+      showAnswerBtn.classList.add("d-none");
+
+      setRoundPhase("ended");
     }
   });
 }
 
-function startOrResetTimer(forceReset = false) {
+function startOrResetTimer() {
   createOrUpdateTimer();
-
-  if (!timer) {
-    timerText.textContent = "Sem tempo";
-    return;
-  }
+  if (!timer) return;
 
   timer.reset(selectedDurationSec);
   timer.start();
@@ -310,66 +433,56 @@ function stopTimer() {
   if (timer) timer.stop();
 }
 
-/* ===========================
-   Fullscreen
-=========================== */
+/* ========================= HELPERS ========================= */
+function scrambleKeepSpaces(phrase) {
+  return phrase.split(" ").map(scrambleToken).join(" ");
+}
 
-async function toggleFullscreen() {
+function scrambleToken(token) {
+  return shuffleArray([...token]).join("");
+}
+
+function setGameOverUI(isOver) {
+  newWordBtn.disabled = isOver;
+  restartTimerBtn.disabled = isOver;
+  teamsScoreboard.style.pointerEvents = isOver ? "none" : "";
+  renderTeamScoreButtons();
+
+  playAgainBtn.classList.toggle("d-none", !isOver);
+  gameOverNotice.classList.toggle("d-none", !isOver);
+}
+
+function playPointSound() {
   try {
-    if (!document.fullscreenElement) {
-      await document.documentElement.requestFullscreen();
-      btnFullscreen.textContent = "Sair da tela cheia";
-    } else {
-      await document.exitFullscreen();
-      btnFullscreen.textContent = "Tela cheia";
-    }
-  } catch {
-    // pode falhar em alguns browsers/tablets sem gesto explícito
-  }
+    const audio = new Audio("../../assets/sounds/correct.mp3");
+    audio.play();
+  } catch {}
 }
 
-document.addEventListener("fullscreenchange", () => {
-  btnFullscreen.textContent = document.fullscreenElement ? "Sair da tela cheia" : "Tela cheia";
-});
+/* ========================= WORD POOL ========================= */
+// Cada partida sorteia até ROUND_SIZE palavras de uma "fila" da categoria
+// (evita jogar todas de uma vez). A fila persiste entre partidas ("Jogar
+// novamente"), então nenhuma palavra repete enquanto ainda sobrar alguma
+// não usada na categoria — só quando a fila esvaziar ela é reembaralhada
+// e recomeça do zero (podendo repetir a partir daí).
+const ROUND_SIZE = 10;
 
-/* ===========================
-   Helpers
-=========================== */
+let categoryQueue = [];
+let categoryQueueId = null;
 
-function escapeHtml(str) {
-  return String(str).replace(/[&<>"']/g, (m) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
-  }[m]));
-}
-
-function escapeAttr(str) {
-  return escapeHtml(str).replace(/"/g, "&quot;");
-}
-
-function checkAutoStartFromURL() {
-  const params = new URLSearchParams(window.location.search);
-
-  if (params.get("play") !== "1") return;
-
-  const categoryFromUrl = params.get("category");
-  const timeFromUrl = params.get("time");
-
-  // aplica categoria
-  if (categoryFromUrl) {
-    categorySelect.value = categoryFromUrl;
+function buildWordPool() {
+  if (categoryQueueId !== currentCategory.id || categoryQueue.length === 0) {
+    categoryQueue = shuffleArray(currentCategory.words || []);
+    categoryQueueId = currentCategory.id;
   }
 
-  // aplica tempo
-  if (timeFromUrl) {
-    timeSelect.value = timeFromUrl;
-    selectedDurationSec = Number(timeFromUrl);
-  }
+  wordPool = categoryQueue.splice(0, ROUND_SIZE);
+  poolIndex = 0;
+}
 
-  // define categoria atual
-  const catId = categorySelect.value;
-  if (!catId) return;
+function getNextWordNoRepeat() {
+  if (!wordPool.length) return null;
+  if (poolIndex >= wordPool.length) return null;
 
-  currentCategory = data.categories.find(c => c.id === catId);
-
-  startGame();
+  return wordPool[poolIndex++];
 }

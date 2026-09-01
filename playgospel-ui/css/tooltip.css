@@ -1,0 +1,27 @@
+/* =====================================================
+   PLAYGOSPEL UI — TOOLTIP
+   Uma única bolha compartilhada (tooltip.js), reposicionada e
+   reutilizada para qualquer elemento com [data-pgui-tooltip].
+   ===================================================== */
+
+.pgui-tooltip {
+  position: fixed;
+  z-index: var(--pgui-z-tooltip);
+  max-width: 220px;
+  padding: var(--pgui-space-4) var(--pgui-space-12);
+  border-radius: var(--pgui-radius-sm);
+  background: var(--pgui-bg-surface);
+  border: 1px solid var(--pgui-border-strong);
+  color: var(--pgui-text-primary);
+  font-size: var(--pgui-fs-caption);
+  box-shadow: var(--pgui-shadow-floating);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(2px);
+  transition: opacity var(--pgui-transition-fast), transform var(--pgui-transition-fast);
+}
+
+.pgui-tooltip.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}

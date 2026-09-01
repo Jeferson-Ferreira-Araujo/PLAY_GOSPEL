@@ -1,0 +1,61 @@
+/* =====================================================
+   PLAYGOSPEL UI — ESTADOS
+   Empty state, loading (spinner autônomo) e skeleton (shimmer).
+   ===================================================== */
+
+/* ---- Empty state ---- */
+.pgui-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pgui-space-12);
+  padding: var(--pgui-space-48) var(--pgui-space-16);
+  text-align: center;
+  color: var(--pgui-text-secondary);
+}
+
+.pgui-empty-state__icon {
+  color: var(--pgui-text-muted);
+}
+
+.pgui-empty-state__title {
+  font-size: var(--pgui-fs-title);
+  font-weight: 700;
+  color: var(--pgui-text-primary);
+}
+
+/* ---- Loading spinner (fora de botão) ---- */
+.pgui-spinner {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid var(--pgui-border-strong);
+  border-top-color: var(--pgui-color-primary);
+  animation: pgui-spin 700ms linear infinite;
+}
+
+.pgui-spinner-sm { width: 16px; height: 16px; border-width: 2px; }
+.pgui-spinner-lg { width: 44px; height: 44px; border-width: 4px; }
+
+/* ---- Skeleton ---- */
+.pgui-skeleton {
+  border-radius: var(--pgui-radius-md);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, .06) 25%,
+    rgba(255, 255, 255, .12) 37%,
+    rgba(255, 255, 255, .06) 63%
+  );
+  background-size: 200% 100%;
+  animation: pgui-shimmer 1.4s ease-in-out infinite;
+}
+
+.pgui-skeleton-text  { height: 14px; width: 100%; }
+.pgui-skeleton-title { height: 22px; width: 60%; }
+.pgui-skeleton-avatar{ width: 40px; height: 40px; border-radius: 50%; }
+.pgui-skeleton-card  { height: 120px; width: 100%; border-radius: var(--pgui-radius-lg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .pgui-spinner, .pgui-skeleton { animation-duration: 2.5s; }
+}

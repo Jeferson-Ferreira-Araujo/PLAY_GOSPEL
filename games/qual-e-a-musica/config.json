@@ -1,0 +1,13 @@
+{
+  "howTo": [
+    "Clique em Sortear: o sistema sorteia entre 1 e 5 notas da introdução.",
+    "Ouça a introdução (até 2 vezes, se precisar).",
+    "Decida: Acertou (ganha os pontos), Errou (perde os pontos) ou Passar (não ganha nem perde, mas a próxima equipe tenta com 1 nota e 1 ponto a mais — no máximo 2 vezes por música)."
+  ],
+  "tips": [
+    "1ª tentativa vale 1 ponto; cada 'Passar' soma +1 nota e +1 ponto pra próxima equipe.",
+    "Só dá pra passar 2 vezes por música (ou até 7 notas, o que vier primeiro) — depois disso a equipe da vez precisa arriscar.",
+    "Quem começa cada música é sorteado automaticamente, sem repetir equipe antes de todas começarem uma vez.",
+    "Acertando, o vídeo da música toca automaticamente como recompensa."
+  ]
+}

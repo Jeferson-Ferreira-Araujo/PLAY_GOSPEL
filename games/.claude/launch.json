@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "bibflix-static",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--yes", "serve", "-l", "5522", "C:/Users/jeferson.araujo/Desktop/game/bibflix"],
+      "port": 5522
+    },
+    {
+      "name": "bibflix-admin",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["C:/Users/jeferson.araujo/Desktop/game/bibflix/server.js"],
+      "port": 5177
+    }
+  ]
+}

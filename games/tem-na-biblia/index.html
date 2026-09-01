@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Uma Letra • PlayGospel</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- PlayGospel UI: design system oficial da plataforma (sem Bootstrap) -->
+  <link href="../../playgospel-ui/css/playgospel-ui.css" rel="stylesheet">
+  <link href="game.css" rel="stylesheet">
+</head>
+
+<body>
+  <header class="pgui-header ab-topheader">
+    <div class="pgui-header__brand">
+      <a href="../../index.html" id="brandLink" class="d-flex align-center gap-2" style="color:inherit;">
+        <img src="../../assets/img/playgospel-logo.png" alt="PlayGospel" class="ab-header-logo">
+        <span class="pgui-title" style="font-size:20px;">Uma Letra</span>
+      </a>
+    </div>
+    <div class="pgui-header__actions">
+      <button id="scoreBtn" class="pgui-btn pgui-btn-outline pgui-btn-sm d-none">🏆 Placar</button>
+      <button id="exitBtn" class="pgui-btn pgui-btn-outline pgui-btn-sm">Sair</button>
+    </div>
+  </header>
+
+  <!-- Setup -->
+  <main class="pgui-container ab-setup-grid" id="setupScreen">
+    <div class="pgui-section">
+      <div class="pgui-card">
+        <h1 class="pgui-title mb-2">Como jogar</h1>
+        <p class="pgui-body pgui-text-secondary">
+          Uma <b class="pgui-text-primary">letra</b> aparece na tela. A equipe da vez tem que falar, em voz alta,
+          uma palavra do <b class="pgui-text-primary">tema</b> escolhido que comece com aquela letra, antes do
+          tempo acabar. <b class="pgui-text-primary">Acertou</b>: marca ponto, sorteia letra nova e passa a vez.
+          <b class="pgui-text-primary">Passou</b>: passa a vez com a <b class="pgui-text-primary">mesma letra</b> —
+          só troca quando der a volta em todas as equipes sem ninguém acertar. O grupo mesmo decide se a palavra
+          vale, sem verificação automática.
+        </p>
+      </div>
+
+      <div class="pgui-card mt-3">
+        <h2 class="pgui-title mb-3">Categoria</h2>
+        <div class="ab-choice-row" id="categoryRow">
+          <button type="button" class="pgui-btn pgui-btn-outline pgui-btn--stacked ab-choice-btn" data-category="biblia">
+            <span class="pgui-btn__icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H12v18H6.5A2.5 2.5 0 0 1 4 18.5v-13Z"/><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H12v18h5.5a2.5 2.5 0 0 0 2.5-2.5v-13Z"/></svg>
+            </span>
+            <span class="pgui-btn__title">Tem na Bíblia com...</span>
+          </button>
+          <button type="button" class="pgui-btn pgui-btn-outline pgui-btn--stacked ab-choice-btn" data-category="nomes">
+            <span class="pgui-btn__icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>
+            </span>
+            <span class="pgui-btn__title">Nomes</span>
+          </button>
+          <button type="button" class="pgui-btn pgui-btn-outline pgui-btn--stacked ab-choice-btn" data-category="louvor">
+            <span class="pgui-btn__icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            </span>
+            <span class="pgui-btn__title">Louvor</span>
+          </button>
+        </div>
+
+        <h2 class="pgui-title mb-3 mt-4">Tempo por resposta</h2>
+        <div class="ab-choice-row" id="timeRow">
+          <button type="button" class="pgui-btn pgui-btn-outline ab-choice-btn ab-time-btn" data-time="5">5s</button>
+          <button type="button" class="pgui-btn pgui-btn-outline ab-choice-btn ab-time-btn" data-time="10">10s</button>
+          <button type="button" class="pgui-btn pgui-btn-outline ab-choice-btn ab-time-btn" data-time="15">15s</button>
+        </div>
+      </div>
+
+      <div class="pgui-card mt-3">
+        <h2 class="pgui-title mb-3">Equipes</h2>
+
+        <div id="teamsReadyBox" class="d-none">
+          <p class="pgui-small mb-2">Equipes ativas — prontas para jogar.</p>
+          <div class="pgui-ranking mb-3" id="teamsReadyRanking"></div>
+          <button id="btnResetScores" class="pgui-btn pgui-btn-outline pgui-btn-sm">Zerar placar</button>
+        </div>
+
+        <div id="teamsSetupBox" class="ab-warning-box">
+          <p class="pgui-body mb-2">
+            ⚠️ Este jogo só é jogado em <b>equipes</b> (vale para 2 jogadores também — cada um é "uma equipe") para uma melhor experiência.
+          </p>
+          <p class="pgui-small mb-2">
+            Nenhuma equipe ativa ainda. Crie as equipes no catálogo e volte para esta tela.
+          </p>
+          <a class="pgui-btn pgui-btn-warning pgui-btn-sm" href="../../index.html#catalogo">Criar equipes no catálogo</a>
+        </div>
+
+        <div class="d-flex gap-2 mt-3" style="flex-wrap:wrap;">
+          <button id="startBtn" class="pgui-btn pgui-btn-primary" disabled>
+            Iniciar jogo
+          </button>
+          <a class="pgui-btn pgui-btn-ghost" href="../../index.html">Voltar ao catálogo</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="pgui-panel">
+      <div class="pgui-panel__title">Letras desta rodada</div>
+      <div class="ab-letters-preview" id="lettersPreview"></div>
+      <hr class="pgui-divider">
+      <p class="pgui-small">19 letras no total (sem H, K, Q, W, X, Y, Z) — a rodada acaba quando elas se esgotam.</p>
+    </div>
+  </main>
+
+  <!-- Tela de jogo (Game Layout do PlayGospel UI) -->
+  <main class="pgui-game-layout d-none" id="gameScreen">
+    <div class="pgui-game-layout__topbar">
+      <div class="pgui-topbar">
+        <span class="pgui-badge pgui-badge-neutral" id="badgeCategory">Categoria</span>
+        <span class="ab-progress-badge" id="badgeProgress">Letra 0/19</span>
+        <div class="pgui-team-badge d-none" id="turnBanner">
+          <span class="pgui-team-badge__dot"></span>
+          Vez de: <span id="turnBannerTeam">—</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pgui-game-layout__main">
+      <div class="pgui-card-game" id="playPanel">
+        <div class="ab-timer-linear" id="answerTimer">
+          <div class="ab-timer-linear__time" id="timerTime">10s</div>
+          <div class="pgui-progress__track">
+            <div class="pgui-progress__fill" id="timerBar"></div>
+          </div>
+        </div>
+
+        <div class="ab-letter-display" id="letterDisplay">A</div>
+      </div>
+    </div>
+
+    <div class="pgui-game-layout__actions">
+      <div class="pgui-actions">
+        <button id="correctBtn" class="pgui-btn pgui-btn-success">✅ Acertou</button>
+        <button id="passBtn" class="pgui-btn pgui-btn-warning">⏭️ Passou</button>
+        <button id="restartBtn" class="pgui-btn pgui-btn-outline">🔁 Reiniciar</button>
+        <button id="endBtn" class="pgui-btn pgui-btn-outline">⏹️ Encerrar</button>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="game.js"></script>
+</body>
+</html>

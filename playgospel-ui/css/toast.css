@@ -1,0 +1,59 @@
+/* =====================================================
+   PLAYGOSPEL UI — TOAST
+   Pilha no canto superior direito (inferior no mobile), auto-dismiss.
+   ===================================================== */
+
+.pgui-toast-stack {
+  position: fixed;
+  top: var(--pgui-space-24);
+  right: var(--pgui-space-24);
+  z-index: var(--pgui-z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pgui-space-8);
+  max-width: min(360px, calc(100vw - 32px));
+}
+
+.pgui-toast {
+  display: flex;
+  align-items: center;
+  gap: var(--pgui-space-8);
+  padding: var(--pgui-space-12) var(--pgui-space-16);
+  border-radius: var(--pgui-radius-md);
+  background: var(--pgui-bg-surface);
+  border: 1px solid var(--pgui-border-strong);
+  box-shadow: var(--pgui-shadow-floating);
+  opacity: 0;
+  transform: translateX(16px);
+  transition: opacity var(--pgui-transition-base), transform var(--pgui-transition-base);
+}
+
+.pgui-toast.is-visible { opacity: 1; transform: translateX(0); }
+.pgui-toast.is-leaving  { opacity: 0; }
+
+.pgui-toast__icon { flex: 0 0 auto; display: inline-flex; }
+.pgui-toast__message { flex: 1; font-size: var(--pgui-fs-small); color: var(--pgui-text-primary); }
+.pgui-toast__close { color: var(--pgui-text-muted); flex: 0 0 auto; display: inline-flex; }
+.pgui-toast__close:hover { color: var(--pgui-text-primary); }
+
+.pgui-toast-success .pgui-toast__icon { color: var(--pgui-color-success); }
+.pgui-toast-success { border-color: rgba(34, 197, 94, .4); }
+
+.pgui-toast-info .pgui-toast__icon { color: var(--pgui-color-info); }
+.pgui-toast-info { border-color: rgba(59, 130, 246, .4); }
+
+.pgui-toast-warning .pgui-toast__icon { color: var(--pgui-color-warning); }
+.pgui-toast-warning { border-color: rgba(245, 158, 11, .4); }
+
+.pgui-toast-danger .pgui-toast__icon { color: var(--pgui-color-danger); }
+.pgui-toast-danger { border-color: rgba(239, 68, 68, .4); }
+
+@media (max-width: 480px) {
+  .pgui-toast-stack {
+    left: var(--pgui-space-16);
+    right: var(--pgui-space-16);
+    top: auto;
+    bottom: var(--pgui-space-16);
+    max-width: none;
+  }
+}

@@ -1,9 +1,12 @@
 import { shuffleArray } from "../../assets/js/utils.js";
+import { renderTeamScoreboard } from "../../assets/js/scoreboard-ui.js";
+import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
+
+const teamsScoreboard = document.getElementById("teamsScoreboard");
 
 const setupScreen = document.getElementById("setupScreen");
 const gameScreen = document.getElementById("gameScreen");
 
-const btnFullscreen = document.getElementById("btnFullscreen");
 const startBtn = document.getElementById("startBtn");
 
 const badgeProgress = document.getElementById("badgeProgress");
@@ -18,6 +21,7 @@ const showHintBtn = document.getElementById("showHintBtn");
 const showAnswerBtn = document.getElementById("showAnswerBtn");
 const nextBtn = document.getElementById("nextBtn");
 const exitBtn = document.getElementById("exitBtn");
+const brandLink = document.getElementById("brandLink");
 
 const playAgainBtn = document.getElementById("playAgainBtn");
 const gameOverNotice = document.getElementById("gameOverNotice");
@@ -34,6 +38,7 @@ let gameOver = false;
 document.addEventListener("DOMContentLoaded", async () => {
   await loadData();
   wireUI();
+  renderTeamScoreboard(teamsScoreboard);
   checkAutoStartFromURL(); // ✅ NOVO
 });
 
@@ -55,9 +60,17 @@ function checkAutoStartFromURL() {
   startGame();
 }
 
-function wireUI() {
-  btnFullscreen?.addEventListener("click", toggleFullscreen);
+/* ===== Sair (confirma antes de deixar o jogo, com ou sem equipes) ===== */
+function confirmExit() {
+  const goToCatalog = () => { window.location.href = "../../index.html#catalogo"; };
+  const shown = showScorePopup({
+    title: "👋 Sair do jogo?",
+    footer: buildExitFooter(goToCatalog),
+  });
+  if (!shown) goToCatalog();
+}
 
+function wireUI() {
   startBtn?.addEventListener("click", () => {
     startGame();
   });
@@ -82,8 +95,13 @@ function wireUI() {
   });
 
   // ✅ Sair agora volta para o catálogo principal
-  exitBtn.addEventListener("click", () => {
-    window.location.href = "../../index.html#catalogo";
+  exitBtn.addEventListener("click", confirmExit);
+  brandLink.addEventListener("click", (e) => {
+    // Só confirma se o jogo já estiver em andamento — na tela de
+    // configuração não há nada a perder, deixa navegar direto.
+    if (gameScreen.classList.contains("d-none")) return;
+    e.preventDefault();
+    confirmExit();
   });
 
   document.addEventListener("keydown", (e) => {
@@ -100,8 +118,6 @@ function wireUI() {
       if (gameOver) return;
       nextItem();
     }
-
-    if (k === "f") toggleFullscreen();
   });
 }
 
@@ -218,6 +234,11 @@ function endGame(text) {
 
   const total = pool.length || items.length || 0;
   badgeProgress.textContent = `${total}/${total}`;
+
+  showScorePopup({
+    title: "🏁 Fim de jogo!",
+    footer: buildPlayAgainFooter(restartGame),
+  });
 }
 
 function setGameOverUI(isOver) {
@@ -228,21 +249,3 @@ function setGameOverUI(isOver) {
   playAgainBtn.classList.toggle("d-none", !isOver);
   gameOverNotice.classList.toggle("d-none", !isOver);
 }
-
-/* ===== Fullscreen ===== */
-async function toggleFullscreen() {
-  try {
-    if (!document.fullscreenElement) {
-      await document.documentElement.requestFullscreen();
-      btnFullscreen.textContent = "Sair da tela cheia";
-    } else {
-      await document.exitFullscreen();
-      btnFullscreen.textContent = "Tela cheia";
-    }
-  } catch {}
-}
-
-document.addEventListener("fullscreenchange", () => {
-  if (!btnFullscreen) return;
-  btnFullscreen.textContent = document.fullscreenElement ? "Sair da tela cheia" : "Tela cheia";
-});

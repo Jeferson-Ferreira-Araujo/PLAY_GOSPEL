@@ -3,28 +3,37 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>PALAVRAS MISTURADAS • BibFlix</title>
+  <title>Palavras Misturadas • BibFlix</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <link href="../../assets/css/game-base.css" rel="stylesheet">
   <link href="game.css" rel="stylesheet">
+
+  <!-- PlayGospel UI: só os módulos "componentizados" (sem reset/typography/layout,
+       que são globais e conflitariam com Bootstrap/game-base.css já carregados) —
+       usados só pelo popup de placar (assets/js/score-popup.js). -->
+  <link href="../../playgospel-ui/css/variables.css" rel="stylesheet">
+  <link href="../../playgospel-ui/css/buttons.css" rel="stylesheet">
+  <link href="../../playgospel-ui/css/badges.css" rel="stylesheet">
+  <link href="../../playgospel-ui/css/ranking.css" rel="stylesheet">
+  <link href="../../playgospel-ui/css/modal.css" rel="stylesheet">
 </head>
 
 <body class="bg-dark text-light">
-  <nav class="navbar navbar-dark bg-black border-bottom border-secondary">
-    <div class="container py-2">
-      <a class="navbar-brand d-flex align-items-center gap-2" href="../../index.html">
-        <span class="brand-dot"></span>
-        <span class="fw-bold">BibFlix</span>
-        <span class="text-secondary">• PALAVRAS MISTURADAS</span>
-      </a>
+  <header class="game-topbar">
+    <a class="game-topbar-brand" href="../../index.html" id="brandLink">
+      <span class="brand-dot"></span>
+      <span class="fw-bold">BibFlix</span>
+      <span class="game-topbar-game">• Palavras Misturadas</span>
+    </a>
 
-      <div class="d-flex gap-2">
-        <button id="btnFullscreen" class="btn btn-outline-light btn-sm">
-          Tela cheia
-        </button>
-      </div>
+    <div class="game-topbar-actions">
+      <div id="teamsScoreboard" class="team-scoreboard d-none"></div>
     </div>
-  </nav>
+  </header>
 
   <main class="container py-4" id="setupScreen">
     <div class="row g-4">
@@ -35,7 +44,7 @@
             Escolha a categoria e o tempo. Inicie o jogo.
             Uma palavra (ou frase) aparecerá com as letras embaralhadas.
             O jogador precisa descobrir antes do tempo acabar.
-            Quando as palavras acabarem, o jogo encerra.
+            Cada partida sorteia 10 palavras da categoria; ao final delas o jogo encerra e mostra a pontuação — dá pra jogar novamente com outras 10.
           </p>
         </div>
 
@@ -77,58 +86,57 @@
         <div class="p-4 rounded-4 bg-black border border-secondary h-100">
           <h2 class="h5 mb-3">Dicas</h2>
           <ul class="text-secondary mb-0">
-            <li>Funciona bem ao ar livre usando tela cheia.</li>
             <li>Frases com espaços (ex: “Atos dos Apóstolos”) também embaralham.</li>
             <li>Use “Mostrar resposta” se estiver usando em grupo.</li>
-            <li><b>Espaço</b>: próxima palavra • <b>F</b>: tela cheia</li>
+            <li>Se houver <b>equipes</b> criadas, todas veem a mesma palavra ao mesmo tempo. Quando alguém falar a resposta, clique em <b>Mostrar resposta</b> para conferir — só depois disso os botões de pontuação de cada equipe aparecem.</li>
+            <li><b>Espaço</b>: próxima palavra</li>
           </ul>
         </div>
       </div>
     </div>
   </main>
 
-  <!-- Tela de jogo / Apresentação -->
   <main class="presenter d-none" id="gameScreen">
-    <div class="presenter-top">
-      <div class="presenter-badges">
-        <span class="badge text-bg-dark border border-secondary" id="badgeCategory">Categoria</span>
-        <span class="badge text-bg-dark border border-secondary" id="badgeRound">Rodada</span>
-      </div>
 
-      <div class="timer-wrap">
-        <div class="timer-text" id="timerText">--</div>
-        <div class="progress bg-secondary-subtle" style="height: 6px; width: 220px;">
-          <div id="timerBar" class="progress-bar" style="width: 0%"></div>
-        </div>
-      </div>
+  <!-- TOPO (BADGES + TIMER) -->
+  <div class="presenter-top">
+    <div class="presenter-badges">
+      <span class="badge text-bg-dark border border-secondary" id="badgeCategory">--</span>
+      <span class="badge text-bg-dark border border-secondary" id="badgeRound">--</span>
     </div>
 
-    <div class="presenter-center">
-      <div class="scrambled" id="scrambledWord">CARREGANDO</div>
-    </div>
-
-    <div class="presenter-bottom">
-      <div class="d-flex gap-2 flex-wrap justify-content-center">
-        <button id="newWordBtn" class="btn btn-warning fw-semibold">Nova palavra</button>
-        <button id="showAnswerBtn" class="btn btn-outline-light">Mostrar resposta</button>
-        <button id="restartTimerBtn" class="btn btn-outline-light">Reiniciar tempo</button>
-        <button id="exitBtn" class="btn btn-outline-danger">Sair</button>
-
-        <!-- NOVO -->
-        <button id="playAgainBtn" class="btn btn-success fw-semibold d-none">Jogar novamente</button>
-      </div>
-
-      <!-- NOVO -->
-      <div id="gameOverNotice" class="text-center text-secondary small d-none">
-        Você já usou todas as palavras desta categoria. Clique em <b>Jogar novamente</b> para reiniciar.
-      </div>
-
-      <div class="answer d-none" id="answerBox">
-        <div class="text-secondary small">Resposta</div>
-        <div class="answer-text" id="answerText"></div>
+    <div class="timer-wrap">
+      <div id="timerText" class="timer-text">30s</div>
+      <div class="progress bg-secondary-subtle" style="height: 6px; width: 220px;">
+        <div id="timerBar" class="progress-bar" style="width: 0%"></div>
       </div>
     </div>
-  </main>
+  </div>
+
+  <!-- PALAVRA -->
+  <div class="presenter-center">
+    <div class="scrambled stage-text" id="scrambledWord">CARREGANDO</div>
+  </div>
+
+  <!-- QUEM ACERTOU (um botão por equipe ativa — formato "disputa": todas veem a
+       mesma palavra ao mesmo tempo, quem falar certo primeiro ganha o ponto) -->
+  <div class="team-score-row d-none" id="teamScoreButtons"></div>
+
+  <!-- CONTROLES -->
+  <div class="presenter-bottom">
+    <button id="newWordBtn" class="btn btn-warning">Nova palavra</button>
+    <button id="showAnswerBtn" class="btn btn-outline-light">Mostrar resposta</button>
+    <button id="restartTimerBtn" class="btn btn-outline-light">Reiniciar tempo</button>
+    <button id="exitBtn" class="btn btn-outline-danger">Sair</button>
+
+    <button id="playAgainBtn" class="btn btn-success d-none">Jogar novamente</button>
+  </div>
+
+  <div id="gameOverNotice" class="text-center text-secondary small d-none">
+    Fim da partida! Clique em <b>Jogar novamente</b> para sortear outras 10 palavras desta categoria.
+  </div>
+
+</main>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script type="module" src="game.js"></script>

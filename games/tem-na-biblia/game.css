@@ -1,0 +1,179 @@
+/* =====================================================
+   UMA LETRA — estilos específicos, construídos sobre os
+   tokens e componentes do PlayGospel UI (../../playgospel-ui/).
+   Nada aqui redefine cor/espaçamento/radius do zero — tudo usa
+   var(--pgui-*) para ficar visualmente igual ao resto da plataforma.
+   Estrutura copiada de games/qual-e-a-musica/game.css (mesmo padrão
+   de header sticky + topo do jogo sticky + ranking minimalista +
+   botões sempre na primeira dobra).
+   ===================================================== */
+
+.ab-topheader {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  padding: 12px 24px;
+  background: var(--pgui-bg-main);
+  border-bottom: 1px solid var(--pgui-border);
+}
+
+.ab-header-logo {
+  height: 28px;
+  width: auto;
+  display: block;
+}
+
+/* .pgui-game-layout tem min-height:100vh (assume que é a página inteira),
+   mas aqui ele fica ABAIXO do .ab-topheader — sem esse ajuste, a altura
+   real da página vira header + 100vh, sempre estourando o viewport em
+   exatamente a altura do header. */
+#gameScreen.pgui-game-layout {
+  min-height: calc(100vh - var(--ab-header-h, 61px));
+}
+
+/* ---- Topo do jogo (categoria/progresso/vez de): fixo logo abaixo do header ---- */
+#gameScreen .pgui-game-layout__topbar {
+  position: sticky;
+  top: var(--ab-header-h, 61px);
+  z-index: 25;
+}
+
+/* ---- Botões sempre visíveis: mesmo se o conteúdo do meio (sidebar de
+   letras, letra gigante) precisar rolar em alguma tela muito baixa, os
+   botões de ação ficam grudados embaixo — rede de segurança além do
+   ajuste de tamanho da letra logo abaixo. */
+#gameScreen .pgui-game-layout__actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 25;
+  background: var(--pgui-bg-main);
+  padding-top: var(--pgui-space-8);
+  padding-bottom: var(--pgui-space-8);
+}
+
+/* Sem sidebars (o placar saiu da tela — vive no botão do header + no
+   popup de fim de rodada), então o jogo inteiro é só topo/letra/ações
+   numa coluna só, mesmo em telas grandes — maior especificidade aqui
+   pra vencer a regra de 3 colunas de layout.css sem precisar tocar na lib. */
+@media (min-width: 768px) {
+  #gameScreen.pgui-game-layout {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "topbar"
+      "main"
+      "actions";
+  }
+}
+
+/* ---- Setup screen: 2 colunas a partir de 900px ---- */
+.ab-setup-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--pgui-space-24);
+  padding-top: var(--pgui-space-32);
+  padding-bottom: var(--pgui-space-64);
+}
+
+@media (min-width: 900px) {
+  .ab-setup-grid { grid-template-columns: 1.1fr .9fr; align-items: start; }
+}
+
+.ab-warning-box {
+  padding: var(--pgui-space-16);
+  border-radius: var(--pgui-radius-lg);
+  border: 1px solid rgba(245, 158, 11, .4);
+  background: rgba(245, 158, 11, .08);
+}
+
+/* ---- Escolha de categoria / tempo (tela de setup) ---- */
+.ab-choice-row {
+  display: flex;
+  gap: var(--pgui-space-12);
+  flex-wrap: wrap;
+}
+
+.ab-choice-btn {
+  min-width: 130px;
+}
+
+.ab-time-btn {
+  min-width: 72px;
+  justify-content: center;
+}
+
+.ab-choice-btn.is-active {
+  border-color: var(--pgui-color-primary);
+  background: rgba(255, 193, 7, .12);
+  color: var(--pgui-color-primary);
+}
+
+.ab-letters-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ab-letters-preview span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--pgui-radius-sm);
+  background: rgba(255, 255, 255, .06);
+  color: var(--pgui-text-secondary);
+  font-weight: 700;
+  font-size: var(--pgui-fs-caption);
+}
+
+/* ---- Badge de progresso (topbar) ---- */
+.ab-progress-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pgui-space-4);
+  padding: var(--pgui-space-8) var(--pgui-space-16);
+  border-radius: var(--pgui-radius-pill);
+  background: rgba(255, 193, 7, .14);
+  border: 2px solid var(--pgui-color-primary);
+  color: var(--pgui-color-primary);
+  font-weight: 800;
+  font-size: var(--pgui-fs-small);
+}
+
+/* ---- Cronômetro + letra gigante (peça central do jogo) ---- */
+#playPanel.pgui-card-game {
+  padding: var(--pgui-space-16) var(--pgui-space-24);
+}
+
+.ab-timer-linear {
+  width: min(320px, 80vw);
+  margin: 0 auto var(--pgui-space-16);
+  text-align: center;
+}
+
+.ab-timer-linear__time {
+  font-weight: 800;
+  font-size: var(--pgui-fs-title);
+  color: var(--pgui-color-primary);
+  margin-bottom: var(--pgui-space-8);
+}
+
+/* clamp() usando min(vw, vh): numa tela larga mas baixa (desktop comum,
+   ex: 1366x768), 30vw sozinho ficaria enorme e estouraria a altura
+   disponível — o termo vh garante que a letra nunca cresce além do que
+   cabe verticalmente, não só horizontalmente. */
+.ab-letter-display {
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: .01em;
+  font-size: clamp(90px, min(26vw, 36vh), 340px);
+  color: var(--pgui-color-primary);
+  text-shadow: 0 0 60px rgba(255, 193, 7, .35);
+  user-select: none;
+}
+
+@media (max-width: 640px) {
+  .ab-letter-display {
+    font-size: clamp(90px, min(38vw, 30vh), 200px);
+  }
+}

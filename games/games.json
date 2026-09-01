@@ -1,31 +1,40 @@
 [
   {
-    "id": "palavras-misturadas",
-    "title": "PALAVRAS MISTURADAS",
-    "description": "Descubra a palavra/frase bíblica com as letras embaralhadas antes do tempo acabar.",
-    "cover": "games/palavras-misturadas/palavras-misturadas.png",
-    "tags": ["desafio", "ao ar livre", "grupo"],
-    "controls": ["Espaço: nova palavra", "F: tela cheia", "Botões na tela"],
-    "version": "0.1.0",
-    "route": "games/palavras-misturadas/index.html"
-    },
+  "id": "palavras-misturadas",
+  "title": "Palavras Misturadas",
+  "description": "Descubra a palavra/frase bíblica com as letras embaralhadas antes do tempo acabar.",
+  "cover": "assets/img/cover-placeholder.svg",
+  "duration": "5-10 min",
+  "tags": ["desafio", "ao ar livre", "grupo"],
+  "controls": ["Espaço: nova palavra", "Botões na tela"],
+  "version": "0.1.0",
+  "route": "games/palavras-misturadas/index.html",
+
+  "teams": {
+    "mode": "all-play",
+    "allowPointClick": true,
+    "customText": "Todas as equipes jogam"
+  }
+},
     {
       "id": "uma-musica",
-      "title": "UMA MÚSICA",
+      "title": "Uma Música",
       "description": "Uma palavra aparece na tela e o jogador precisa cantar uma música que tenha essa palavra. Sem repetição até reiniciar.",
-      "cover": "games/uma-musica/uma-musica.png",
+      "cover": "assets/img/cover-placeholder.svg",
+      "duration": "10-15 min",
       "tags": ["grupo", "louvor", "dinâmica"],
-      "controls": ["Espaço: nova palavra", "F: tela cheia"],
+      "controls": ["Espaço: nova palavra"],
       "version": "0.1.0",
       "route": "games/uma-musica/index.html"
     },
     {
       "id": "quem-sou-eu",
-      "title": "Quem sou eu?",
+      "title": "Quem Sou Eu?",
       "description": "Descubra o personagem bíblico com 3 dicas reveladas uma por vez. Sem tempo e sem repetição até reiniciar.",
-      "cover": "games/quem-sou-eu/quem-sou-eu.png",
+      "cover": "assets/img/cover-placeholder.svg",
+      "duration": "5-10 min",
       "tags": ["grupo", "desafio", "bíblia"],
-      "controls": ["D: mostrar dica", "N: próximo", "F: tela cheia"],
+      "controls": ["D: mostrar dica", "N: próximo"],
       "version": "0.1.0",
       "route": "games/quem-sou-eu/index.html"
     },
@@ -33,7 +42,8 @@
       "id": "complete-o-versiculo",
       "title": "Complete o Versículo",
       "description": "Complete o versículo da Bíblia (King James Version) preenchendo as palavras que faltam. Com sistema de dificuldade e timer.",
-      "cover": "games/complete-o-versiculo/complete-o-versiculo.png",
+      "cover": "assets/img/cover-placeholder.svg",
+      "duration": "10-20 min",
       "tags": ["bíblia", "memorização", "versículos", "desafio"],
       "controls": ["Escolha dificuldade", "Timer opcional", "Botões na tela"],
       "version": "0.1.0",
@@ -41,9 +51,10 @@
     },
     {
       "id": "quem-disse-isso",
-      "title": "Quem disse isso?",
+      "title": "Quem Disse Isso?",
       "description": "Uma frase bíblica aparece na tela. Descubra quem falou isso. Ideal para jogar em grupo, com dificuldade e timer opcional.",
-      "cover": "games/quem-disse-isso/quem-disse-isso.png",
+      "cover": "assets/img/cover-placeholder.svg",
+      "duration": "10-15 min",
       "tags": ["bíblia", "personagens", "memorização", "grupo"],
       "controls": ["Escolha dificuldade", "Timer opcional", "Botões na tela"],
       "version": "0.1.0",
@@ -53,7 +64,8 @@
       "id": "verdadeiro-ou-falso",
       "title": "Verdadeiro ou Falso?",
       "description": "Decida se a afirmação bíblica é verdadeira ou falsa. Pegadinhas, explicação e referência para conferência. Ideal para jogar em grupo, com timer opcional.",
-      "cover": "games/verdadeiro-ou-falso/verdadeiro-ou-falso.png",
+      "cover": "assets/img/cover-placeholder.svg",
+      "duration": "10-20 min",
       "tags": ["bíblia", "quiz", "pegadinhas", "grupo"],
       "controls": ["Verdadeiro/Falso", "Timer opcional", "Atalhos (V/F/N)"],
       "version": "0.1.0",
@@ -63,13 +75,51 @@
   "id": "qual-a-passagem",
   "title": "Qual a Passagem?",
   "description": "Um versículo aparece na tela e o grupo deve dizer a passagem correta. Use Revelar para mostrar a referência.",
-  "cover": "games/qual-a-passagem/qual-a-passagem.png",
+  "cover": "assets/img/cover-placeholder.svg",
+  "duration": "10-15 min",
   "route": "games/qual-a-passagem/index.html",
   "version": "1.0.0",
   "tags": ["Grupo", "Versículos", "Referências", "Memorização"],
-  "controls": ["R: revelar", "N: próximo", "F: tela cheia", "T: reiniciar tempo"]
-}
+  "controls": ["R: revelar", "N: próximo", "T: reiniciar tempo"]
+},
+    {
+      "id": "qual-e-a-musica",
+      "title": "Qual é a Música?",
+      "description": "Escolha quantas notas da introdução quer ouvir — quanto menos notas, mais pontos. Acerte, erre ou passe a vez para a próxima equipe tentar o dobro.",
+      "cover": "assets/img/cover-placeholder.svg",
+      "duration": "15-25 min",
+      "tags": ["grupo", "louvor", "música", "equipes"],
+      "controls": ["Escolha quantas notas ouvir", "Acertou / Errou / Passar"],
+      "version": "0.1.0",
+      "route": "games/qual-e-a-musica/index.html"
+    },
+    {
+      "id": "tem-na-biblia",
+      "title": "Uma Letra",
+      "description": "Uma letra aparece na tela — a equipe da vez precisa falar uma palavra do tema antes do tempo acabar. Acertou marca ponto e sorteia letra nova; passou passa a vez com a mesma letra.",
+      "cover": "assets/img/cover-placeholder.svg",
+      "duration": "10-20 min",
+      "tags": ["grupo", "equipes", "desafio", "bíblia"],
+      "controls": ["Escolha categoria e tempo", "Acertou / Passou", "Reiniciar / Encerrar"],
+      "version": "0.1.0",
+      "route": "games/tem-na-biblia/index.html"
+    },
+    {
+      "id": "adivinhe-emoji",
+      "title": "Emojis",
+      "description": "Uma sequência de emojis aparece na tela — as equipes tentam adivinhar o que ela representa antes do tempo acabar. Contagem de 3 segundos antes de cada rodada.",
+      "cover": "assets/img/cover-placeholder.svg",
+      "duration": "10-20 min",
+      "tags": ["grupo", "equipes", "desafio", "emojis"],
+      "controls": ["Escolha categoria e tempo", "Mostrar resposta", "Botão de pontuação por equipe"],
+      "version": "0.1.0",
+      "route": "games/adivinhe-emoji/index.html",
 
-
+      "teams": {
+        "mode": "all-play",
+        "allowPointClick": true,
+        "customText": "Todas as equipes jogam"
+      }
+    }
 
 ]

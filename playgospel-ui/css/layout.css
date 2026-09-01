@@ -1,0 +1,162 @@
+/* =====================================================
+   PLAYGOSPEL UI — LAYOUT
+   "Game Layout": a estrutura padrão de todo jogo da plataforma.
+   HEADER → TOPBAR → (ranking | CARD PRINCIPAL | informações) → AÇÕES → FOOTER
+   O conteúdo de cada slot muda por jogo; a estrutura nunca muda.
+   Mobile first: empilha em 1 coluna até 1024px, depois abre 3 colunas.
+   ===================================================== */
+
+.pgui-game-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "header"
+    "topbar"
+    "sidebar-left"
+    "main"
+    "sidebar-right"
+    "actions"
+    "footer";
+  gap: var(--pgui-space-16);
+  min-height: 100vh;
+  background:
+    radial-gradient(900px 500px at 15% 0%, rgba(255, 193, 7, .05), transparent 60%),
+    var(--pgui-bg-main);
+  padding: var(--pgui-space-16);
+}
+
+@media (min-width: 768px) {
+  .pgui-game-layout { padding: var(--pgui-space-24); gap: var(--pgui-space-24); }
+}
+
+@media (min-width: 1024px) {
+  .pgui-game-layout {
+    grid-template-columns: 260px minmax(0, 1fr) 260px;
+    grid-template-areas:
+      "header header header"
+      "topbar topbar topbar"
+      "sidebar-left main sidebar-right"
+      "actions actions actions"
+      "footer footer footer";
+    padding: var(--pgui-space-32);
+  }
+}
+
+.pgui-game-layout__header       { grid-area: header; }
+.pgui-game-layout__topbar       { grid-area: topbar; }
+.pgui-game-layout__sidebar-left { grid-area: sidebar-left; min-width: 0; }
+.pgui-game-layout__main         { grid-area: main; min-width: 0; }
+.pgui-game-layout__sidebar-right{ grid-area: sidebar-right; min-width: 0; }
+.pgui-game-layout__actions      { grid-area: actions; }
+.pgui-game-layout__footer       { grid-area: footer; }
+
+/* ---- Header ---- */
+.pgui-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--pgui-space-12);
+  padding-bottom: var(--pgui-space-12);
+}
+
+.pgui-header__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--pgui-space-8);
+}
+
+.pgui-header__logo-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--pgui-radius-md);
+  background: rgba(255, 193, 7, .12);
+  color: var(--pgui-color-primary);
+}
+
+.pgui-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--pgui-space-8);
+  flex-wrap: wrap;
+}
+
+/* ---- Topbar ---- */
+.pgui-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--pgui-space-16);
+  padding: var(--pgui-space-12) var(--pgui-space-16);
+  background: var(--pgui-bg-surface);
+  border: 1px solid var(--pgui-border);
+  border-radius: var(--pgui-radius-lg);
+}
+
+/* ---- Painel genérico (sidebars, blocos de informação) ---- */
+.pgui-panel {
+  background: var(--pgui-bg-surface);
+  border: 1px solid var(--pgui-border);
+  border-radius: var(--pgui-radius-lg);
+  padding: var(--pgui-space-16);
+}
+
+.pgui-panel__title {
+  font-size: var(--pgui-fs-label);
+  font-weight: var(--pgui-fw-label);
+  color: var(--pgui-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: var(--pgui-space-12);
+}
+
+/* ---- Seção genérica (agrupa um bloco de conteúdo com espaçamento) ---- */
+.pgui-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pgui-space-16);
+}
+
+.pgui-section + .pgui-section {
+  margin-top: var(--pgui-space-32);
+}
+
+/* ---- Ações (barra de botões da rodada) ---- */
+.pgui-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pgui-space-12);
+  justify-content: center;
+}
+
+/* ---- Footer ---- */
+.pgui-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--pgui-space-8);
+  padding-top: var(--pgui-space-16);
+  border-top: 1px solid var(--pgui-border);
+  color: var(--pgui-text-muted);
+  font-size: var(--pgui-fs-small);
+}
+
+/* ---- Container utilitário (para páginas fora do game layout, ex: docs) ---- */
+.pgui-container {
+  width: 100%;
+  margin: 0 auto;
+  padding-left: var(--pgui-space-16);
+  padding-right: var(--pgui-space-16);
+}
+
+@media (min-width: 375px)  { .pgui-container { max-width: 375px; } }
+@media (min-width: 425px)  { .pgui-container { max-width: 425px; } }
+@media (min-width: 768px)  { .pgui-container { max-width: 720px; } }
+@media (min-width: 1024px) { .pgui-container { max-width: 980px; } }
+@media (min-width: 1366px) { .pgui-container { max-width: 1300px; } }
+@media (min-width: 1920px) { .pgui-container { max-width: 1760px; } }

@@ -1,0 +1,138 @@
+/* =====================================================
+   PLAYGOSPEL UI — RANKING
+   Quantidade ILIMITADA de equipes. Nunca usa cards grandes — cada
+   equipe é uma linha só. A equipe atual recebe destaque dourado.
+   Com muitas equipes, o próprio container rola (ranking.js foca a
+   linha atual automaticamente).
+   ===================================================== */
+
+.pgui-ranking {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.pgui-ranking__row {
+  display: flex;
+  align-items: center;
+  gap: var(--pgui-space-8);
+  padding: var(--pgui-space-8) var(--pgui-space-8);
+  border-radius: var(--pgui-radius-sm);
+  font-size: var(--pgui-fs-small);
+  color: var(--pgui-text-secondary);
+  transition: background var(--pgui-transition-fast);
+}
+
+.pgui-ranking__pos {
+  width: 18px;
+  flex: 0 0 auto;
+  font-weight: 700;
+  color: var(--pgui-text-muted);
+  text-align: center;
+}
+
+.pgui-ranking__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  background: var(--team-color, var(--pgui-color-primary));
+}
+
+.pgui-ranking__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--team-color, var(--pgui-color-primary));
+  color: var(--pgui-on-primary);
+}
+
+.pgui-ranking__name {
+  flex: 0 0 auto;
+  color: var(--pgui-text-primary);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 40%;
+}
+
+.pgui-ranking__line {
+  flex: 1;
+  border-bottom: 2px dotted var(--pgui-border-strong);
+  margin: 0 var(--pgui-space-4);
+  height: 1px;
+  align-self: center;
+}
+
+.pgui-ranking__score {
+  flex: 0 0 auto;
+  font-weight: 800;
+  color: var(--pgui-text-primary);
+  min-width: 24px;
+  text-align: right;
+}
+
+.pgui-ranking__row.is-current {
+  background: rgba(255, 193, 7, .12);
+}
+.pgui-ranking__row.is-current .pgui-ranking__pos,
+.pgui-ranking__row.is-current .pgui-ranking__score {
+  color: var(--pgui-color-primary);
+}
+.pgui-ranking__row.is-current .pgui-ranking__name {
+  color: var(--pgui-color-primary);
+  font-weight: 800;
+}
+
+/* ---- Destaque da equipe líder (usado no popup de placar, assets/js/score-popup.js) ---- */
+.pgui-ranking-leader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pgui-space-8);
+  padding: var(--pgui-space-24) var(--pgui-space-16);
+  margin-bottom: var(--pgui-space-16);
+  border-radius: var(--pgui-radius-lg);
+  background: linear-gradient(135deg, rgba(255, 193, 7, .18), rgba(255, 193, 7, .04));
+  border: 1px solid rgba(255, 193, 7, .35);
+  text-align: center;
+}
+
+.pgui-ranking-leader__icon {
+  flex: 0 0 auto;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--team-color, var(--pgui-color-primary));
+  color: var(--pgui-on-primary);
+}
+
+.pgui-ranking-leader__label {
+  font-size: var(--pgui-fs-caption);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--pgui-text-muted);
+}
+
+.pgui-ranking-leader__name {
+  font-size: var(--pgui-fs-title);
+  font-weight: 800;
+  color: var(--pgui-text-primary);
+}
+
+.pgui-ranking-leader__points {
+  font-size: var(--pgui-fs-heading-m);
+  font-weight: 900;
+  color: var(--pgui-color-primary);
+}

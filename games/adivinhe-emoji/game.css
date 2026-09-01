@@ -1,0 +1,114 @@
+/* Palco dos emojis */
+.emoji-stage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 22px 24px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  background: rgba(0, 0, 0, .35);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  min-height: 160px;
+}
+
+.emoji-tile {
+  font-size: clamp(48px, 11vw, 120px);
+  line-height: 1;
+  user-select: none;
+}
+
+/* Contagem "3, 2, 1" antes de cada rodada */
+@keyframes ae-countdown-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+
+.emoji-stage.ae-countdown {
+  font-size: clamp(60px, 16vw, 160px);
+  font-weight: 900;
+  color: var(--gold, #F5C518);
+  animation: ae-countdown-pulse 1s ease-in-out infinite;
+}
+
+/* Resposta revelada (fica abaixo dos emojis, que continuam visíveis) */
+.ae-answer {
+  margin-top: 18px;
+  text-align: center;
+}
+
+.ae-answer-text {
+  font-weight: 800;
+  font-size: clamp(22px, 4vw, 36px);
+  color: var(--gold, #F5C518);
+}
+
+@media (max-width: 420px) {
+  .emoji-stage {
+    gap: 10px;
+    padding: 16px;
+    min-height: 120px;
+  }
+}
+
+/* Formato "disputa": um botão de pontuação por equipe ativa — todas as
+   equipes veem os mesmos emojis, e quem acertar primeiro ganha o ponto. */
+.team-score-row {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  padding: 0 16px 4px;
+}
+
+.ae-team-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 10px 22px;
+  border-radius: 14px;
+  border: none;
+  background: var(--team-color, var(--gold));
+  color: #0b1220;
+  font-weight: 800;
+  font-size: 1.05rem;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .25);
+  transition: transform .15s ease, filter .15s ease;
+}
+
+.ae-team-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.ae-team-btn:active {
+  transform: translateY(0);
+}
+
+.ae-team-btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ae-team-btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, .18);
+}
+
+@media (max-width: 420px) {
+  .ae-team-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

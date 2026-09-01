@@ -1,0 +1,40 @@
+/* =====================================================
+   PLAYGOSPEL UI — TABS
+   Markup:
+   <div class="pgui-tabs" data-pgui-tabs>
+     <div class="pgui-tabs__list" role="tablist">
+       <button class="pgui-tabs__tab is-active" role="tab" data-tab="a">Aba A</button>
+       <button class="pgui-tabs__tab" role="tab" data-tab="b">Aba B</button>
+     </div>
+     <div class="pgui-tabs__panel" role="tabpanel" data-tab-panel="a">...</div>
+     <div class="pgui-tabs__panel" role="tabpanel" data-tab-panel="b" hidden>...</div>
+   </div>
+   ===================================================== */
+
+.pgui-tabs__list {
+  display: flex;
+  gap: var(--pgui-space-4);
+  border-bottom: 1px solid var(--pgui-border);
+  overflow-x: auto;
+}
+
+.pgui-tabs__tab {
+  padding: var(--pgui-space-12) var(--pgui-space-16);
+  color: var(--pgui-text-secondary);
+  font-weight: 600;
+  font-size: var(--pgui-fs-small);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color var(--pgui-transition-fast), border-color var(--pgui-transition-fast);
+}
+
+.pgui-tabs__tab:hover { color: var(--pgui-text-primary); }
+
+.pgui-tabs__tab.is-active {
+  color: var(--pgui-color-primary);
+  border-bottom-color: var(--pgui-color-primary);
+}
+
+.pgui-tabs__panel {
+  padding: var(--pgui-space-16) 0;
+}

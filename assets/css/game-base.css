@@ -1,0 +1,318 @@
+/* =====================================================
+   BIBFLIX GAME BASE — layout/tema compartilhado por todos
+   os jogos. Cada game.css deve linkar este arquivo ANTES
+   do seu próprio CSS, e só sobrescrever o que for específico.
+   ===================================================== */
+
+:root {
+  --bg-main: #0B1220;
+  --bg-secondary: #141B2D;
+  --gold: #F4C430;
+  --gold-hover: #FFC107;
+  --text-main: #F2F4F8;
+  --text-muted: #A0AEC0;
+}
+
+/* body vira uma coluna flex de altura travada em 100vh: o .game-topbar
+   (sticky, mas ainda ocupa espaço no fluxo normal) fica flex:0 0 auto
+   (altura natural, mesmo quebrando linha com muitas equipes) e o
+   .presenter ganha o restante — antes o conteúdo tinha min-height:100vh
+   E o topbar ficava por cima, o que sempre estourava o viewport em
+   exatamente a altura do topbar. Dentro do .presenter, só o
+   .presenter-center rola internamente (ver mais abaixo) — assim
+   .presenter-top e .presenter-bottom (onde ficam os botões) nunca saem
+   da tela, mesmo quando o conteúdo do meio (ex: várias dicas) é grande
+   demais pra caber de uma vez. #setupScreen não usa essa altura travada
+   (sem flex-grow), continua com scroll normal da página se precisar. */
+body {
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+}
+
+.brand-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--gold);
+  display: inline-block;
+  flex: 0 0 auto;
+}
+
+/* ==============================
+   TOPBAR (marca + placar + ações)
+   Visível na tela de setup e na de apresentação.
+================================= */
+
+.game-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgba(11, 18, 32, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.game-topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-main);
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.game-topbar-brand:hover {
+  color: var(--gold);
+}
+
+.game-topbar-game {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.game-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+/* ==============================
+   PLACAR DE EQUIPES
+================================= */
+
+.team-scoreboard {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.team-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-main);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.team-chip:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.team-chip-active {
+  border-color: var(--team-color, var(--gold));
+  box-shadow: 0 0 0 2px var(--team-color, var(--gold)) inset;
+}
+
+.team-chip-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--team-color, var(--gold));
+  color: #0b1220;
+}
+
+.team-chip-name {
+  white-space: nowrap;
+}
+
+.team-chip-score {
+  background: var(--team-color, var(--gold));
+  color: #0b1220;
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-size: 0.85em;
+  font-weight: 800;
+}
+
+/* Banner "vez de responder", usado nos jogos com equipes e turno.
+   Mais visível que só o destaque no chip do placar. */
+.turn-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 20px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .08);
+  border: 2px solid var(--team-color, var(--gold));
+  font-weight: 700;
+  font-size: clamp(16px, 2.4vw, 26px);
+}
+
+.turn-banner-label {
+  color: var(--text-muted);
+}
+
+.turn-banner-team {
+  color: var(--team-color, var(--gold));
+  font-weight: 900;
+}
+
+/* ==============================
+   PRESENTER (tela de apresentação)
+================================= */
+
+.presenter {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background:
+    radial-gradient(1000px 600px at 10% 10%, rgba(244, 196, 48, .16), transparent 55%),
+    radial-gradient(900px 500px at 90% 30%, rgba(13, 110, 253, .10), transparent 50%),
+    linear-gradient(180deg, #000, #111);
+}
+
+.presenter-top {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+}
+
+.presenter-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.timer-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.timer-text {
+  font-weight: 800;
+  color: var(--gold);
+}
+
+.presenter-center {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 24px 16px;
+  text-align: center;
+  overflow-y: auto;
+}
+
+/* Texto grande e centralizado, feito para ser lido à distância.
+   Cada jogo combina esta classe com a sua própria (ex: class="word stage-text"). */
+.stage-text {
+  font-weight: 900;
+  line-height: 1.12;
+  letter-spacing: 0.02em;
+  max-width: 1200px;
+  width: min(1200px, 94vw);
+  font-size: clamp(28px, 7vw, 100px);
+  user-select: none;
+}
+
+.presenter-bottom {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+}
+
+.presenter-bottom .btn {
+  min-width: 150px;
+  min-height: 44px;
+}
+
+/* ==============================
+   RESPONSIVO (mobile-first fixes)
+================================= */
+
+@media (max-width: 640px) {
+  .game-topbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 10px 12px;
+  }
+
+  .game-topbar-actions {
+    margin-left: 0;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .team-scoreboard {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .presenter-top {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .timer-wrap {
+    align-items: center;
+  }
+
+  .presenter-center {
+    padding: 16px 12px;
+    gap: 16px;
+  }
+
+  .stage-text {
+    font-size: clamp(24px, 8vw, 56px);
+  }
+
+  .presenter-bottom {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px;
+  }
+
+  .presenter-bottom .btn {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 420px) {
+  .team-chip {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    min-height: 40px;
+  }
+}

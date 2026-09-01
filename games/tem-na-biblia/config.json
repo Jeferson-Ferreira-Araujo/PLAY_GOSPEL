@@ -1,0 +1,38 @@
+{
+  "settings": [
+    {
+      "key": "category",
+      "label": "Categoria",
+      "type": "select",
+      "default": "biblia",
+      "options": [
+        { "value": "biblia", "label": "Tem na Bíblia com..." },
+        { "value": "nomes", "label": "Nomes" },
+        { "value": "louvor", "label": "Louvor" }
+      ]
+    },
+    {
+      "key": "time",
+      "label": "Tempo por resposta (segundos)",
+      "type": "select",
+      "default": 10,
+      "options": [
+        { "value": 5, "label": "5s" },
+        { "value": 10, "label": "10s" },
+        { "value": 15, "label": "15s" }
+      ]
+    }
+  ],
+  "howTo": [
+    "Escolha a categoria e o tempo por resposta.",
+    "Uma letra aparece na tela — a equipe da vez fala uma palavra do tema que comece com ela.",
+    "Acertou? Marca ponto, sorteia uma letra nova e passa a vez.",
+    "Não lembrou? Passou passa a vez com a mesma letra — só troca quando der a volta em todas as equipes sem ninguém acertar.",
+    "A rodada acaba quando as letras se esgotam."
+  ],
+  "tips": [
+    "Ideal para jogar em grupo, célula ou culto.",
+    "O próprio grupo julga se a palavra vale — não tem verificação automática.",
+    "Se o tempo acabar sem resposta, conta como se tivesse passado."
+  ]
+}

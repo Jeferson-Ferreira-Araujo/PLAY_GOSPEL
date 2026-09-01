@@ -65,6 +65,18 @@ function defaultColors(n) {
   return Array.from({ length: n }, (_, i) => p[i % p.length]);
 }
 
+// Nomes de ícones do conjunto já existente em playgospel-ui/js/core.js (ICONS) —
+// curadoria voltada ao tema (natureza/força/adoração) em vez de ícones de UI
+// genéricos, pra combinar com nomes de equipe como "Leões", "Sal e Luz" etc.
+const TEAM_ICON_NAMES = [
+  "paw", "flame", "cloud", "tree", "harp",
+  "star", "heart", "flag", "book", "crown",
+];
+
+function defaultIcons(n) {
+  return Array.from({ length: n }, (_, i) => TEAM_ICON_NAMES[i % TEAM_ICON_NAMES.length]);
+}
+
 export const Teams = {
   isEnabled() {
     const st = load();
@@ -88,12 +100,21 @@ export const Teams = {
     return defaultColors(count);
   },
 
-  // Criação via UI (nomes/cores custom)
+  // Exposto para UI
+  teamIconNames: TEAM_ICON_NAMES,
+
+  // Exposto para UI
+  defaultIcons(count = 2) {
+    return defaultIcons(count);
+  },
+
+  // Criação via UI (nomes/cores/ícones custom)
   enableCustom(teams) {
     const cleaned = (teams || []).map((t, i) => ({
       id: t.id ?? `t${i}`,
       name: String(t.name ?? "").trim(),
       color: String(t.color ?? "").trim() || defaultColors(teams.length)[i],
+      icon: String(t.icon ?? "").trim() || defaultIcons(teams.length)[i],
       score: Number(t.score ?? 0)
     }));
 
@@ -111,7 +132,8 @@ export const Teams = {
   enableSuggested(count = 2) {
     const names = suggestNames(count);
     const colors = defaultColors(count);
-    const teams = names.map((name, i) => ({ id: `t${i}`, name, color: colors[i], score: 0 }));
+    const icons = defaultIcons(count);
+    const teams = names.map((name, i) => ({ id: `t${i}`, name, color: colors[i], icon: icons[i], score: 0 }));
     return this.enableCustom(teams);
   },
 
@@ -142,6 +164,15 @@ export const Teams = {
     clampTurn(st);
     if (!st.enabled || !st.teams.length) return st;
     st.turn = (st.turn + 1) % st.teams.length;
+    save(st);
+    return st;
+  },
+
+  setTurn(index) {
+    const st = load();
+    if (!st.enabled || !st.teams.length) return st;
+    st.turn = index;
+    clampTurn(st);
     save(st);
     return st;
   },

@@ -1,0 +1,31 @@
+/* =====================================================
+   PLAYGOSPEL UI — agregador
+   Um único <link> puxa toda a biblioteca, na ordem de cascata correta
+   (tokens → base → layout → componentes). Para produção, se quiser
+   evitar o custo de @import em cadeia, linke os arquivos individuais
+   direto (na mesma ordem) ou concatene-os em build.
+   ===================================================== */
+
+@import url('./variables.css');
+@import url('./reset.css');
+@import url('./typography.css');
+@import url('./utilities.css');
+@import url('./animations.css');
+
+@import url('./layout.css');
+@import url('./buttons.css');
+@import url('./badges.css');
+@import url('./cards.css');
+@import url('./forms.css');
+@import url('./states.css');
+
+@import url('./progress.css');
+@import url('./timer.css');
+@import url('./ranking.css');
+
+@import url('./modal.css');
+@import url('./toast.css');
+@import url('./tooltip.css');
+@import url('./dropdown.css');
+@import url('./tabs.css');
+@import url('./accordion.css');

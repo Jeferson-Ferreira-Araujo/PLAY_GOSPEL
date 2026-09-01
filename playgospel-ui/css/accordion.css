@@ -1,0 +1,55 @@
+/* =====================================================
+   PLAYGOSPEL UI — ACCORDION
+   Markup:
+   <div class="pgui-accordion" data-pgui-accordion>
+     <div class="pgui-accordion__item">
+       <button class="pgui-accordion__trigger" aria-expanded="false" aria-controls="acc-1">
+         Pergunta <span class="pgui-accordion__trigger-icon">▾</span>
+       </button>
+       <div class="pgui-accordion__panel" id="acc-1">
+         <div class="pgui-accordion__panel-inner">Resposta</div>
+       </div>
+     </div>
+   </div>
+   Adicione data-pgui-accordion-multiple="true" para permitir vários
+   itens abertos ao mesmo tempo (padrão: só um por vez).
+   ===================================================== */
+
+.pgui-accordion__item {
+  border-bottom: 1px solid var(--pgui-border);
+}
+
+.pgui-accordion__trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pgui-space-12);
+  padding: var(--pgui-space-16) var(--pgui-space-4);
+  font-weight: 600;
+  font-size: var(--pgui-fs-body);
+  color: var(--pgui-text-primary);
+  text-align: left;
+}
+
+.pgui-accordion__trigger-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  transition: transform var(--pgui-transition-fast);
+}
+
+.pgui-accordion__item.is-open .pgui-accordion__trigger-icon {
+  transform: rotate(180deg);
+}
+
+.pgui-accordion__panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--pgui-transition-base) ease;
+}
+
+.pgui-accordion__panel-inner {
+  padding: 0 var(--pgui-space-4) var(--pgui-space-16);
+  color: var(--pgui-text-secondary);
+  font-size: var(--pgui-fs-small);
+}

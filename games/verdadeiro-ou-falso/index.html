@@ -6,25 +6,34 @@
   <title>Verdadeiro ou Falso? • BibFlix</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <link href="../../assets/css/game-base.css" rel="stylesheet">
   <link href="game.css" rel="stylesheet">
+
+  <!-- PlayGospel UI: só os módulos "componentizados" (sem reset/typography/layout,
+       que são globais e conflitariam com Bootstrap/game-base.css já carregados) —
+       usados só pelo popup de placar (assets/js/score-popup.js). -->
+  <link href="../../playgospel-ui/css/variables.css" rel="stylesheet">
+  <link href="../../playgospel-ui/css/buttons.css" rel="stylesheet">
+  <link href="../../playgospel-ui/css/badges.css" rel="stylesheet">
+  <link href="../../playgospel-ui/css/ranking.css" rel="stylesheet">
+  <link href="../../playgospel-ui/css/modal.css" rel="stylesheet">
 </head>
 
 <body class="bg-dark text-light">
-  <nav class="navbar navbar-dark bg-black border-bottom border-secondary">
-    <div class="container py-2">
-      <a class="navbar-brand d-flex align-items-center gap-2" href="../../index.html">
-        <span class="brand-dot"></span>
-        <span class="fw-bold">BibFlix</span>
-        <span class="text-secondary">• VERDADEIRO OU FALSO?</span>
-      </a>
+  <header class="game-topbar">
+    <a class="game-topbar-brand" href="../../index.html" id="brandLink">
+      <span class="brand-dot"></span>
+      <span class="fw-bold">BibFlix</span>
+      <span class="game-topbar-game">• Verdadeiro ou Falso?</span>
+    </a>
 
-      <div class="d-flex gap-2">
-        <button id="btnFullscreen" class="btn btn-outline-light btn-sm">
-          Tela cheia
-        </button>
-      </div>
+    <div class="game-topbar-actions">
+      <div id="teamsScoreboard" class="team-scoreboard d-none"></div>
     </div>
-  </nav>
+  </header>
 
   <!-- Setup -->
   <main class="container py-4" id="setupScreen">
@@ -84,7 +93,6 @@
           <h2 class="h5 mb-3">Dicas</h2>
           <ul class="text-secondary mb-0">
             <li>Ótimo para dinâmica em grupo.</li>
-            <li>Use tela cheia para leitura em telão/tablet.</li>
             <li>Quando for <b>Falso</b>, leia a <b>nota</b> (pegadinha) e confira a referência.</li>
             <li><b>V</b>: verdadeiro • <b>F</b>: falso • <b>N</b>: próximo • <b>Espaço</b>: próximo</li>
           </ul>
@@ -111,7 +119,12 @@
     </div>
 
     <div class="presenter-center">
-      <div class="statement-display" id="statementText">CARREGANDO...</div>
+      <div class="turn-banner d-none" id="turnBanner">
+        <span class="turn-banner-label">Vez de responder:</span>
+        <span class="turn-banner-team" id="turnBannerTeam">—</span>
+      </div>
+
+      <div class="statement-display stage-text" id="statementText">CARREGANDO...</div>
 
       <div class="result-wrap d-none" id="resultWrap">
         <div class="result-pill" id="resultPill">—</div>

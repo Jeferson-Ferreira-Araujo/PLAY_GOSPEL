@@ -1,11 +1,14 @@
 import { shuffleArray, createCountdownTimer } from "../../assets/js/utils.js";
 import { Teams } from "../../assets/js/teams.js";
+import { renderTeamScoreboard } from "../../assets/js/scoreboard-ui.js";
+import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
+
+const teamsScoreboard = document.getElementById("teamsScoreboard");
 
 /* ===== Elements (setup) ===== */
 const setupScreen = document.getElementById("setupScreen");
 const gameScreen = document.getElementById("gameScreen");
 
-const btnFullscreen = document.getElementById("btnFullscreen");
 const startBtn = document.getElementById("startBtn");
 const difficultySelect = document.getElementById("difficultySelect");
 const timeSelect = document.getElementById("timeSelect");
@@ -14,13 +17,12 @@ const timeSelect = document.getElementById("timeSelect");
 const badgeDifficulty = document.getElementById("badgeDifficulty");
 const badgeProgress = document.getElementById("badgeProgress");
 
-const badgeTeam = document.getElementById("badgeTeam");
-const teamDot = document.getElementById("teamDot");
-const teamText = document.getElementById("teamText");
-
 const verseText = document.getElementById("verseText");
 const referenceBox = document.getElementById("referenceBox");
 const referenceText = document.getElementById("referenceText");
+
+const turnBanner = document.getElementById("turnBanner");
+const turnBannerTeam = document.getElementById("turnBannerTeam");
 
 const timerText = document.getElementById("timerText");
 const timerBar = document.getElementById("timerBar");
@@ -28,10 +30,12 @@ const timerBar = document.getElementById("timerBar");
 const showAnswerBtn = document.getElementById("showAnswerBtn");
 const correctBtn = document.getElementById("correctBtn");
 const wrongBtn = document.getElementById("wrongBtn");
+const passTurnBtn = document.getElementById("passTurnBtn");
 
 const nextBtn = document.getElementById("nextBtn");
 const restartTimerBtn = document.getElementById("restartTimerBtn");
 const exitBtn = document.getElementById("exitBtn");
+const brandLink = document.getElementById("brandLink");
 
 const playAgainBtn = document.getElementById("playAgainBtn");
 const gameOverNotice = document.getElementById("gameOverNotice");
@@ -48,6 +52,11 @@ let idx = 0;
 let current = null; // { text, reference }
 let timer = null;
 let gameOver = false;
+
+// Passar a vez: quantas vezes a vez já passou nesta frase, e quem já tentou
+let passCount = 0;
+let triedTeamIds = new Set();
+let verseStartTurn = 0; // time que iniciou a frase (base da rotação p/ a próxima)
 
 /* =========================
    URL PARAMS
@@ -74,40 +83,85 @@ function applyParamsToSetupUI() {
 function setTeamsControlsVisible(visible) {
   if (correctBtn) correctBtn.style.display = visible ? "inline-block" : "none";
   if (wrongBtn) wrongBtn.style.display = visible ? "inline-block" : "none";
+  if (passTurnBtn) passTurnBtn.style.display = visible ? "inline-block" : "none";
 }
 
 function renderTeamUI() {
   const enabled = Teams.isEnabled();
-
-  // mostrar/esconder botões e badge
   setTeamsControlsVisible(enabled);
 
-  if (!badgeTeam) return;
-
   if (!enabled) {
-    badgeTeam.style.display = "none";
-    if (teamText) teamText.textContent = "";
-    if (teamDot) teamDot.style.background = "#888";
+    turnBanner?.classList.add("d-none");
     return;
   }
 
   const t = Teams.currentTeam();
-  if (!t) {
-    badgeTeam.style.display = "none";
-    return;
-  }
+  turnBanner?.classList.toggle("d-none", !t);
+  if (!t) return;
 
-  badgeTeam.style.display = "inline-block";
-  if (teamText) teamText.textContent = `Vez: ${t.name} (${t.score})`;
+  if (turnBannerTeam) turnBannerTeam.textContent = t.name;
+  turnBanner?.style.setProperty("--team-color", t.color || "#F4C430");
 
-  // cor do time
-  const c = t.color || "#888";
-  badgeTeam.style.borderColor = c;
-  if (teamDot) teamDot.style.background = c;
+  if (correctBtn) correctBtn.textContent = `Acertou (+${passCount + 1})`;
+  if (wrongBtn) wrongBtn.textContent = `Errou (-${passCount + 1})`;
+
+  const state = Teams.getState();
+  const canPass = state.teams.length > triedTeamIds.size;
+  if (passTurnBtn) passTurnBtn.disabled = gameOver || !canPass;
 }
 
 // Atualiza quando algo muda em equipes (placar/vez)
 window.addEventListener("bibflix:teams:change", renderTeamUI);
+
+/* =========================
+   PASSAR A VEZ
+========================= */
+function resetPassChain() {
+  passCount = 0;
+  triedTeamIds = new Set();
+  verseStartTurn = Teams.getState().turn;
+
+  const t = Teams.currentTeam();
+  if (t) triedTeamIds.add(t.id);
+
+  renderTeamUI();
+}
+
+// Avança a rotação a partir de quem INICIOU a frase (não de quem respondeu
+// depois de um "passar a vez"), assim cada time mantém sua vez de começar.
+function advanceFromVerseStart() {
+  const n = Teams.getState().teams.length;
+  if (!n) return;
+  Teams.setTurn((verseStartTurn + 1) % n);
+}
+
+function passTurn() {
+  if (!Teams.isEnabled()) return;
+
+  const state = Teams.getState();
+  const n = state.teams.length;
+
+  if (n === 2) {
+    Teams.nextTurn();
+  } else {
+    const candidates = state.teams
+      .map((_, i) => i)
+      .filter((i) => !triedTeamIds.has(state.teams[i].id));
+
+    if (!candidates.length) return; // botão já deveria estar desabilitado
+
+    const pick = candidates[Math.floor(Math.random() * candidates.length)];
+    Teams.setTurn(pick);
+  }
+
+  passCount += 1;
+
+  const t = Teams.currentTeam();
+  if (t) triedTeamIds.add(t.id);
+
+  renderTeamUI();
+  resetAndStartTimer();
+}
 
 /* =========================
    INIT
@@ -115,6 +169,7 @@ window.addEventListener("bibflix:teams:change", renderTeamUI);
 document.addEventListener("DOMContentLoaded", async () => {
   await loadData();
   wireUI();
+  renderTeamScoreboard(teamsScoreboard, { clickable: false });
 
   if (shouldAutoPlay()) {
     applyParamsToSetupUI();
@@ -133,8 +188,6 @@ async function loadData() {
    UI WIRING
 ========================= */
 function wireUI() {
-  btnFullscreen?.addEventListener("click", toggleFullscreen);
-
   startBtn.addEventListener("click", () => {
     currentDifficulty = difficultySelect.value;
     durationSec = Number(timeSelect.value || 0);
@@ -148,28 +201,39 @@ function wireUI() {
     if (gameOver) return;
 
     if (Teams.isEnabled()) {
-      Teams.addPoint(1);
-      Teams.nextTurn();
+      Teams.addPoint(passCount + 1);
+      advanceFromVerseStart();
     }
 
     renderTeamUI();
     nextVerse();
   });
 
+  // Errou: desconta os mesmos pontos que estavam em jogo (o valor cresce
+  // a cada "Passar a vez", igual ao acerto) e encerra a tentativa desta
+  // frase — não dá pra passar depois de errar.
   wrongBtn?.addEventListener("click", () => {
     if (gameOver) return;
 
     if (Teams.isEnabled()) {
-      Teams.nextTurn();
+      Teams.addPoint(-(passCount + 1));
+      advanceFromVerseStart();
     }
 
     renderTeamUI();
     nextVerse();
   });
 
-  // Próximo (pula) — NÃO muda vez
+  // Time atual não sabe: passa a vez, mesma frase continua
+  passTurnBtn?.addEventListener("click", () => {
+    if (gameOver) return;
+    passTurn();
+  });
+
+  // Próximo (pula) — desfaz passes da frase e mantém quem a iniciou
   nextBtn.addEventListener("click", () => {
     if (gameOver) return;
+    if (Teams.isEnabled()) Teams.setTurn(verseStartTurn);
     nextVerse();
   });
 
@@ -179,14 +243,20 @@ function wireUI() {
   });
 
   playAgainBtn.addEventListener("click", restartGame);
-  exitBtn.addEventListener("click", exitGame);
+  exitBtn.addEventListener("click", confirmExit);
+  brandLink.addEventListener("click", (e) => {
+    // Só confirma se o jogo já estiver em andamento — na tela de
+    // configuração não há nada a perder, deixa navegar direto.
+    if (gameScreen.classList.contains("d-none")) return;
+    e.preventDefault();
+    confirmExit();
+  });
 
   // atalhos
   document.addEventListener("keydown", (e) => {
     if (gameScreen.classList.contains("d-none")) return;
 
     const k = e.key.toLowerCase();
-    if (k === "f") toggleFullscreen();
     if (k === "n") nextBtn.click();
     if (k === "r") showAnswerBtn.click();
   });
@@ -250,6 +320,8 @@ function loadVerseAtIndex(i) {
   renderVerseWithBlanks(current.text, currentDifficulty);
 
   showAnswerBtn.textContent = "Mostrar resposta";
+
+  resetPassChain();
 }
 
 function endGame(text) {
@@ -262,6 +334,11 @@ function endGame(text) {
   timerBar.style.width = "0%";
 
   badgeProgress.textContent = `${pool.length}/${pool.length}`;
+
+  showScorePopup({
+    title: "🏁 Fim de jogo!",
+    footer: buildPlayAgainFooter(restartGame),
+  });
 }
 
 /* =========================
@@ -387,30 +464,11 @@ function setGameOverUI(isOver) {
 
   if (correctBtn) correctBtn.disabled = isOver;
   if (wrongBtn) wrongBtn.disabled = isOver;
+  if (passTurnBtn) passTurnBtn.disabled = isOver;
 
   playAgainBtn.classList.toggle("d-none", !isOver);
   gameOverNotice.classList.toggle("d-none", !isOver);
 }
-
-/* =========================
-   FULLSCREEN
-========================= */
-async function toggleFullscreen() {
-  try {
-    if (!document.fullscreenElement) {
-      await document.documentElement.requestFullscreen();
-      btnFullscreen.textContent = "Sair da tela cheia";
-    } else {
-      await document.exitFullscreen();
-      btnFullscreen.textContent = "Tela cheia";
-    }
-  } catch {}
-}
-
-document.addEventListener("fullscreenchange", () => {
-  if (!btnFullscreen) return;
-  btnFullscreen.textContent = document.fullscreenElement ? "Sair da tela cheia" : "Tela cheia";
-});
 
 /* =========================
    EXIT
@@ -431,6 +489,14 @@ function exitGame() {
   badgeProgress.textContent = "0/0";
 
   window.location.href = "../../index.html";
+}
+
+function confirmExit() {
+  const shown = showScorePopup({
+    title: "👋 Sair do jogo?",
+    footer: buildExitFooter(exitGame),
+  });
+  if (!shown) exitGame();
 }
 
 /* =========================

@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Qual é a Música? • PlayGospel</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- PlayGospel UI: design system oficial da plataforma (sem Bootstrap) -->
+  <link href="../../playgospel-ui/css/playgospel-ui.css" rel="stylesheet">
+  <link href="game.css" rel="stylesheet">
+
+  <!-- Tone.js: reprodução das notas gravadas no admin -->
+  <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.js"></script>
+
+  <!-- GSAP: anima o "peão" do sorteio de notas (só a animação — o resultado
+       continua sendo definido no JS do jogo, o GSAP só controla o visual). -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+</head>
+
+<body>
+  <header class="pgui-header qam-topheader">
+    <div class="pgui-header__brand">
+      <a href="../../index.html" id="brandLink" class="d-flex align-center gap-2" style="color:inherit;">
+        <img src="../../assets/img/playgospel-logo.png" alt="PlayGospel" class="qam-header-logo">
+        <span class="pgui-title" style="font-size:20px;">Qual é a Música?</span>
+      </a>
+    </div>
+    <div class="pgui-header__actions">
+      <button id="scoreBtn" class="pgui-btn pgui-btn-outline pgui-btn-sm d-none">🏆 Placar</button>
+      <button id="exitBtn" class="pgui-btn pgui-btn-outline pgui-btn-sm">Sair</button>
+    </div>
+  </header>
+
+  <!-- Setup -->
+  <main class="pgui-container qam-setup-grid" id="setupScreen">
+    <div class="pgui-section">
+      <div class="pgui-card">
+        <h1 class="pgui-title mb-3">Equipes</h1>
+
+        <div id="teamsReadyBox" class="d-none">
+          <p class="pgui-small mb-2">Equipes ativas — prontas para jogar.</p>
+          <div class="pgui-ranking mb-3" id="teamsReadyRanking"></div>
+          <button id="btnResetScores" class="pgui-btn pgui-btn-outline pgui-btn-sm">Zerar placar</button>
+        </div>
+
+        <div id="teamsSetupBox" class="qam-warning-box">
+          <p class="pgui-body mb-2">
+            ⚠️ Este jogo só é jogado em <b>equipes</b> (vale para 2 jogadores também — cada um é "uma equipe") para uma melhor experiência.
+          </p>
+          <p class="pgui-small mb-2">
+            Nenhuma equipe ativa ainda. Crie as equipes no catálogo e volte para esta tela.
+          </p>
+          <a class="pgui-btn pgui-btn-warning pgui-btn-sm" href="../../index.html#catalogo">Criar equipes no catálogo</a>
+        </div>
+
+        <div class="d-flex gap-2 mt-3" style="flex-wrap:wrap;">
+          <button id="startBtn" class="pgui-btn pgui-btn-primary" disabled>
+            Iniciar jogo
+          </button>
+          <a class="pgui-btn pgui-btn-ghost" href="../../index.html">Voltar ao catálogo</a>
+        </div>
+        <p id="startBlockedMsg" class="pgui-caption mt-2"></p>
+      </div>
+    </div>
+
+    <div class="pgui-panel">
+      <div class="pgui-panel__title">Pontuação</div>
+      <ul class="qam-score-list">
+        <li class="pgui-body"><b class="pgui-text-gold">1ª tentativa</b> = 1 ponto</li>
+        <li class="pgui-body"><b class="pgui-text-gold">Cada "Passar"</b> = +1 nota e +1 ponto pra próxima equipe</li>
+        <li class="pgui-body"><b class="pgui-text-gold">Máximo</b> = 2 "Passar" por música (ou 7 notas, o que vier primeiro)</li>
+      </ul>
+      <hr class="pgui-divider">
+      <p class="pgui-small">Quem começa cada música é sorteado automaticamente — sem repetir nenhuma equipe antes de todas jogarem uma vez.</p>
+    </div>
+  </main>
+
+  <!-- Tela de jogo (Game Layout do PlayGospel UI) -->
+  <main class="pgui-game-layout d-none" id="gameScreen">
+    <div class="pgui-game-layout__topbar">
+      <div class="qam-topbar-3col">
+        <div class="qam-topbar-box">
+          <div class="qam-topbar-box__label">Rodada</div>
+          <div class="qam-topbar-box__value" id="badgeSong">0</div>
+        </div>
+        <div class="qam-topbar-box qam-topbar-box--team d-none" id="turnBanner">
+          <div class="qam-topbar-box__label">Vez da equipe</div>
+          <div class="qam-topbar-box__value qam-topbar-box__value--team">
+            <span aria-hidden="true">👥</span>
+            <span id="turnBannerTeam">—</span>
+          </div>
+        </div>
+        <div class="qam-topbar-box qam-topbar-box--points d-none" id="badgePoints">
+          <div class="qam-topbar-box__label">Pontos em jogo</div>
+          <div class="qam-topbar-box__value" id="badgePointsValue">Vale 1 ponto</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pgui-game-layout__main">
+      <div class="pgui-card-game">
+        <!-- Cabeçalho do sorteio: "Quantas notas?" (parado) vira "Sorteando..."
+             assim que o peão começa a girar — ver startDrawNotes/showIdleReel. -->
+        <h2 class="qam-draw-heading d-none" id="drawHeading">Quantas notas?</h2>
+
+        <!-- "Peão" do sorteio: números dispostos horizontalmente, deslizando
+             da direita pra esquerda (GSAP) até parar no centro (área de
+             seleção). O valor sorteado já vem pronto do JS — a animação só
+             decide como chegar visualmente até ele. -->
+        <div class="qam-draw-reel d-none" id="drawReel">
+          <div class="qam-draw-reel__viewport" id="drawReelViewport">
+            <div class="qam-draw-reel__track" id="drawReelTrack"></div>
+            <div class="qam-draw-reel__frame" aria-hidden="true"></div>
+          </div>
+          <div class="qam-draw-reel__pointer" aria-hidden="true"></div>
+        </div>
+
+        <button type="button" class="pgui-btn pgui-btn-primary d-none" id="btnDrawNotes">
+          🎲 Sortear notas
+        </button>
+
+        <p class="qam-draw-caption d-none" id="drawIdleCaption">
+          ⓘ O número sorteado define quantas notas a equipe ouvirá.
+        </p>
+        <p class="qam-draw-caption d-none" id="drawSpinCaption">🎵 Boa sorte! 🎵</p>
+
+        <!-- Revelação rápida do resultado do sorteio — aparece por um
+             instante assim que o peão para, antes de liberar o "Ouvir". -->
+        <div class="qam-draw-result d-none" id="drawResult">
+          <div class="qam-draw-result__number" id="drawResultNumber">0</div>
+          <div class="qam-draw-result__label">notas</div>
+          <div class="qam-draw-result__caption">Prepare-se!</div>
+        </div>
+
+        <!-- Fase de escuta/resposta: quantidade de notas em destaque à
+             esquerda, teclado + mini player (inalterados) no centro, e os
+             botões de ação grandes à direita — 3 colunas só nessa fase;
+             o resto da tela (sorteio, revelação) continua em coluna única. -->
+        <div class="qam-listen-layout">
+          <div class="qam-listen-left">
+            <div class="qam-notes-badge d-none" id="stageText"></div>
+          </div>
+
+          <div class="qam-listen-center">
+            <!-- Teclado visual (vista de cima, sem mão): mostra quais teclas
+                 estão soando enquanto o trecho toca — ver assets/js/piano-keyboard.js -->
+            <div class="qam-piano d-none" id="pianoKeyboard"></div>
+
+            <!-- Mini player: dá feedback visual de que algo está tocando,
+                 acompanhando o tempo real de cada nota — sem isso, uma nota
+                 mais longa pode parecer que o sistema travou. -->
+            <div class="qam-mini-player d-none" id="miniPlayer">
+              <div class="qam-mini-label" id="miniPlayerLabel">🎵 Tocando...</div>
+              <div class="qam-mini-track" id="miniPlayerTrack"></div>
+            </div>
+          </div>
+
+          <div class="qam-listen-actions">
+            <button id="replayBtn" class="pgui-btn pgui-btn-secondary pgui-btn-lg qam-replay-btn d-none">
+              <span class="qam-replay-btn__icon" aria-hidden="true">🔊</span>
+              <span class="qam-replay-btn__text">
+                <span class="qam-replay-btn__label" id="replayLabel">Ouvir música</span>
+                <span class="qam-replay-btn__sub" id="replaySubLabel"></span>
+              </span>
+            </button>
+
+            <button id="correctBtn" class="pgui-btn pgui-btn-success pgui-btn-lg d-none">✅ Acertou</button>
+            <button id="wrongBtn" class="pgui-btn pgui-btn-danger pgui-btn-lg d-none">❌ Errou</button>
+            <button id="passBtn" class="pgui-btn pgui-btn-warning pgui-btn-lg d-none">⏭️ Passar</button>
+          </div>
+        </div>
+
+        <div class="pgui-card qam-reveal-panel d-none" id="revealPanel">
+          <div class="qam-reveal-outcome" id="revealOutcome">—</div>
+
+          <div class="qam-reveal-song">
+            <div class="qam-reveal-title" id="revealTitle">—</div>
+            <div class="qam-reveal-artist" id="revealArtist">—</div>
+          </div>
+
+          <div class="qam-reveal-hints" id="revealHints"></div>
+
+          <!-- Toca automaticamente ao revelar (acertou OU errou) — a
+               equipe sempre vê/ouve a música de verdade no final. O botão
+               abaixo só controla parar/tocar de novo. -->
+          <div id="originalEmbed" class="qam-original-embed"></div>
+          <button type="button" class="pgui-btn pgui-btn-outline pgui-btn-sm qam-reveal-stop" id="btnPlayOriginal">▶ Ouvir música original</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pgui-game-layout__sidebar-right">
+      <!-- Dicas: ficam visíveis durante toda a rodada (escolha, execução,
+           repasse) — só somem na revelação, quando a resposta já apareceu. -->
+      <div class="qam-hints-box d-none" id="hintsPanel">
+        <div class="qam-hints-title">💡 Dicas desta música</div>
+        <div id="hintsPreviewList"></div>
+      </div>
+    </div>
+
+    <div class="pgui-game-layout__actions">
+      <div class="pgui-actions">
+        <button id="nextSongBtn" class="pgui-btn pgui-btn-primary d-none">▶ Próxima música</button>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="game.js"></script>
+</body>
+</html>

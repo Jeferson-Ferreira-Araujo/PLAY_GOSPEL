@@ -1,3 +1,6 @@
+import { renderTeamScoreboard } from "../../assets/js/scoreboard-ui.js";
+import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
+
 const $ = (id) => document.getElementById(id);
 
 let DATA = [];
@@ -126,6 +129,11 @@ function gameOver() {
   $("timerText").textContent = "--";
   $("timerBar").style.width = "0%";
   $("badgeProgress").textContent = `${pool.length}/${pool.length}`;
+
+  showScorePopup({
+    title: "🏁 Fim de jogo!",
+    footer: buildPlayAgainFooter(() => $("playAgainBtn").click()),
+  });
 }
 
 function resetGame() {
@@ -153,14 +161,6 @@ function resetGame() {
   renderCard();
 }
 
-function toggleFullscreen() {
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen?.();
-  } else {
-    document.exitFullscreen?.();
-  }
-}
-
 function showScreen(gameMode) {
   $("setupScreen").classList.toggle("d-none", gameMode);
   $("gameScreen").classList.toggle("d-none", !gameMode);
@@ -178,16 +178,29 @@ function startFromSettings() {
   resetGame();
 }
 
-function wireEvents() {
-  $("btnFullscreen").addEventListener("click", toggleFullscreen);
+/* ===== Sair (confirma antes de deixar o jogo, com ou sem equipes) ===== */
+function confirmExit() {
+  stopTimer();
+  const goToCatalog = () => { window.location.href = "../../index.html"; };
+  const shown = showScorePopup({
+    title: "👋 Sair do jogo?",
+    footer: buildExitFooter(goToCatalog),
+  });
+  if (!shown) goToCatalog();
+}
 
+function wireEvents() {
   $("revealBtn").addEventListener("click", () => showAnswer(true));
   $("nextBtn").addEventListener("click", nextCard);
   $("restartTimerBtn").addEventListener("click", () => startTimer(settings.time));
 
-  $("exitBtn").addEventListener("click", () => {
-    stopTimer();
-    window.location.href = "../../index.html";
+  $("exitBtn").addEventListener("click", confirmExit);
+  $("brandLink").addEventListener("click", (e) => {
+    // Só confirma se o jogo já estiver em andamento — na tela de
+    // configuração não há nada a perder, deixa navegar direto.
+    if ($("gameScreen").classList.contains("d-none")) return;
+    e.preventDefault();
+    confirmExit();
   });
 
   $("playAgainBtn").addEventListener("click", () => {
@@ -206,8 +219,6 @@ function wireEvents() {
   document.addEventListener("keydown", (e) => {
     const k = e.key.toLowerCase();
 
-    if (k === "f") toggleFullscreen();
-
     // atalhos só no modo jogo
     if ($("gameScreen").classList.contains("d-none")) return;
 
@@ -219,6 +230,7 @@ function wireEvents() {
 
 async function init() {
   wireEvents();
+  renderTeamScoreboard($("teamsScoreboard"));
   await loadData();
 
   const { play, difficulty, time } = getParams();

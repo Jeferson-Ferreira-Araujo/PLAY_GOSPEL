@@ -6,134 +6,263 @@
   <title>PlayGospel • Jogos Bíblicos</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- PlayGospel UI: só os módulos "componentizados" (sem reset/typography/layout,
+       que são globais e conflitariam com o CSS já existente da página). -->
+  <link href="playgospel-ui/css/variables.css" rel="stylesheet">
+  <link href="playgospel-ui/css/buttons.css" rel="stylesheet">
+  <link href="playgospel-ui/css/badges.css" rel="stylesheet">
+  <link href="playgospel-ui/css/forms.css" rel="stylesheet">
+  <link href="playgospel-ui/css/cards.css" rel="stylesheet">
+  <link href="playgospel-ui/css/dropdown.css" rel="stylesheet">
+
   <link href="assets/css/styles.css" rel="stylesheet">
 </head>
 
 <body class="pg-body">
 
-  <!-- NAVBAR (Netflix style) -->
-  <nav class="navbar pg-navbar sticky-top">
-    <div class="container-fluid px-3 px-lg-4 py-2">
-      <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+  <div class="pg-shell">
+    <!-- SIDEBAR -->
+    <aside class="pg-sidebar">
+      <div class="pg-sidebar-brand">
         <img src="assets/img/playgospel-logo.png" alt="PlayGospel" class="pg-logo">
-      </a>
+      </div>
 
-      <div class="d-flex align-items-center gap-2">
-        <div class="pg-search">
-          <span class="pg-search-icon" aria-hidden="true">⌕</span>
-          <input
-            id="searchInput"
-            class="pg-search-input"
-            placeholder="Buscar jogo..."
-            autocomplete="off"
-          />
+      <nav class="pg-sidebar-nav" aria-label="Navegação principal">
+        <a href="index.html" class="pg-sidebar-link active">
+          <span class="pg-sidebar-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
+          </span>
+          Início
+        </a>
+        <a class="pg-sidebar-link" aria-disabled="true" title="Em breve">
+          <span class="pg-sidebar-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
+          </span>
+          Todos os jogos
+        </a>
+        <a class="pg-sidebar-link" aria-disabled="true" title="Em breve">
+          <span class="pg-sidebar-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-9.6-9.3C.8 7 2.5 3.7 6 3.2c2-.3 3.8.7 5 2.5C12.2 3.9 14 2.9 16 3.2c3.5.5 5.2 3.8 3.6 7.5C19.5 15.4 12 20 12 20Z"/></svg>
+          </span>
+          Favoritos
+        </a>
+        <a class="pg-sidebar-link" aria-disabled="true" title="Em breve">
+          <span class="pg-sidebar-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </span>
+          Minhas equipes
+        </a>
+        <a class="pg-sidebar-link" aria-disabled="true" title="Em breve">
+          <span class="pg-sidebar-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+          </span>
+          Histórico
+        </a>
+        <a class="pg-sidebar-link" aria-disabled="true" title="Em breve">
+          <span class="pg-sidebar-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01"/><path d="M11 11h1v5h1"/></svg>
+          </span>
+          Como jogar
+        </a>
+      </nav>
+
+      <div class="pg-sidebar-footer">
+        <a class="pg-sidebar-link" aria-disabled="true" title="Em breve">
+          <span class="pg-sidebar-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+          </span>
+          Configurações
+        </a>
+        <div class="pg-sidebar-section-label">
+          <span class="pg-sidebar-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24L4 3a1 1 0 0 0-1 1l.24 5.59a2 2 0 0 0 .59 1.41l9.58 9.58a2 2 0 0 0 2.83 0l4.35-4.35a2 2 0 0 0 0-2.82Z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+          </span>
+          Categorias
         </div>
-        <button class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#teamsModal">
-  Equipes
-</button>
       </div>
-    </div>
-  </nav>
+    </aside>
 
-  <!-- HERO (Netflix featured) -->
-  <header class="pg-hero">
-    <div class="container-fluid px-3 px-lg-4">
-      <div class="pg-hero-content">
-        <div class="pg-kicker">PlayGospel</div>
-
-        <h1 class="pg-hero-title">
-          Onde a Palavra vira <span class="pg-accent">jogo</span>.
-        </h1>
-
-        <p class="pg-hero-desc">
-          Escolha um jogo bíblico, veja os detalhes e aperte <b>Jogar</b>. Tudo offline e modular.
-        </p>
-
-        <div class="d-flex gap-2 flex-wrap">
-          <a href="#catalogo" class="btn pg-btn-primary">Ver catálogo</a>
-          <button id="randomGameBtn" class="btn pg-btn-ghost" type="button">Surpreenda-me</button>
-        </div>
-
-        <div class="pg-hero-meta mt-3">
-          <span class="pg-pill">Offline</span>
-          <span class="pg-pill">Modular</span>
-          <span class="pg-pill">v0.1</span>
-          <span class="pg-pill" id="gamesCount">Carregando…</span>
-        </div>
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="pg-main">
+      <div class="pg-main-mobile-brand">
+        <img src="assets/img/playgospel-logo.png" alt="PlayGospel" class="pg-logo">
       </div>
-    </div>
-  </header>
 
-  <!-- CATALOGO (Netflix rows horizontal) -->
-  <main id="catalogo" class="container-fluid px-3 px-lg-4 pb-5">
-
-    <div class="d-flex justify-content-between align-items-end mt-4 mb-2">
-      <div>
-        <h2 class="pg-row-title m-0">Jogos disponíveis</h2>
-        <small id="filterInfo" class="pg-muted"></small>
-      </div>
-    </div>
-
-    <section class="pg-row">
-      <div class="pg-row-track" id="gamesGrid">
-        <!-- Cards entram via JS -->
-      </div>
-    </section>
-
-    <div id="emptyState" class="text-center pg-muted py-5 d-none">
-      Nenhum jogo encontrado.
-    </div>
-  </main>
-
-  <!-- FOOTER -->
-  <footer class="pg-footer">
-    <div class="container-fluid px-3 px-lg-4 py-4 d-flex flex-column flex-md-row justify-content-between gap-2">
-      <div class="pg-muted small">
-        © <span id="yearNow"></span> PlayGospel • Feito para aprender brincando.
-      </div>
-      <div class="pg-muted small">
-        100% Offline • Modular • Fácil de expandir
-      </div>
-    </div>
-  </footer>
-
-  <!-- MODAL -->
-  <div class="modal fade" id="gameModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content pg-modal">
-        <div class="modal-header pg-modal-header">
-          <h5 class="modal-title" id="modalTitle">Detalhes do jogo</h5>
-          <button type="button" class="btn-close pg-btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      <div class="pg-main-topbar">
+        <div>
+          <h1 class="pg-welcome-title">Bem-vindo ao <span class="pg-text-gold">PlayGospel</span>!</h1>
+          <p class="pg-welcome-sub">Escolha um jogo e divirta-se com sua equipe.</p>
         </div>
 
-        <div class="modal-body">
-          <div class="row g-3 align-items-start">
-            <div class="col-md-5">
-              <img id="modalCover" class="img-fluid rounded-3" alt="Capa do jogo">
-            </div>
-            <div class="col-md-7">
-              <p id="modalDesc" class="pg-muted"></p>
+        <div class="pg-main-topbar-actions">
+          <div class="pg-search">
+            <span class="pg-search-icon" aria-hidden="true">⌕</span>
+            <input
+              id="searchInput"
+              class="pg-search-input"
+              placeholder="Buscar jogo..."
+              autocomplete="off"
+            />
+          </div>
+          <button id="teamsNavBtn" class="btn pg-btn-primary btn-sm d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#teamsModal">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <span id="teamsNavBtnLabel">Criar equipes</span>
+          </button>
+        </div>
+      </div>
 
-              <div class="d-flex flex-wrap gap-2 mb-3" id="modalTags"></div>
+      <!-- CATALOGO -->
+      <main id="catalogo" class="pg-catalogo">
 
-              <div class="small pg-muted mb-2">Controles</div>
-              <div id="modalControls" class="small"></div>
-              <!-- Configurações dinâmicas do jogo -->
-              <div id="modalConfig" class="mt-3"></div>
-              <hr class="my-3" style="border-color: rgba(255,255,255,0.08);">
+        <div class="d-flex justify-content-between align-items-end mb-3 flex-wrap gap-3">
+          <div>
+            <h2 class="pg-row-title m-0">Jogos disponíveis</h2>
+            <small id="filterInfo" class="pg-muted"></small>
+          </div>
 
-              <div class="d-flex gap-2 flex-wrap">
-                <a id="playButton" class="btn pg-btn-primary" href="#">Jogar</a>
-                <button type="button" class="btn pg-btn-ghost" data-bs-dismiss="modal">Voltar</button>
-              </div>
-
-              <div class="mt-3 small pg-muted" id="modalMeta"></div>
-            </div>
+          <div class="pg-view-toggle" id="viewToggle" role="group" aria-label="Modo de exibição">
+            <button type="button" class="pg-view-btn active" data-view="carousel">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="4" width="7" height="16" rx="1.5"/>
+                <rect x="14" y="7" width="7" height="10" rx="1.5" opacity=".55"/>
+              </svg>
+              Carrossel
+            </button>
+            <button type="button" class="pg-view-btn" data-view="grid">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="8" height="8" rx="1.5"/>
+                <rect x="13" y="3" width="8" height="8" rx="1.5"/>
+                <rect x="3" y="13" width="8" height="8" rx="1.5"/>
+                <rect x="13" y="13" width="8" height="8" rx="1.5"/>
+              </svg>
+              Grade
+            </button>
           </div>
         </div>
 
-        <div class="modal-footer" style="border-color: rgba(255,255,255,0.08);">
-          <small class="pg-muted">Dica: edite <code>games/games.json</code> para adicionar/remover jogos.</small>
+        <!-- PLACAR DE EQUIPES (aparece se já houver equipes ativas) -->
+        <div id="teamsBanner" class="pg-teams-banner d-none"></div>
+
+        <!-- CARROSSEL 3D -->
+        <div id="carouselView" class="pg-carousel-wrap">
+          <button type="button" class="pg-carousel-arrow pg-carousel-arrow-left" id="carouselPrev" aria-label="Jogo anterior">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+
+          <div class="pg-carousel" id="carouselStage">
+            <div class="pg-carousel-track" id="carouselTrack">
+              <!-- Cards do carrossel via JS -->
+            </div>
+          </div>
+
+          <button type="button" class="pg-carousel-arrow pg-carousel-arrow-right" id="carouselNext" aria-label="Próximo jogo">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+          </button>
+        </div>
+
+        <div class="pg-carousel-dots" id="carouselDots"></div>
+
+        <!-- GRADE (todos os jogos) -->
+        <section class="d-none" id="gridView">
+          <div class="pg-grid" id="gamesGrid">
+            <!-- Cards entram via JS -->
+          </div>
+        </section>
+
+        <div id="emptyState" class="text-center pg-muted py-5 d-none">
+          Nenhum jogo encontrado.
+        </div>
+
+        <!-- CATEGORIAS (pills com contagem real) -->
+        <div class="pg-category-pills" id="categoryPills"></div>
+      </main>
+
+      <!-- FOOTER -->
+      <footer class="pg-footer">
+        <div class="d-flex flex-column flex-md-row justify-content-between gap-2">
+          <div class="pg-muted small">
+            © <span id="yearNow"></span> PlayGospel • Feito para aprender brincando.
+          </div>
+          <div class="pg-muted small">
+            100% Offline • Modular • Fácil de expandir
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- MODAL DE DETALHES DO JOGO -->
+  <div class="modal fade" id="gameModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered pg-gm-dialog">
+      <div class="modal-content pg-gm-content">
+        <button type="button" class="pg-gm-close" data-bs-dismiss="modal" aria-label="Fechar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12"/><path d="M18 6 6 18"/></svg>
+        </button>
+
+        <div class="pg-gm-info">
+          <div class="pg-gm-header">
+            <div class="pg-gm-thumb-wrap">
+              <span class="pg-gm-thumb-badge" id="modalCategoryBadge"></span>
+              <img id="modalCoverImg" class="pg-gm-thumb-img" alt="">
+            </div>
+
+            <div class="pg-gm-header-text">
+              <div class="pg-gm-title-row">
+                <h2 class="pg-gm-title" id="modalTitle">Detalhes do jogo</h2>
+                <span class="pg-gm-fav" title="Favoritos (em breve)" aria-hidden="true">★</span>
+              </div>
+
+              <p class="pg-gm-desc" id="modalDesc"></p>
+            </div>
+          </div>
+
+          <div class="pg-gm-columns" id="modalColumns">
+            <div class="pg-gm-col-left">
+              <div class="pg-gm-meta" id="modalMetaBoxes"></div>
+
+              <div class="pg-gm-section pgui-card-outline d-none" id="modalSettingsSection">
+                <div class="pg-gm-section-title">
+                  <span class="pg-gm-section-icon" aria-hidden="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+                  </span>
+                  Configurações do jogo
+                </div>
+                <div class="pg-gm-settings-grid" id="modalConfig"></div>
+              </div>
+            </div>
+
+            <div class="pg-gm-col-right">
+              <div class="pg-gm-section pgui-card-outline d-none" id="modalHowToSection">
+                <div class="pg-gm-section-title">
+                  <span class="pg-gm-section-icon" aria-hidden="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01"/><path d="M11 11h1v5h1"/></svg>
+                  </span>
+                  Como funciona
+                </div>
+                <ul class="pg-gm-howto" id="modalHowTo"></ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="pg-gm-footer">
+            <button type="button" class="pgui-btn pgui-btn-outline pg-gm-btn" data-bs-dismiss="modal">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M11 18 5 12l6-6"/></svg>
+              Voltar
+            </button>
+            <a id="playButton" class="pgui-btn pgui-btn-primary pg-gm-btn" href="#">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4.5v15l13-7.5-13-7.5Z"/></svg>
+              Jogar
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -141,70 +270,86 @@
 
   <div class="modal fade" id="teamsModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content bg-black text-light border border-secondary">
-      <div class="modal-header border-secondary">
-        <h5 class="modal-title">Equipes</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <div class="modal-content pg-modal">
+      <div class="modal-header pg-modal-header">
+        <div>
+          <h5 class="modal-title mb-1">Equipes</h5>
+          <div class="pg-teams-modal-status" id="teamsStatus">
+            <span class="pg-status-dot"></span>
+            Desativadas
+          </div>
+        </div>
+        <button type="button" class="btn-close pg-btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
       </div>
 
       <div class="modal-body">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <div class="fw-semibold" id="teamsStatus">Equipes desativadas</div>
-          <span class="badge text-bg-dark border border-secondary">Offline</span>
+        <div class="pg-teams-section-label">Quantidade de equipes</div>
+        <div class="pg-count-toggle" id="teamsCountToggle" role="group" aria-label="Quantidade de equipes">
+          <button type="button" class="pg-count-btn" data-count="2">2</button>
+          <button type="button" class="pg-count-btn" data-count="3">3</button>
+          <button type="button" class="pg-count-btn" data-count="4">4</button>
         </div>
+        <select id="teamsCount" class="d-none">
+          <option value="2" selected>2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+        </select>
 
-        <div class="mb-3">
-          <label class="form-label">Quantidade de equipes</label>
-          <select id="teamsCount" class="form-select bg-dark text-light border-secondary">
-            <option value="2" selected>2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-          </select>
-          <div class="form-text text-secondary">
-            Ao fechar o navegador, você precisará criar novamente (modo sessão).
-          </div>
-        </div>
+        <div id="teamsForm" class="pg-teams-form"></div>
 
-        <!-- Form dinâmico (nomes/cores) -->
-        <div class="p-3 border border-secondary rounded-3 bg-dark">
-          <div class="small text-secondary mb-2">Defina nome e cor de cada equipe</div>
-          <div id="teamsForm" class="d-flex flex-column gap-2"></div>
-
-          <div class="d-flex gap-2 flex-wrap mt-3">
-            <button class="btn btn-outline-light btn-sm" id="btnTeamsAutoNames" type="button">
-              Gerar nomes
-            </button>
-            <button class="btn btn-outline-light btn-sm" id="btnTeamsClearNames" type="button">
-              Limpar nomes
-            </button>
-          </div>
-
-          <div id="teamsError" class="text-danger small mt-2 d-none"></div>
-        </div>
-
-        <hr class="border-secondary my-3">
-
-        <div class="d-flex gap-2 flex-wrap">
-          <button class="btn btn-warning fw-semibold" id="btnTeamsSave" type="button">
-            Criar equipes
+        <div class="d-flex gap-2">
+          <button type="button" class="pg-chip-btn" id="btnTeamsAutoNames">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="4"/>
+              <circle cx="8" cy="8" r="1" fill="currentColor" stroke="none"/>
+              <circle cx="16" cy="8" r="1" fill="currentColor" stroke="none"/>
+              <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/>
+              <circle cx="8" cy="16" r="1" fill="currentColor" stroke="none"/>
+              <circle cx="16" cy="16" r="1" fill="currentColor" stroke="none"/>
+            </svg>
+            Gerar nomes
           </button>
+          <button type="button" class="pg-chip-btn" id="btnTeamsClearNames">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 6 6 18"/>
+              <path d="M6 6 18 18"/>
+            </svg>
+            Limpar
+          </button>
+        </div>
 
-          <button class="btn btn-outline-light" id="btnTeamsReset" type="button">
+        <div id="teamsError" class="text-danger small mt-2 d-none"></div>
+
+        <div class="pg-teams-hint">Fica salvo só nesta sessão do navegador.</div>
+      </div>
+
+      <div class="modal-footer pg-modal-footer pg-teams-modal-footer">
+        <div class="pg-teams-footer-actions" id="teamsFooterActions">
+          <button type="button" class="pg-chip-btn pg-chip-btn-danger" id="btnTeamsDisable">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 6h18"/>
+              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            </svg>
+            Excluir equipes
+          </button>
+          <button type="button" class="pg-chip-btn" id="btnTeamsReset">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 12a9 9 0 1 0 3-6.7"/>
+              <path d="M3 4v5h5"/>
+            </svg>
             Zerar placar
           </button>
-
-          <button class="btn btn-outline-danger" id="btnTeamsDisable" type="button">
-            Desativar
-          </button>
+          <button type="button" class="btn pg-btn-primary" id="btnTeamsSave">Criar equipes</button>
         </div>
 
-        <div class="mt-3 p-3 border border-secondary rounded-3 bg-dark">
-          <div class="small text-secondary mb-1">Placar atual</div>
-          <div id="teamsScoreLine" class="fw-semibold">—</div>
-          <div id="teamsPreview" class="small text-secondary mt-1">
-            Crie equipes para alternar turnos e registrar pontos.
+        <div class="pg-teams-footer-confirm d-none" id="teamsDeleteConfirm">
+          <span class="pg-confirm-text">Excluir todas as equipes e o placar?</span>
+          <div class="d-flex gap-2">
+            <button type="button" class="pg-chip-btn" id="btnTeamsDeleteCancel">Cancelar</button>
+            <button type="button" class="pg-chip-btn pg-chip-btn-danger" id="btnTeamsDeleteConfirm">
+              Sim, excluir
+            </button>
           </div>
         </div>
       </div>
@@ -214,13 +359,10 @@
 
   <script>
     document.getElementById("yearNow").textContent = new Date().getFullYear();
-    document.getElementById("randomGameBtn").addEventListener("click", () => {
-      document.getElementById("catalogo").scrollIntoView({ behavior: "smooth" });
-    });
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script type="module" src="assets/js/app.js"></script>
- 
+
 </body>
 </html>

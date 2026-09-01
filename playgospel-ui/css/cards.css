@@ -1,0 +1,73 @@
+/* =====================================================
+   PLAYGOSPEL UI — CARDS
+   .pgui-card-game é o "Card Principal": todo jogo acontece dentro
+   dele (radius grande, blur, glow dourado discreto, sombra suave,
+   padding amplo, responsivo).
+   ===================================================== */
+
+.pgui-card {
+  background: var(--pgui-bg-card);
+  border: 1px solid var(--pgui-border);
+  border-radius: var(--pgui-radius-lg);
+  padding: var(--pgui-space-16);
+  box-shadow: var(--pgui-shadow-card);
+}
+
+.pgui-card-outline {
+  background: transparent;
+  border: 1px solid var(--pgui-border-strong);
+  border-radius: var(--pgui-radius-lg);
+  padding: var(--pgui-space-16);
+}
+
+.pgui-card-glass {
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: var(--pgui-radius-lg);
+  padding: var(--pgui-space-16);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* ---- Card Principal ---- */
+.pgui-card-game {
+  position: relative;
+  background: var(--pgui-bg-card);
+  border: 1px solid rgba(255, 193, 7, .18);
+  border-radius: var(--pgui-radius-2xl);
+  padding: var(--pgui-space-32);
+  box-shadow: var(--pgui-shadow-floating), var(--pgui-glow-primary);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .pgui-card-game { padding: var(--pgui-space-16); border-radius: var(--pgui-radius-xl); }
+}
+
+.pgui-card-game__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pgui-space-8);
+  color: var(--pgui-color-primary);
+  font-size: var(--pgui-fs-label);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: var(--pgui-space-16);
+}
+
+.pgui-card-game__content {
+  font-size: var(--pgui-fs-heading-m);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+@media (max-width: 480px) {
+  .pgui-card-game__content { font-size: var(--pgui-fs-title); }
+}
+
+.pgui-card-game__footer {
+  margin-top: var(--pgui-space-24);
+}

@@ -1,0 +1,39 @@
+/* =====================================================
+   PLAYGOSPEL UI — ANIMAÇÕES
+   Reutilizáveis, sempre entre 200-350ms, nunca exageradas.
+   animation.js aplica/remove estas classes via PGUI.animate(el, nome).
+   ===================================================== */
+
+@keyframes pgui-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pgui-fade-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes pgui-slide-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pgui-slide-down { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pgui-scale-in { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: scale(1); } }
+@keyframes pgui-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+@keyframes pgui-glow-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, .35); } 50% { box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); } }
+@keyframes pgui-shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+@keyframes pgui-flash-success { 0% { background-color: rgba(34, 197, 94, .35); } 100% { background-color: transparent; } }
+@keyframes pgui-flash-error { 0% { background-color: rgba(239, 68, 68, .35); } 100% { background-color: transparent; } }
+@keyframes pgui-spin { to { transform: rotate(360deg); } }
+@keyframes pgui-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+.pgui-fade-in     { animation: pgui-fade-in var(--pgui-transition-base) both; }
+.pgui-fade-out     { animation: pgui-fade-out var(--pgui-transition-base) both; }
+.pgui-slide-up    { animation: pgui-slide-up var(--pgui-transition-base) both; }
+.pgui-slide-down  { animation: pgui-slide-down var(--pgui-transition-base) both; }
+.pgui-scale-in    { animation: pgui-scale-in var(--pgui-transition-fast) both; }
+.pgui-pulse       { animation: pgui-pulse 1.6s ease-in-out infinite; }
+.pgui-glow        { animation: pgui-glow-pulse 1.8s ease-in-out infinite; }
+.pgui-shake       { animation: pgui-shake 350ms ease; }
+.pgui-flash-success { animation: pgui-flash-success var(--pgui-transition-base) ease-out; }
+.pgui-flash-error   { animation: pgui-flash-error var(--pgui-transition-base) ease-out; }
+.pgui-spin        { animation: pgui-spin 900ms linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pgui-fade-in, .pgui-fade-out, .pgui-slide-up, .pgui-slide-down,
+  .pgui-scale-in, .pgui-pulse, .pgui-glow, .pgui-shake,
+  .pgui-flash-success, .pgui-flash-error, .pgui-spin {
+    animation: none !important;
+    transition: none !important;
+  }
+}

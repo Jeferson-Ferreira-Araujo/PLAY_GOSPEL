@@ -1,10 +1,16 @@
 import { shuffleArray, createCountdownTimer } from "../../assets/js/utils.js";
+import { Teams } from "../../assets/js/teams.js";
+import { renderTeamScoreboard } from "../../assets/js/scoreboard-ui.js";
+import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
+
+const teamsScoreboard = document.getElementById("teamsScoreboard");
+const turnBanner = document.getElementById("turnBanner");
+const turnBannerTeam = document.getElementById("turnBannerTeam");
 
 /* ===== Elements (setup) ===== */
 const setupScreen = document.getElementById("setupScreen");
 const gameScreen = document.getElementById("gameScreen");
 
-const btnFullscreen = document.getElementById("btnFullscreen");
 const startBtn = document.getElementById("startBtn");
 const difficultySelect = document.getElementById("difficultySelect");
 const timeSelect = document.getElementById("timeSelect");
@@ -30,6 +36,7 @@ const revealBtn = document.getElementById("revealBtn");
 const nextBtn = document.getElementById("nextBtn");
 const restartTimerBtn = document.getElementById("restartTimerBtn");
 const exitBtn = document.getElementById("exitBtn");
+const brandLink = document.getElementById("brandLink");
 
 const playAgainBtn = document.getElementById("playAgainBtn");
 const gameOverNotice = document.getElementById("gameOverNotice");
@@ -55,8 +62,26 @@ let gameOver = false;
 document.addEventListener("DOMContentLoaded", async () => {
   await loadData();
   wireUI();
+  renderTeamScoreboard(teamsScoreboard, { clickable: false });
+  renderTurnBanner();
+  window.addEventListener("bibflix:teams:change", renderTurnBanner);
   checkAutoStartFromURL(); // ✅ novo fluxo
 });
+
+/* ===== Vez da equipe (banner) ===== */
+function renderTurnBanner() {
+  if (!Teams.isEnabled()) {
+    turnBanner?.classList.add("d-none");
+    return;
+  }
+
+  const t = Teams.currentTeam();
+  turnBanner?.classList.toggle("d-none", !t);
+  if (!t) return;
+
+  if (turnBannerTeam) turnBannerTeam.textContent = t.name;
+  turnBanner?.style.setProperty("--team-color", t.color || "#F4C430");
+}
 
 async function loadData() {
   const res = await fetch("data.json", { cache: "no-store" });
@@ -84,9 +109,17 @@ function checkAutoStartFromURL() {
 }
 
 /* ===== UI wiring ===== */
-function wireUI() {
-  btnFullscreen?.addEventListener("click", toggleFullscreen);
+/* ===== Sair (confirma antes de deixar o jogo, com ou sem equipes) ===== */
+function confirmExit() {
+  const goToCatalog = () => { window.location.href = "../../index.html#catalogo"; };
+  const shown = showScorePopup({
+    title: "👋 Sair do jogo?",
+    footer: buildExitFooter(goToCatalog),
+  });
+  if (!shown) goToCatalog();
+}
 
+function wireUI() {
   startBtn?.addEventListener("click", () => {
     currentDifficulty = difficultySelect.value;
     durationSec = Number(timeSelect.value || 0);
@@ -114,8 +147,13 @@ function wireUI() {
   playAgainBtn.addEventListener("click", () => restartGame());
 
   // ✅ sair volta pro catálogo principal
-  exitBtn.addEventListener("click", () => {
-    window.location.href = "../../index.html#catalogo";
+  exitBtn.addEventListener("click", confirmExit);
+  brandLink.addEventListener("click", (e) => {
+    // Só confirma se o jogo já estiver em andamento — na tela de
+    // configuração não há nada a perder, deixa navegar direto.
+    if (gameScreen.classList.contains("d-none")) return;
+    e.preventDefault();
+    confirmExit();
   });
 
   // atalhos
@@ -124,15 +162,11 @@ function wireUI() {
 
     const k = e.key.toLowerCase();
 
-    // cuidado: F é falso e também fullscreen.
-    // Aqui: Ctrl+F fica de boa (busca do browser), F sozinho = FALSO.
+    // cuidado: Ctrl+F fica de boa (busca do browser), F sozinho = FALSO.
     if (k === "v") trueBtn.click();
     if (k === "f" && !e.ctrlKey) falseBtn.click();
     if (k === "n" || k === " ") nextBtn.click();
     if (k === "r") revealBtn.click();
-
-    // fullscreen com tecla separada: "g" (game) pra evitar conflito
-    if (k === "g") toggleFullscreen();
   });
 }
 
@@ -210,6 +244,11 @@ function choose(choice) {
   if (correct) {
     score += 1;
     updateScore();
+  }
+
+  if (Teams.isEnabled()) {
+    if (correct) Teams.addPoint(1);
+    Teams.nextTurn();
   }
 
   showResult(correct, choice);
@@ -294,6 +333,8 @@ function createOrUpdateTimer() {
         answered = true;
         setAnswerButtonsEnabled(false);
 
+        if (Teams.isEnabled()) Teams.nextTurn();
+
         resultWrap.classList.remove("d-none");
         const expected = current.answer ? "VERDADEIRO" : "FALSO";
         resultPill.textContent = `⏰ Tempo! Resposta: ${expected}.`;
@@ -348,25 +389,12 @@ function endGame(text) {
   referenceText.textContent = "—";
 
   badgeProgress.textContent = `${pool.length}/${pool.length}`;
-}
 
-/* ===== Fullscreen ===== */
-async function toggleFullscreen() {
-  try {
-    if (!document.fullscreenElement) {
-      await document.documentElement.requestFullscreen();
-      btnFullscreen.textContent = "Sair da tela cheia";
-    } else {
-      await document.exitFullscreen();
-      btnFullscreen.textContent = "Tela cheia";
-    }
-  } catch {}
+  showScorePopup({
+    title: "🏁 Fim de jogo!",
+    footer: buildPlayAgainFooter(restartGame),
+  });
 }
-
-document.addEventListener("fullscreenchange", () => {
-  if (!btnFullscreen) return;
-  btnFullscreen.textContent = document.fullscreenElement ? "Sair da tela cheia" : "Tela cheia";
-});
 
 /* ===== Helpers ===== */
 function difficultyLabel(v) {

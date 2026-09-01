@@ -1,0 +1,631 @@
+/* =====================================================
+   QUAL É A MÚSICA? — estilos específicos, construídos sobre os
+   tokens e componentes do PlayGospel UI (../../playgospel-ui/).
+   Nada aqui redefine cor/espaçamento/radius do zero — tudo usa
+   var(--pgui-*) para ficar visualmente igual ao resto da plataforma.
+   ===================================================== */
+
+.qam-topheader {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  padding: 12px 24px;
+  background: var(--pgui-bg-main);
+  border-bottom: 1px solid var(--pgui-border);
+}
+
+.qam-header-logo {
+  height: 28px;
+  width: auto;
+  display: block;
+}
+
+/* .pgui-game-layout tem min-height:100vh (assume que é a página inteira),
+   mas aqui ele fica ABAIXO do .qam-topheader — sem esse ajuste, a altura
+   real da página vira header + 100vh, sempre estourando o viewport em
+   exatamente a altura do header (e, com align-content:stretch, ainda
+   infla o topo/rodapé do jogo pra "preencher" esse espaço fantasma). */
+#gameScreen.pgui-game-layout {
+  min-height: calc(100vh - var(--qam-header-h, 61px));
+}
+
+/* ---- Topo do jogo (música/pontos/vez de): fixo logo abaixo do header ----
+   --qam-header-h/--qam-topbar-h vêm de um ResizeObserver em game.js — a
+   altura do header e do topo variam (o texto "Vez de: X" muda de tamanho,
+   o header quebra linha no mobile), então um valor fixo em px quebraria. */
+#gameScreen .pgui-game-layout__topbar {
+  position: sticky;
+  top: var(--qam-header-h, 61px);
+  z-index: 25;
+}
+
+/* ---- Topo do jogo: 3 caixas (Rodada / Vez da equipe / Pontos em jogo) ----
+   Rodada e Pontos em jogo têm conteúdo curto (um número, um "Vale X"), então
+   ficam com largura só do necessário (auto) — dar 1fr igual pra elas deixava
+   um espaço vazio enorme sobrando. A caixa da equipe é a única que recebe o
+   espaço "de sobra" (1fr), porque nome de equipe pode variar bastante.
+   Equipe e Pontos em jogo só aparecem com equipes ativas/tentativa em
+   andamento; sem isso, sobra só a caixa de Rodada. */
+.qam-topbar-3col {
+  display: grid;
+  grid-template-columns: auto minmax(160px, 1fr) auto;
+  gap: var(--pgui-space-12);
+}
+
+@media (max-width: 560px) {
+  /* Numa tela bem estreita as 3 caixas não cabem numa linha só sem
+     espremer demais — empilha em vez de forçar tudo lado a lado. */
+  .qam-topbar-3col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.qam-topbar-box {
+  padding: var(--pgui-space-8) var(--pgui-space-16);
+  background: var(--pgui-bg-surface);
+  border: 1px solid var(--pgui-border);
+  border-radius: var(--pgui-radius-lg);
+  text-align: center;
+}
+
+.qam-topbar-box__label {
+  font-size: var(--pgui-fs-label);
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--pgui-text-secondary);
+  margin-bottom: 2px;
+  white-space: nowrap;
+}
+
+.qam-topbar-box__value {
+  font-size: var(--pgui-fs-subtitle);
+  font-weight: 800;
+  color: var(--pgui-text-primary);
+  white-space: nowrap;
+}
+
+.qam-topbar-box--team {
+  border-color: var(--team-color, var(--pgui-color-primary));
+}
+
+.qam-topbar-box__value--team {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pgui-space-8);
+  color: var(--team-color, var(--pgui-color-primary));
+}
+
+/* Caixa "Pontos em jogo" — mesmo valor que antes era um badge solto em
+   cima do teclado, agora como a 3ª caixa do topo. --boosted (depois de um
+   ou mais "Passar") só troca a cor pro tema de "risco maior" (vermelho). */
+.qam-topbar-box--points {
+  border-color: var(--pgui-color-primary);
+}
+
+.qam-topbar-box--points .qam-topbar-box__value {
+  color: var(--pgui-color-primary);
+}
+
+.qam-topbar-box--points.qam-points-badge--boosted {
+  border-color: var(--pgui-color-danger);
+  animation: pgui-pulse 1.1s ease-in-out infinite;
+}
+
+.qam-topbar-box--points.qam-points-badge--boosted .qam-topbar-box__value {
+  color: var(--pgui-color-danger-hover);
+}
+
+/* ---- Placar: fica no popup do botão "🏆 Placar" do cabeçalho (sob
+   demanda), não mais fixo numa barra lateral. Dicas: desativadas no jogo
+   por enquanto (ver SHOW_HINTS_IN_GAME em game.js) — como a sidebar-right
+   só tinha o painel de dicas, sem ela dava uma coluna vazia sobrando; por
+   isso o grid abaixo é só "main" mesmo, ocupando a largura toda. */
+@media (min-width: 768px) {
+  #gameScreen.pgui-game-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "topbar"
+      "main"
+      "actions";
+  }
+}
+
+/* ---- Setup screen: 2 colunas a partir de 900px ---- */
+.qam-setup-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--pgui-space-24);
+  padding-top: var(--pgui-space-32);
+  padding-bottom: var(--pgui-space-64);
+}
+
+@media (min-width: 900px) {
+  .qam-setup-grid { grid-template-columns: 1.1fr .9fr; align-items: start; }
+}
+
+.qam-warning-box {
+  padding: var(--pgui-space-16);
+  border-radius: var(--pgui-radius-lg);
+  border: 1px solid rgba(245, 158, 11, .4);
+  background: rgba(245, 158, 11, .08);
+}
+
+.qam-score-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pgui-space-8);
+  margin: 0 0 var(--pgui-space-8);
+  padding: 0;
+  list-style: none;
+}
+
+/* ---- Cabeçalho do sorteio: "Quantas notas?" → "Sorteando..." ---- */
+.qam-draw-heading {
+  font-size: var(--pgui-fs-title);
+  font-weight: 800;
+  color: var(--pgui-text-primary);
+  margin: 0 0 var(--pgui-space-16);
+}
+
+/* ---- Legendas abaixo do peão (dica de uso / torcida) ---- */
+.qam-draw-caption {
+  margin: var(--pgui-space-12) 0 0;
+  color: var(--pgui-text-secondary);
+  font-size: var(--pgui-fs-small);
+}
+
+/* ---- Revelação rápida do resultado do sorteio (número grande + "notas") ----
+   Aparece por um instante assim que o peão para, antes do "Ouvir" liberar —
+   dá um momento de "prepare-se" antes de começar a ouvir de fato. */
+.qam-draw-result {
+  padding: var(--pgui-space-24) 0;
+}
+
+.qam-draw-result__number {
+  font-size: 96px;
+  line-height: 1;
+  font-weight: 900;
+  color: var(--pgui-color-primary);
+  text-shadow: 0 0 40px rgba(255, 193, 7, .5);
+  animation: qam-draw-result-pop .4s ease-out;
+}
+
+.qam-draw-result__label {
+  font-size: var(--pgui-fs-title);
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--pgui-text-primary);
+  margin-top: var(--pgui-space-4);
+}
+
+.qam-draw-result__caption {
+  margin-top: var(--pgui-space-8);
+  color: var(--pgui-text-secondary);
+  font-size: var(--pgui-fs-small);
+}
+
+@keyframes qam-draw-result-pop {
+  0% { transform: scale(.5); opacity: 0; }
+  70% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+/* ---- Fase de escuta/resposta: 3 colunas (notas | teclado+mini player | ações) ----
+   Só essa fase vira 3 colunas — sorteio e revelação continuam em coluna
+   única, centralizados, como o resto do card. Em telas estreitas colapsa
+   pra 1 coluna (número em cima, teclado no meio, botões embaixo). */
+.qam-listen-layout {
+  display: grid;
+  grid-template-columns: minmax(120px, auto) minmax(0, 1fr) minmax(220px, auto);
+  align-items: center;
+  gap: var(--pgui-space-24);
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  .qam-listen-layout {
+    /* Sem "justify-items: center" de propósito — isso encolheria cada
+       coluna pro tamanho do conteúdo, e o teclado/mini player (que usam
+       largura em %) colapsavam pra quase 0px sem uma largura estável de
+       referência. A centralização já vem do text-align:center do card e
+       do margin:auto de cada peça. */
+    grid-template-columns: 1fr;
+  }
+}
+
+.qam-listen-center {
+  min-width: 0; /* sem isso, o teclado (flex) empurra a coluna e estoura o grid */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+}
+
+/* A coluna da esquerda (número de notas) precisa esticar pra ocupar a
+   altura toda da linha (que é definida pela coluna mais alta — geralmente
+   a dos botões empilhados à direita) e SÓ DEPOIS centralizar o conteúdo
+   dentro dela — sem isso, o número ficava "colado" no topo da linha em vez
+   de centralizado verticalmente junto com o teclado/botões ao lado. */
+.qam-listen-left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+}
+
+.qam-listen-actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--pgui-space-12);
+  width: 100%;
+  align-self: stretch;
+}
+
+.qam-listen-actions .pgui-btn {
+  width: 100%;
+  font-weight: 800;
+}
+
+/* ---- Número de notas em destaque (coluna esquerda da fase de escuta) ---- */
+.qam-notes-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.qam-notes-badge__icon {
+  font-size: 26px;
+  color: var(--pgui-color-primary);
+  margin-bottom: 2px;
+}
+
+.qam-notes-badge__number {
+  font-size: 80px;
+  line-height: 1;
+  font-weight: 900;
+  color: var(--pgui-color-primary);
+  text-shadow: 0 0 40px rgba(255, 193, 7, .5);
+}
+
+.qam-notes-badge__label {
+  margin-top: var(--pgui-space-4);
+  font-size: var(--pgui-fs-small);
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--pgui-text-secondary);
+}
+
+.qam-notes-badge__label::before,
+.qam-notes-badge__label::after {
+  content: '—';
+  margin: 0 6px;
+  opacity: .4;
+}
+
+/* ---- Botão "Ouvir" com legenda (ícone + título + "X vezes restantes") ---- */
+.qam-replay-btn {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.qam-replay-btn__icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.qam-replay-btn__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.qam-replay-btn__sub {
+  font-size: var(--pgui-fs-caption, 12px);
+  font-weight: 700;
+  color: var(--pgui-color-primary);
+}
+
+/* ---- "Peão" do sorteio de notas (GSAP anima a trilha; ver game.js) ----
+   Só existem 5 números (1 a 5), sempre em loop fixo (1,2,3,4,5,1,2,3,4,5...)
+   — nunca embaralhado. O viewport cabe exatamente os 5 tiles (1 a 5) de
+   uma vez — os dois das pontas ficam visíveis também, só um pouco mais
+   discretos (opacity abaixo), pra não cortar número nenhum e não ficar com
+   cara de "quebrado". Bem grande de propósito, pra dar pra ler de longe
+   (telão/salão). */
+.qam-draw-reel {
+  /* --qam-tile-size e --qam-tile-gap são calculados em JS (updateDrawReelSize),
+     medindo a largura real do container — garante que os 5 tiles sempre
+     cabem certinho, em qualquer tamanho de tela, sem depender de um
+     clamp() fixo que podia estourar em telas pequenas. */
+  width: min(680px, 92vw);
+  margin: 0 auto var(--pgui-space-16);
+}
+
+.qam-draw-reel__viewport {
+  position: relative;
+  width: 100%;
+  height: var(--qam-tile-size, 160px);
+  overflow: hidden;
+  border-radius: var(--pgui-radius-lg);
+  background: rgba(0, 0, 0, .35);
+  border: 2px solid rgba(255, 255, 255, .12);
+}
+
+.qam-draw-reel__track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  will-change: transform;
+}
+
+.qam-draw-tile {
+  flex: 0 0 auto;
+  width: var(--qam-tile-size, 160px);
+  height: var(--qam-tile-size, 160px);
+  margin: 0 var(--qam-tile-gap, 10px);
+  border-radius: var(--pgui-radius-md);
+  background: rgba(255, 255, 255, .05);
+  border: 2px solid rgba(255, 255, 255, .12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: calc(var(--qam-tile-size, 160px) * .48);
+  color: var(--pgui-text-secondary);
+  opacity: .5;
+}
+
+.qam-draw-tile--winner {
+  opacity: 1;
+  background: rgba(255, 193, 7, .18);
+  border-color: var(--pgui-color-primary);
+  color: var(--pgui-color-primary);
+  box-shadow: 0 0 40px rgba(255, 193, 7, .5);
+}
+
+/* Moldura fixa no centro do viewport — a "área de seleção" (só o tile do
+   meio; os vizinhos ficam visíveis mas discretos, opacity acima). */
+.qam-draw-reel__frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(var(--qam-tile-size, 160px) + 12px);
+  height: calc(var(--qam-tile-size, 160px) + 12px);
+  border: 3px solid var(--pgui-color-primary);
+  border-radius: var(--pgui-radius-md);
+  pointer-events: none;
+}
+
+/* Ponteiro abaixo do peão, apontando pra área de seleção. */
+.qam-draw-reel__pointer {
+  width: 0;
+  height: 0;
+  margin: var(--pgui-space-8) auto 0;
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-bottom: 18px solid var(--pgui-color-primary);
+}
+
+/* ---- Dicas (painel na sidebar direita) ---- */
+.qam-hints-box {
+  padding: var(--pgui-space-16);
+  border-radius: var(--pgui-radius-lg);
+  border: 1px solid rgba(255, 193, 7, .3);
+  background: rgba(255, 193, 7, .08);
+  text-align: left;
+}
+
+.qam-hints-title {
+  font-weight: 800;
+  font-size: var(--pgui-fs-small);
+  color: var(--pgui-color-primary);
+  margin-bottom: var(--pgui-space-8);
+}
+
+.qam-hints-box ul {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--pgui-text-secondary);
+  font-size: var(--pgui-fs-small);
+}
+
+.qam-hints-empty {
+  margin: 0;
+  color: var(--pgui-text-muted);
+  font-size: var(--pgui-fs-small);
+}
+
+/* ---- Mini player (feedback visual da execução) ---- */
+.qam-mini-player {
+  width: min(480px, 100%);
+  margin: var(--pgui-space-8) auto;
+}
+
+.qam-mini-label {
+  font-size: var(--pgui-fs-small);
+  font-weight: 600;
+  color: var(--pgui-text-secondary);
+  text-align: center;
+  margin-bottom: var(--pgui-space-8);
+}
+
+.qam-mini-track {
+  display: flex;
+  gap: 4px;
+  height: 16px;
+}
+
+.qam-mini-note {
+  position: relative;
+  flex-grow: 1;
+  min-width: 10px;
+  background: rgba(255, 255, 255, .12);
+  border-radius: var(--pgui-radius-sm);
+  overflow: hidden;
+}
+
+.qam-mini-note-fill {
+  position: absolute;
+  inset: 0;
+  width: 0%;
+  background: var(--pgui-color-primary);
+  transition-property: width;
+  transition-timing-function: linear;
+}
+
+.qam-mini-note.is-active { box-shadow: 0 0 0 2px var(--pgui-color-primary); }
+.qam-mini-note.is-done { background: rgba(34, 197, 94, .3); }
+.qam-mini-note.is-done .qam-mini-note-fill { width: 100%; background: rgba(34, 197, 94, .6); }
+
+/* ---- Teclado visual (vista de cima, sem mão) — ver assets/js/piano-keyboard.js ----
+   Mostra só QUAIS teclas estão soando, em sincronia com o áudio (mesmo
+   start/duration do mini player acima). O range (quantas oitavas aparecem)
+   é calculado em JS a partir das notas da música, então cabe só o
+   necessário — nunca um teclado gigante com a maioria das teclas paradas. */
+.qam-piano {
+  position: relative;
+  width: min(480px, 100%);
+  height: 84px;
+  margin: 0 auto var(--pgui-space-8);
+  user-select: none;
+}
+
+.qam-piano__white-row {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.qam-piano__key {
+  box-sizing: border-box;
+  transition: background .08s ease, box-shadow .08s ease;
+}
+
+.qam-piano__key--white {
+  flex: 1 0 0;
+  background: linear-gradient(to bottom, #f2f2f2, #dcdcdc);
+  border: 1px solid rgba(0, 0, 0, .4);
+  border-radius: 0 0 4px 4px;
+}
+
+.qam-piano__key--white.is-active {
+  background: linear-gradient(to bottom, var(--pgui-color-primary), var(--pgui-color-primary-active));
+  box-shadow: inset 0 -6px 10px rgba(0, 0, 0, .2), 0 0 14px rgba(255, 193, 7, .65);
+}
+
+.qam-piano__key--black {
+  position: absolute;
+  top: 0;
+  left: calc((100% / var(--qam-piano-white-count)) * var(--qam-piano-boundary));
+  width: calc((100% / var(--qam-piano-white-count)) * .62);
+  height: 60%;
+  transform: translateX(-50%);
+  background: linear-gradient(to bottom, #333, #050505);
+  border-radius: 0 0 3px 3px;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, .5);
+  z-index: 2;
+}
+
+.qam-piano__key--black.is-active {
+  background: linear-gradient(to bottom, var(--pgui-color-primary-hover), var(--pgui-color-primary-active));
+  box-shadow: 0 0 12px rgba(255, 193, 7, .8);
+}
+
+/* ---- Revelação (usa .pgui-card como base) ----
+   Acertou OU errou, o vídeo original toca em autoplay igual — a equipe
+   sempre vê a música de verdade no final. O layout é uma coluna centrada,
+   com espaçamento consistente entre cada bloco (resultado → título → vídeo
+   → controle de parar), sem depender de margin solto em cada peça. */
+.qam-reveal-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pgui-space-16);
+  margin-top: var(--pgui-space-16);
+  padding: var(--pgui-space-24);
+  text-align: center;
+}
+
+.qam-reveal-outcome {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pgui-space-8);
+  padding: var(--pgui-space-8) var(--pgui-space-20);
+  border-radius: var(--pgui-radius-pill);
+  border: 2px solid var(--pgui-border);
+  font-weight: 800;
+  font-size: var(--pgui-fs-body);
+}
+
+.qam-reveal-outcome--positive {
+  border-color: var(--pgui-color-success);
+  background: rgba(34, 197, 94, .12);
+  color: var(--pgui-color-success);
+}
+
+.qam-reveal-outcome--negative {
+  border-color: var(--pgui-color-danger);
+  background: rgba(239, 68, 68, .12);
+  color: var(--pgui-color-danger-hover);
+}
+
+.qam-reveal-song {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.qam-reveal-title {
+  font-weight: 800;
+  font-size: var(--pgui-fs-title);
+  color: var(--pgui-color-primary);
+}
+
+.qam-reveal-artist {
+  color: var(--pgui-text-secondary);
+  font-weight: 600;
+  font-size: var(--pgui-fs-small);
+}
+
+.qam-reveal-hints {
+  text-align: left;
+  color: var(--pgui-text-secondary);
+  font-size: var(--pgui-fs-small);
+}
+
+.qam-reveal-hints:empty {
+  display: none;
+}
+
+.qam-reveal-hints ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.qam-original-embed:empty {
+  display: none;
+}
+
+.qam-original-embed iframe {
+  display: block;
+  border-radius: var(--pgui-radius-lg);
+  border: 1px solid var(--pgui-border);
+  box-shadow: var(--pgui-shadow-floating);
+  max-width: 560px;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+}
+
+.qam-reveal-stop {
+  margin-top: calc(-1 * var(--pgui-space-8)); /* puxa um pouco pra perto do vídeo, já que o gap da coluna já dá espaço */
+}

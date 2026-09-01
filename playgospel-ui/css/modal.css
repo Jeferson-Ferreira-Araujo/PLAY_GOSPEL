@@ -1,0 +1,82 @@
+/* =====================================================
+   PLAYGOSPEL UI — MODAL / DIALOG
+   modal.js injeta esta estrutura uma vez e reaproveita.
+   ===================================================== */
+
+.pgui-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--pgui-z-modal-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--pgui-space-16);
+  background: var(--pgui-overlay);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--pgui-transition-base);
+}
+
+.pgui-modal-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.pgui-modal {
+  position: relative;
+  z-index: var(--pgui-z-modal);
+  width: min(440px, 100%);
+  background: var(--pgui-bg-surface);
+  border: 1px solid var(--pgui-border-strong);
+  border-radius: var(--pgui-radius-xl);
+  box-shadow: var(--pgui-shadow-modal);
+  padding: var(--pgui-space-24);
+  transform: translateY(12px) scale(.97);
+  transition: transform var(--pgui-transition-base);
+}
+
+.pgui-modal-overlay.is-open .pgui-modal {
+  transform: translateY(0) scale(1);
+}
+
+.pgui-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pgui-space-12);
+  margin-bottom: var(--pgui-space-16);
+}
+
+.pgui-modal__title {
+  font-size: var(--pgui-fs-title);
+  font-weight: 700;
+  margin: 0;
+}
+
+.pgui-modal__close {
+  display: inline-flex;
+  color: var(--pgui-text-secondary);
+  padding: var(--pgui-space-4);
+  border-radius: var(--pgui-radius-sm);
+  flex: 0 0 auto;
+}
+.pgui-modal__close:hover { color: var(--pgui-text-primary); background: rgba(255, 255, 255, .06); }
+
+.pgui-modal__body {
+  color: var(--pgui-text-secondary);
+  margin-bottom: var(--pgui-space-24);
+}
+
+.pgui-modal__footer,
+.pgui-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--pgui-space-12);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+  .pgui-modal { padding: var(--pgui-space-16); }
+}
