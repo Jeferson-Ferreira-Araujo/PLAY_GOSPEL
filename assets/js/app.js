@@ -403,11 +403,11 @@ function maybeShowReturnModal() {
     html += `
       <div class="pg-return-section">
         <h2 class="pg-return-title">Bem-vindo de volta${firstName ? `, ${escapeHtml(firstName)}` : ""}! 👋</h2>
-        <p class="pg-return-text">Esperamos que tenha sido uma experiência incrível usar o PlayGospel.</p>
+        <p class="pg-return-text">Esperamos que tenha sido uma experiência incrível usar o Avivaplay.</p>
         <p class="pg-return-text">Dá uma olhada nas nossas redes sociais e deixa um comentário — vamos adorar saber como foi!</p>
         <div class="pg-return-social">
-          <a href="https://www.tiktok.com/@playgospel" target="_blank" rel="noopener noreferrer" class="pg-return-social-btn">${tiktokSvg} TikTok</a>
-          <a href="https://www.instagram.com/playgospel" target="_blank" rel="noopener noreferrer" class="pg-return-social-btn">${instaSvg} Instagram</a>
+          <a href="https://www.tiktok.com/@avivaplay" target="_blank" rel="noopener noreferrer" class="pg-return-social-btn">${tiktokSvg} TikTok</a>
+          <a href="https://www.instagram.com/avivaplay" target="_blank" rel="noopener noreferrer" class="pg-return-social-btn">${instaSvg} Instagram</a>
         </div>
       </div>`;
   }

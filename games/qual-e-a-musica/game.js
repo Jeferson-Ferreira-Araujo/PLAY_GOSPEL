@@ -249,7 +249,7 @@ function renderTeamsPanel() {
 }
 
 /** Ranking: só a pré-visualização da tela de setup (componente completo do
- * PlayGospel UI) — durante o jogo, o placar fica disponível sob demanda
+ * Avivaplay UI) — durante o jogo, o placar fica disponível sob demanda
  * pelo botão "🏆 Placar" no cabeçalho, sem ocupar espaço fixo na tela. */
 function renderTeamsRanking() {
   if (!Teams.isEnabled()) return;

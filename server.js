@@ -1,4 +1,4 @@
-// Servidor local de desenvolvimento/autoria do PlayGospel.
+// Servidor local de desenvolvimento/autoria do Avivaplay.
 //
 // Serve os arquivos estáticos do site (index.html, assets/, games/, admin/)
 // e expõe uma API REST simples para o Editor de Músicas (admin/) gravar o
@@ -155,6 +155,6 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`PlayGospel dev server rodando em http://localhost:${PORT}`);
+  console.log(`Avivaplay dev server rodando em http://localhost:${PORT}`);
   console.log(`Editor de Músicas: http://localhost:${PORT}/admin/`);
 });
