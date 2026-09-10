@@ -554,6 +554,16 @@
   padding-bottom: 10px;
 }
 
+/* Tablet em pé (e celular deitado): 5 colunas espremem demais os cards
+   nessa largura — 3 fica confortável. O landscape do tablet (>=~1024px)
+   e o desktop seguem com 5; o celular em pé (<=600px) segue com 2. */
+@media (min-width: 601px) and (max-width: 900px) {
+  .pg-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+}
+
 /* ==============================
    PILLS DE CATEGORIA
 ================================= */
