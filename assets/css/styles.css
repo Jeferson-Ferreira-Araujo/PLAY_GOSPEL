@@ -1804,6 +1804,27 @@
   color: var(--gold);
 }
 
+/* Tablet em pé: o versículo em flex:1 na esquerda + os 2 links na direita
+   ficava desalinhado no rodapé fixo nessa largura. Aqui o versículo fica
+   numa linha só e "Política de privacidade" + "Desenvolvido por" juntos e
+   centralizados na linha de baixo (2 linhas). Precisa vir DEPOIS das
+   regras-base de .pg-footer-* pra não ser sobrescrito. */
+@media (min-width: 601px) and (max-width: 900px) {
+  .pg-footer-inner {
+    justify-content: center;
+    text-align: center;
+    row-gap: 8px;
+  }
+
+  .pg-footer-verse {
+    flex: 0 1 100%;
+  }
+
+  .pg-catalogo {
+    padding-bottom: 150px;
+  }
+}
+
 /* ==============================
    SCROLLBAR (Netflix vibe)
 ================================= */
@@ -1990,7 +2011,13 @@
   }
 
   .pg-catalogo {
-    padding: 12px 16px 32px;
+    /* só topo/laterais aqui — o padding-bottom é controlado pelas regras
+       do rodapé fixo (100px em >=641px, 132px no tablet em pé), senão
+       este shorthand zerava a folga e o rodapé fixo tampava o último
+       card. */
+    padding-top: 12px;
+    padding-left: 16px;
+    padding-right: 16px;
   }
 
   /* Botão "Criar equipes" no header mobile. */
