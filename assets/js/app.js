@@ -214,12 +214,14 @@ function wireWelcomeModal() {
 
   const nameInput = document.getElementById("welcomeName");
   const churchInput = document.getElementById("welcomeChurch");
+  const cityInput = document.getElementById("welcomeCity");
   const btnEnter = document.getElementById("btnWelcomeEnter");
 
   // Prefilling defensivo: se por algum motivo já existir um rascunho salvo
   // sem "seen" (não deveria acontecer no fluxo normal), não pede de novo.
   if (saved?.name && nameInput) nameInput.value = saved.name;
   if (saved?.church && churchInput) churchInput.value = saved.church;
+  if (saved?.city && cityInput) cityInput.value = saved.city;
 
   const modal = bootstrap.Modal.getOrCreateInstance(el);
 
@@ -233,6 +235,7 @@ function wireWelcomeModal() {
         seen: true,
         name: nameInput?.value.trim() || "",
         church: churchInput?.value.trim() || "",
+        city: cityInput?.value.trim() || "",
         seenAt: new Date().toISOString(),
       })
     );
