@@ -2029,6 +2029,99 @@
 }
 
 /* ==============================
+   MODAL DE RETORNO (bem-vindo de volta / jogo novo)
+================================= */
+
+.pg-return-content {
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+.pg-return-body {
+  padding: 26px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.pg-return-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pg-return-section--new {
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, .1);
+}
+
+.pg-return-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--gold);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.pg-return-text {
+  font-size: .88rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.pg-return-social {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.pg-return-social-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .1);
+  color: var(--text-main);
+  font-size: .85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+
+.pg-return-social-btn:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--bg-main);
+}
+
+.pg-return-newgames {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.pg-return-game-btn {
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1.5px solid var(--gold);
+  background: rgba(244, 196, 48, .1);
+  color: var(--gold);
+  font-size: .85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+
+.pg-return-game-btn:hover {
+  background: var(--gold);
+  color: var(--bg-main);
+}
+
+/* ==============================
    MODAL DE BOAS-VINDAS (primeira visita)
 ================================= */
 

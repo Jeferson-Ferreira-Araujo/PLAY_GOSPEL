@@ -197,6 +197,20 @@
     </div>
   </div>
 
+  <!-- MODAL DE RETORNO — "bem-vindo de volta" (1x, em dia diferente do 1º
+       acesso) e/ou aviso de jogo(s) novo(s). Conteúdo montado em
+       maybeShowReturnModal() (assets/js/app.js). -->
+  <div class="modal fade" id="returnModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content pg-modal pg-return-content">
+        <button type="button" class="pg-gm-close" data-bs-dismiss="modal" aria-label="Fechar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12"/><path d="M18 6 6 18"/></svg>
+        </button>
+        <div class="modal-body pg-return-body" id="returnModalBody"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL DE DETALHES DO JOGO -->
   <div class="modal fade" id="gameModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered pg-gm-dialog">

@@ -340,6 +340,115 @@ function wireSupportModal() {
   });
 }
 
+/* =========================
+   MODAL DE RETORNO — pra quem já preencheu o cadastro (bibflix_visitor_v1)
+   e voltou depois. Mostra, quando faz sentido:
+   1. "Bem-vindo de volta, <nome>" + CTA das redes — 1x só, na 1ª volta
+      num dia diferente do primeiro acesso.
+   2. Aviso de jogo(s) novo(s) — sempre que aparecer jogo que o
+      visitante ainda não viu (comparado com o snapshot `knownGames`).
+   Roda depois de loadGames() (precisa de allGames).
+========================= */
+function persistVisitor(v) {
+  try {
+    localStorage.setItem(WELCOME_KEY, JSON.stringify(v));
+  } catch {
+    /* localStorage indisponível — sem drama, é best-effort */
+  }
+}
+
+function maybeShowReturnModal() {
+  let v = null;
+  try {
+    v = JSON.parse(localStorage.getItem(WELCOME_KEY) || "null");
+  } catch {
+    v = null;
+  }
+  // Ainda não passou pelo modal de boas-vindas — nada a fazer aqui.
+  if (!v || !v.seen) return;
+
+  const el = document.getElementById("returnModal");
+  const body = document.getElementById("returnModalBody");
+  if (!el || !body) return;
+
+  const firstName = (v.name || "").trim().split(/\s+/)[0] || "";
+  const playableIds = allGames.filter((g) => !g.unavailable).map((g) => g.id);
+
+  // --- jogos novos desde a última visita ---
+  let newGames = [];
+  const hadSnapshot = Array.isArray(v.knownGames);
+  if (hadSnapshot) {
+    newGames = allGames.filter((g) => !g.unavailable && !v.knownGames.includes(g.id));
+  }
+  // Sem snapshot ainda (visitante de antes dessa feature): registra o
+  // estado atual sem anunciar nada — senão avisaria dos 10 de uma vez.
+  if (!hadSnapshot) v.knownGames = playableIds;
+
+  // --- "bem-vindo de volta" (1x, em dia diferente do 1º acesso) ---
+  const firstDay = v.seenAt ? new Date(v.seenAt).toDateString() : null;
+  const isDifferentDay = firstDay && firstDay !== new Date().toDateString();
+  const showWelcomeBack = Boolean(isDifferentDay && !v.welcomeBackShown);
+
+  if (!showWelcomeBack && newGames.length === 0) {
+    persistVisitor(v); // pode ter só criado o snapshot
+    return;
+  }
+
+  const tiktokSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.6 5.82c-.9-.8-1.46-1.96-1.46-3.25h-3.1v13.4c0 1.5-1.22 2.72-2.72 2.72a2.72 2.72 0 0 1 0-5.44c.27 0 .53.04.78.11V10.3a5.83 5.83 0 0 0-.78-.05A5.85 5.85 0 0 0 3.4 16.1a5.85 5.85 0 0 0 5.87 5.85 5.85 5.85 0 0 0 5.85-5.85V9.15a8.9 8.9 0 0 0 5.18 1.66V7.7a5.5 5.5 0 0 1-3.7-1.88Z"/></svg>';
+  const instaSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>';
+
+  let html = "";
+
+  if (showWelcomeBack) {
+    html += `
+      <div class="pg-return-section">
+        <h2 class="pg-return-title">Bem-vindo de volta${firstName ? `, ${escapeHtml(firstName)}` : ""}! 👋</h2>
+        <p class="pg-return-text">Esperamos que tenha sido uma experiência incrível usar o PlayGospel.</p>
+        <p class="pg-return-text">Dá uma olhada nas nossas redes sociais e deixa um comentário — vamos adorar saber como foi!</p>
+        <div class="pg-return-social">
+          <a href="https://www.tiktok.com/@playgospel" target="_blank" rel="noopener noreferrer" class="pg-return-social-btn">${tiktokSvg} TikTok</a>
+          <a href="https://www.instagram.com/playgospel" target="_blank" rel="noopener noreferrer" class="pg-return-social-btn">${instaSvg} Instagram</a>
+        </div>
+      </div>`;
+  }
+
+  if (newGames.length) {
+    const titles = newGames.map((g) => `<b>${escapeHtml(g.title)}</b>`);
+    const lista = titles.length === 1
+      ? `o jogo ${titles[0]}`
+      : `${titles.slice(0, -1).join(", ")} e ${titles[titles.length - 1]}`;
+    html += `
+      <div class="pg-return-section pg-return-section--new">
+        <h2 class="pg-return-title">${firstName ? `Ei, ${escapeHtml(firstName)}! ` : ""}Novidade! 🎉</h2>
+        <p class="pg-return-text">Adicionamos ${lista} — tô esperando você jogar!</p>
+        <div class="pg-return-newgames">
+          ${newGames.map((g) => `<button type="button" class="pg-return-game-btn" data-return-game="${escapeAttr(g.id)}">${escapeHtml(g.title)}</button>`).join("")}
+        </div>
+      </div>`;
+  }
+
+  body.innerHTML = html;
+
+  const modal = bootstrap.Modal.getOrCreateInstance(el);
+
+  body.querySelectorAll("[data-return-game]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const g = allGames.find((x) => x.id === btn.dataset.returnGame);
+      modal.hide();
+      if (g) openGameModal(g);
+    });
+  });
+
+  el.addEventListener("hidden.bs.modal", () => {
+    if (showWelcomeBack) v.welcomeBackShown = true;
+    // Depois de mostrar, tudo que está no catálogo agora vira "conhecido".
+    v.knownGames = playableIds;
+    persistVisitor(v);
+  }, { once: true });
+
+  modal.show();
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   modalInstance = new bootstrap.Modal(document.getElementById("gameModal"));
   teamMembersModalInstance = new bootstrap.Modal(document.getElementById("teamMembersModal"));
@@ -353,6 +462,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   currentGames = allGames;
   renderGames(allGames);
   renderCategoryPills();
+  maybeShowReturnModal();
 
   // Teams UI (modal + banner no catálogo + rótulo do botão na navbar)
   wireTeamsModal();
