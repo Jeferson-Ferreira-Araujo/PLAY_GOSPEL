@@ -23,6 +23,41 @@ const MATCH_TYPE_META = {
 // nunca mais aparece pra quem já viu, mesmo fechando e voltando outro dia.
 const WELCOME_KEY = "bibflix_visitor_v1";
 
+// App da Web do Google Apps Script (doPost em uma Planilha Google) — pra
+// onde os dados do modal de boas-vindas são enviados, se algum campo foi
+// preenchido. Best-effort: nunca bloqueia nem quebra a experiência do
+// usuário se falhar (rede offline, script removido etc).
+const WELCOME_SHEET_URL = "https://script.google.com/macros/s/AKfycbxh45f8NeFzOFDLtnP3lxxF_LP3Ze0mqU2sq28BpUYBv1LvRWLINs34KgDnwE4Pn3KhZw/exec";
+
+// "Trava" simples contra bots genéricos que varrem URLs de Apps Script
+// abertas — não impede alguém que vasculhe o JS do site com calma (esse
+// token fica público aqui, junto da URL), mas barra a varredura
+// automática comum. O doPost() do lado do Script só grava se bater.
+const WELCOME_SHEET_TOKEN = "1cddb869b1d3e46c97972c9a41b615485e9e15305256d5a4";
+
+function sendWelcomeToSheet(payload) {
+  // Sem nenhum campo preenchido não vale a pena mandar — só uma linha
+  // vazia poluindo a planilha (fechar sem preencher continua funcionando
+  // normalmente, só não gera registro nenhum).
+  if (!payload.name && !payload.whatsapp && !payload.church && !payload.city) return;
+
+  try {
+    fetch(WELCOME_SHEET_URL, {
+      method: "POST",
+      mode: "no-cors", // Apps Script não manda CORS de resposta — não
+                        // precisamos ler a resposta mesmo, só disparar.
+      body: JSON.stringify({
+        ...payload,
+        token: WELCOME_SHEET_TOKEN,
+        language: navigator.language || "",
+        referrer: document.referrer || "",
+      }),
+    }).catch(() => {}); // falha de rede não deve incomodar o usuário
+  } catch {
+    // ambiente sem fetch (não deveria acontecer) — ignora silenciosamente
+  }
+}
+
 let allGames = [];
 let currentGames = []; // lista atualmente exibida (após busca/categoria) — o carrossel navega sobre ela, não sobre allGames
 let modalInstance = null;
@@ -251,17 +286,17 @@ function wireWelcomeModal() {
   // marca como visto e grava o que estiver preenchido (campos são sempre
   // opcionais) — só precisa gravar uma vez, aqui, não em cada botão.
   el.addEventListener("hidden.bs.modal", () => {
+    const payload = {
+      name: nameInput?.value.trim() || "",
+      whatsapp: whatsappInput?.value.trim() || "",
+      church: churchInput?.value.trim() || "",
+      city: cityInput?.value.trim() || "",
+    };
     localStorage.setItem(
       WELCOME_KEY,
-      JSON.stringify({
-        seen: true,
-        name: nameInput?.value.trim() || "",
-        whatsapp: whatsappInput?.value.trim() || "",
-        church: churchInput?.value.trim() || "",
-        city: cityInput?.value.trim() || "",
-        seenAt: new Date().toISOString(),
-      })
+      JSON.stringify({ seen: true, ...payload, seenAt: new Date().toISOString() })
     );
+    sendWelcomeToSheet(payload);
   }, { once: true });
 
   btnEnter?.addEventListener("click", () => modal.hide());
