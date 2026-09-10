@@ -1577,7 +1577,10 @@ function wireTeamsModal() {
     if (names.length < count) {
       if (drawErr) {
         const faltam = count - names.length;
-        drawErr.textContent = `Você escolheu ${count} equipes, mas digitou só ${names.length} ${names.length === 1 ? "nome" : "nomes"} — faltam pelo menos ${faltam} ${faltam === 1 ? "nome" : "nomes"} (ou reduza a quantidade de equipes).`;
+        // "ou reduza a quantidade de equipes" só faz sentido com 3+ —
+        // com 2 (o mínimo) não dá pra reduzir.
+        const alternativa = count > 2 ? " (ou reduza a quantidade de equipes)" : "";
+        drawErr.textContent = `Você escolheu ${count} equipes, mas digitou só ${names.length} ${names.length === 1 ? "nome" : "nomes"} — faltam pelo menos ${faltam} ${faltam === 1 ? "nome" : "nomes"}${alternativa}.`;
         drawErr.classList.remove("d-none");
       }
       return;
