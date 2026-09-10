@@ -1996,26 +1996,11 @@
   font-size: 1.02rem;
 }
 
-.pg-welcome-privacy {
-  display: flex;
-  align-items: flex-start;
-  gap: 7px;
-  margin: 16px 0 0;
-  font-size: .78rem;
-  line-height: 1.45;
-  color: var(--text-muted);
-}
-
-.pg-welcome-privacy svg {
-  flex: 0 0 auto;
-  margin-top: 1px;
-}
-
 .pg-welcome-contact {
   display: flex;
   align-items: flex-start;
   gap: 7px;
-  margin: 8px 0 0;
+  margin: 16px 0 0;
   font-size: .78rem;
   line-height: 1.45;
   color: var(--text-muted);
@@ -2034,6 +2019,14 @@
 
 .pg-welcome-contact a:hover {
   text-decoration: underline;
+}
+
+.pg-welcome-blessing {
+  margin: 14px 0 0;
+  text-align: center;
+  font-size: .92rem;
+  font-weight: 700;
+  color: var(--gold);
 }
 
 @media (max-width: 640px) {
