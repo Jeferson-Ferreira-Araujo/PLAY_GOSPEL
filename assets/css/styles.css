@@ -1964,6 +1964,13 @@
   margin: 0 0 10px;
 }
 
+.pg-welcome-form-intro {
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0 0 10px;
+}
+
 .pg-welcome-field {
   margin-bottom: 10px;
 }
