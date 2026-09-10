@@ -233,6 +233,7 @@ function wireWelcomeModal() {
   if (saved && saved.seen) return;
 
   const nameInput = document.getElementById("welcomeName");
+  const whatsappInput = document.getElementById("welcomeWhatsapp");
   const churchInput = document.getElementById("welcomeChurch");
   const cityInput = document.getElementById("welcomeCity");
   const btnEnter = document.getElementById("btnWelcomeEnter");
@@ -240,6 +241,7 @@ function wireWelcomeModal() {
   // Prefilling defensivo: se por algum motivo já existir um rascunho salvo
   // sem "seen" (não deveria acontecer no fluxo normal), não pede de novo.
   if (saved?.name && nameInput) nameInput.value = saved.name;
+  if (saved?.whatsapp && whatsappInput) whatsappInput.value = saved.whatsapp;
   if (saved?.church && churchInput) churchInput.value = saved.church;
   if (saved?.city && cityInput) cityInput.value = saved.city;
 
@@ -254,6 +256,7 @@ function wireWelcomeModal() {
       JSON.stringify({
         seen: true,
         name: nameInput?.value.trim() || "",
+        whatsapp: whatsappInput?.value.trim() || "",
         church: churchInput?.value.trim() || "",
         city: cityInput?.value.trim() || "",
         seenAt: new Date().toISOString(),

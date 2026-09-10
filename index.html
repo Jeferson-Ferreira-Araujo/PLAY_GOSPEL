@@ -133,12 +133,22 @@
 
           <p class="pg-welcome-desc">Jogos com temas bíblicos pra aprender, lembrar e compartilhar em grupo. Antes de começar, conte um pouquinho sobre você (é rapidinho!).</p>
 
-          <div class="pg-welcome-field">
-            <label class="pg-welcome-label" for="welcomeName">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>
-              Como te chamamos? <span class="pg-welcome-optional">(opcional)</span>
-            </label>
-            <input type="text" id="welcomeName" class="pgui-input" placeholder="Seu nome" maxlength="60" autocomplete="name" />
+          <div class="pg-welcome-field-row">
+            <div class="pg-welcome-field">
+              <label class="pg-welcome-label" for="welcomeName">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>
+                Nome <span class="pg-welcome-optional">(opcional)</span>
+              </label>
+              <input type="text" id="welcomeName" class="pgui-input" placeholder="Seu nome" maxlength="60" autocomplete="name" />
+            </div>
+
+            <div class="pg-welcome-field">
+              <label class="pg-welcome-label" for="welcomeWhatsapp">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21l1.65-4.95A8.5 8.5 0 1 1 8.5 19L3 21Z"/><path d="M8.5 9.5c0 3 2.5 5.5 5.5 5.5.5 0 1-.7 1-1.3 0-.3-.1-.5-.3-.6l-1.6-.9c-.2-.1-.5-.1-.7.1l-.6.6a5 5 0 0 1-2.2-2.2l.6-.6c.2-.2.2-.5.1-.7l-.9-1.6c-.1-.2-.3-.3-.6-.3-.6 0-1.3.5-1.3 1Z" fill="currentColor" stroke="none"/></svg>
+                WhatsApp <span class="pg-welcome-optional">(opcional)</span>
+              </label>
+              <input type="tel" id="welcomeWhatsapp" class="pgui-input" placeholder="(11) 91234-5678" maxlength="20" inputmode="tel" autocomplete="tel" />
+            </div>
           </div>
 
           <div class="pg-welcome-field-row">
