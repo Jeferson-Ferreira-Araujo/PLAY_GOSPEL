@@ -1,8 +1,14 @@
 import { shuffleArray, createCountdownTimer } from "../../assets/js/utils.js";
-import { renderTeamScoreboard } from "../../assets/js/scoreboard-ui.js";
+import { Teams } from "../../assets/js/teams.js";
+import { icon } from "../../playgospel-ui/js/core.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 
-const teamsScoreboard = document.getElementById("teamsScoreboard");
+// Máximo de rodadas por partida (evita jogar todas as frases de uma vez).
+const ROUND_SIZE = 10;
+
+const scoreBtn = document.getElementById("scoreBtn");
+const teamScoreButtons = document.getElementById("teamScoreButtons");
+const pointsBox = document.getElementById("pointsBox");
 
 /* ===== Elements (setup) ===== */
 const setupScreen = document.getElementById("setupScreen");
@@ -33,6 +39,7 @@ const brandLink = document.getElementById("brandLink");
 
 const playAgainBtn = document.getElementById("playAgainBtn");
 const gameOverNotice = document.getElementById("gameOverNotice");
+const timerRow = document.getElementById("presenterTimerRow");
 
 /* ===== State ===== */
 let data = null;
@@ -46,24 +53,107 @@ let idx = 0;
 let current = null;
 let timer = null;
 let gameOver = false;
+let countdownInterval = null;
+
+// Resposta revelada nesta frase e ponto já dado — controlam quando os
+// botões "X acertou" aparecem/ficam habilitados (ver renderTeamScoreButtons).
+let answerRevealed = false;
+let pointGiven = false;
 
 /* ===== Init ===== */
 document.addEventListener("DOMContentLoaded", async () => {
   await loadData();
   wireUI();
-  renderTeamScoreboard(teamsScoreboard);
+  renderTeamScoreButtons();
+  updateScoreBtn();
+  window.addEventListener("bibflix:teams:change", () => {
+    renderTeamScoreButtons();
+    updateScoreBtn();
+  });
   checkAutoStartFromURL(); // 🔥 NOVO
 });
+
+// Placar sob demanda (padrão do site): um botão no cabeçalho que abre o
+// popup com o ranking, em vez de um placar fixo. Só aparece durante o
+// jogo (não na tela de configuração) e só com equipes ativas.
+function updateScoreBtn() {
+  if (!scoreBtn) return;
+  const show = !gameScreen.classList.contains("d-none") && Teams.isEnabled();
+  scoreBtn.classList.toggle("d-none", !show);
+  pointsBox?.classList.toggle("d-none", !show);
+}
+
+/* ===== Formato "disputa": um botão de pontuação por equipe ativa =====
+   Todas as equipes veem a mesma frase ao mesmo tempo; quem administra o
+   jogo clica no botão da equipe que falar a resposta certa primeiro. */
+function escapeHtml(str) {
+  return String(str ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
+}
+
+function teamIconName(team) {
+  return Teams.teamIconNames.includes(team.icon) ? team.icon : "star";
+}
+
+function renderTeamScoreButtons() {
+  // Só aparecem depois que a resposta certa foi revelada na tela — assim
+  // quem administra confere antes de dar o ponto pra equipe certa.
+  if (!teamScoreButtons) return;
+
+  if (!Teams.isEnabled() || !answerRevealed || gameOver) {
+    teamScoreButtons.innerHTML = "";
+    teamScoreButtons.classList.add("d-none");
+    return;
+  }
+
+  const state = Teams.getState();
+  teamScoreButtons.classList.remove("d-none");
+
+  teamScoreButtons.innerHTML = state.teams.map((team, index) => `
+    <button
+      type="button"
+      class="qd-team-btn"
+      data-index="${index}"
+      style="--team-color:${escapeHtml(team.color)}"
+      ${pointGiven ? "disabled" : ""}
+    >
+      <span class="qd-team-btn-icon">${icon(teamIconName(team), { size: 16 })}</span>
+      <span>${escapeHtml(team.name)} acertou</span>
+    </button>
+  `).join("");
+
+  teamScoreButtons.querySelectorAll(".qd-team-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (gameOver || pointGiven) return;
+
+      const index = Number(btn.dataset.index);
+      Teams.setTurn(index);
+      Teams.addPoint(1);
+
+      pointGiven = true;
+      renderTeamScoreButtons();
+    });
+  });
+}
 
 async function loadData() {
   const res = await fetch("data.json", { cache: "no-store" });
   data = await res.json();
 }
 
-/* ===== URL AUTO START ===== */
+/* ===== AUTO START — a tela de configuração ficou só no modal do
+   catálogo (que já barra "Jogar" sem equipes ativas — ver
+   assets/js/app.js). Se mesmo assim alguém cair aqui sem equipes (link
+   direto, por exemplo), volta pro catálogo em vez de mostrar um jogo
+   sem placar. ===== */
 function checkAutoStartFromURL() {
+  if (!Teams.isEnabled()) {
+    window.location.href = "../../index.html#catalogo";
+    return;
+  }
+
   const params = new URLSearchParams(window.location.search);
-  if (params.get("play") !== "1") return;
 
   const difficultyFromUrl = params.get("difficulty");
   const timeFromUrl = params.get("time");
@@ -81,6 +171,7 @@ function checkAutoStartFromURL() {
 /* ===== Sair (confirma antes de deixar o jogo, com ou sem equipes) ===== */
 function confirmExit() {
   stopTimer();
+  clearCountdown();
   const goToCatalog = () => { window.location.href = "../../index.html#catalogo"; };
   const shown = showScorePopup({
     title: "👋 Sair do jogo?",
@@ -108,6 +199,8 @@ function wireUI() {
 
   playAgainBtn?.addEventListener("click", restartGame);
 
+  scoreBtn?.addEventListener("click", () => showScorePopup());
+
   exitBtn.addEventListener("click", confirmExit);
   brandLink.addEventListener("click", (e) => {
     // Só confirma se o jogo já estiver em andamento — na tela de
@@ -130,6 +223,7 @@ function wireUI() {
 function startGame() {
   setupScreen.classList.add("d-none");
   gameScreen.classList.remove("d-none");
+  updateScoreBtn();
 
   answerBox.classList.add("d-none");
   revealBtn.textContent = "Revelar";
@@ -147,7 +241,9 @@ function restartGame() {
   badgeDifficulty.textContent = difficultyLabel(currentDifficulty);
 
   const list = (data?.[currentDifficulty] ?? []).filter(Boolean);
-  pool = shuffleArray(list);
+  // Cada partida sorteia até ROUND_SIZE frases (evita jogar todas de uma
+  // vez).
+  pool = shuffleArray(list).slice(0, ROUND_SIZE);
   idx = 0;
 
   if (!pool.length) {
@@ -155,9 +251,17 @@ function restartGame() {
     return;
   }
 
-  loadQuoteAtIndex(idx);
-  resetAndStartTimer();
   updateProgress();
+  // Esconde os botões de pontuação enquanto conta "Prepare-se!" — só
+  // voltam quando loadQuoteAtIndex resetar a frase, pra ninguém clicar
+  // antes da rodada realmente começar.
+  teamScoreButtons?.classList.add("d-none");
+
+  startPrepareCountdown(() => {
+    loadQuoteAtIndex(idx);
+    timerRow?.classList.remove("d-none");
+    resetAndStartTimer();
+  });
 }
 
 function nextQuote() {
@@ -170,9 +274,41 @@ function nextQuote() {
     return;
   }
 
-  loadQuoteAtIndex(idx);
-  resetAndStartTimer();
   updateProgress();
+  teamScoreButtons?.classList.add("d-none");
+
+  startPrepareCountdown(() => {
+    loadQuoteAtIndex(idx);
+    timerRow?.classList.remove("d-none");
+    resetAndStartTimer();
+  });
+}
+
+function clearCountdown() {
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+    countdownInterval = null;
+  }
+}
+
+/* Contagem "3, 2, 1" antes de cada frase nova — dá tempo do grupo se
+   preparar antes do timer voltar a contar. */
+function startPrepareCountdown(onDone) {
+  clearCountdown();
+  timerRow?.classList.add("d-none");
+
+  let n = 3;
+  quoteText.textContent = `Prepare-se! ${n}`;
+
+  countdownInterval = setInterval(() => {
+    n -= 1;
+    if (n > 0) {
+      quoteText.textContent = `Prepare-se! ${n}`;
+      return;
+    }
+    clearCountdown();
+    onDone();
+  }, 1000);
 }
 
 function loadQuoteAtIndex(i) {
@@ -185,6 +321,10 @@ function loadQuoteAtIndex(i) {
   referenceText.textContent = "";
 
   revealBtn.textContent = "Revelar";
+
+  answerRevealed = false;
+  pointGiven = false;
+  renderTeamScoreButtons();
 }
 
 function revealAnswer() {
@@ -195,6 +335,13 @@ function revealAnswer() {
 
   answerBox.classList.remove("d-none");
   revealBtn.textContent = "Resposta revelada";
+
+  answerRevealed = true;
+  // Depois de revelar não precisa mais contar — esconde o timer até a
+  // próxima frase começar.
+  stopTimer();
+  timerRow?.classList.add("d-none");
+  renderTeamScoreButtons();
 }
 
 /* ===== Progress ===== */
@@ -207,6 +354,7 @@ function updateProgress() {
 /* ===== End ===== */
 function endGame(text) {
   stopTimer();
+  clearCountdown();
   gameOver = true;
   setGameOverUI(true);
 
@@ -214,8 +362,10 @@ function endGame(text) {
   answerBox.classList.add("d-none");
   timerText.textContent = "";
   timerBar.style.width = "0%";
+  timerRow?.classList.add("d-none");
 
   badgeProgress.textContent = `${pool.length}/${pool.length}`;
+  renderTeamScoreButtons();
 
   showScorePopup({
     title: "🏁 Fim de jogo!",

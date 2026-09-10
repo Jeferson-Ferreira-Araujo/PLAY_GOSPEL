@@ -1,8 +1,14 @@
 import { shuffleArray } from "../../assets/js/utils.js";
-import { renderTeamScoreboard } from "../../assets/js/scoreboard-ui.js";
+import { Teams } from "../../assets/js/teams.js";
+import { icon } from "../../playgospel-ui/js/core.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 
-const teamsScoreboard = document.getElementById("teamsScoreboard");
+// Máximo de rodadas por partida (evita jogar todos os personagens de uma vez).
+const ROUND_SIZE = 10;
+
+const scoreBtn = document.getElementById("scoreBtn");
+const teamScoreButtons = document.getElementById("teamScoreButtons");
+const pointsBox = document.getElementById("pointsBox");
 
 const setupScreen = document.getElementById("setupScreen");
 const gameScreen = document.getElementById("gameScreen");
@@ -35,12 +41,86 @@ let idx = 0;          // qual personagem atual
 let hintIndex = 0;    // quantas dicas já revelamos (0..3)
 let gameOver = false;
 
+// Resposta revelada e ponto já dado nesta rodada — controlam quando os
+// botões "X acertou" aparecem/ficam habilitados (ver renderTeamScoreButtons).
+let answerRevealed = false;
+let pointGiven = false;
+
 document.addEventListener("DOMContentLoaded", async () => {
   await loadData();
   wireUI();
-  renderTeamScoreboard(teamsScoreboard);
+  renderTeamScoreButtons();
+  updateScoreBtn();
+  window.addEventListener("bibflix:teams:change", () => {
+    renderTeamScoreButtons();
+    updateScoreBtn();
+  });
   checkAutoStartFromURL(); // ✅ NOVO
 });
+
+// Placar sob demanda (igual ao "Qual é a Música?") — em vez de um placar
+// fixo no cabeçalho, um botão que abre o popup com o ranking. Só aparece
+// durante o jogo (não na tela de configuração) e só com equipes ativas.
+function updateScoreBtn() {
+  if (!scoreBtn) return;
+  const show = !gameScreen.classList.contains("d-none") && Teams.isEnabled();
+  scoreBtn.classList.toggle("d-none", !show);
+  pointsBox?.classList.toggle("d-none", !show);
+}
+
+/* ===== Formato "disputa": um botão de pontuação por equipe ativa =====
+   Todas as equipes veem as mesmas dicas ao mesmo tempo; quem administra o
+   jogo clica no botão da equipe que falar a resposta certa primeiro. */
+function escapeHtml(str) {
+  return String(str ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
+}
+
+function teamIconName(team) {
+  return Teams.teamIconNames.includes(team.icon) ? team.icon : "star";
+}
+
+function renderTeamScoreButtons() {
+  // Só aparecem depois que a resposta certa foi revelada na tela — assim
+  // quem administra confere antes de dar o ponto pra equipe certa.
+  if (!teamScoreButtons) return;
+
+  if (!Teams.isEnabled() || !answerRevealed || gameOver) {
+    teamScoreButtons.innerHTML = "";
+    teamScoreButtons.classList.add("d-none");
+    return;
+  }
+
+  const state = Teams.getState();
+  teamScoreButtons.classList.remove("d-none");
+
+  teamScoreButtons.innerHTML = state.teams.map((team, index) => `
+    <button
+      type="button"
+      class="qs-team-btn"
+      data-index="${index}"
+      style="--team-color:${escapeHtml(team.color)}"
+      ${pointGiven ? "disabled" : ""}
+    >
+      <span class="qs-team-btn-icon">${icon(teamIconName(team), { size: 16 })}</span>
+      <span>${escapeHtml(team.name)} acertou</span>
+    </button>
+  `).join("");
+
+  teamScoreButtons.querySelectorAll(".qs-team-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (gameOver || pointGiven) return;
+
+      const index = Number(btn.dataset.index);
+      Teams.setTurn(index);
+      Teams.addPoint(1);
+
+      pointGiven = true;
+      renderTeamScoreButtons();
+    });
+  });
+}
 
 async function loadData() {
   const res = await fetch("./data.json", { cache: "no-store" });
@@ -50,13 +130,16 @@ async function loadData() {
 }
 
 /* =========================
-   AUTO START VIA URL
-   ?play=1
+   AUTO START — a tela de configuração ficou só no modal do catálogo
+   (que já barra "Jogar" sem equipes ativas — ver assets/js/app.js). Se
+   mesmo assim alguém cair aqui sem equipes (link direto, por exemplo),
+   volta pro catálogo em vez de mostrar um jogo sem placar.
 ========================= */
 function checkAutoStartFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get("play") !== "1") return;
-
+  if (!Teams.isEnabled()) {
+    window.location.href = "../../index.html#catalogo";
+    return;
+  }
   startGame();
 }
 
@@ -94,6 +177,8 @@ function wireUI() {
     restartGame();
   });
 
+  scoreBtn?.addEventListener("click", () => showScorePopup());
+
   // ✅ Sair agora volta para o catálogo principal
   exitBtn.addEventListener("click", confirmExit);
   brandLink.addEventListener("click", (e) => {
@@ -124,6 +209,7 @@ function wireUI() {
 function startGame() {
   setupScreen.classList.add("d-none");
   gameScreen.classList.remove("d-none");
+  updateScoreBtn();
   restartGame();
 }
 
@@ -131,7 +217,9 @@ function restartGame() {
   gameOver = false;
   setGameOverUI(false);
 
-  pool = shuffleArray(items);
+  // Cada partida sorteia até ROUND_SIZE personagens (evita jogar todos de
+  // uma vez).
+  pool = shuffleArray(items).slice(0, ROUND_SIZE);
   idx = 0;
 
   loadCurrentItem();
@@ -153,10 +241,29 @@ function loadCurrentItem() {
   hintIndex = 0;
   statusText.textContent = "Revele uma dica por vez.";
   updateProgress();
+  buildHintPlaceholders();
 }
 
 function getCurrent() {
   return pool[idx];
+}
+
+// Mostra desde já os marcadores "1. 2. 3." vazios (sem o texto da dica) —
+// assim o jogador já sabe quantas dicas essa rodada vai ter, mesmo antes
+// de qualquer uma ser revelada.
+function buildHintPlaceholders() {
+  const cur = getCurrent();
+  if (!cur) return;
+
+  const total = Math.min((cur.hints ?? []).length, 3);
+  hintsList.innerHTML = "";
+
+  for (let i = 0; i < total; i++) {
+    const li = document.createElement("li");
+    li.className = "hint-pending";
+    li.textContent = "· · ·";
+    hintsList.appendChild(li);
+  }
 }
 
 function revealNextHint() {
@@ -166,18 +273,25 @@ function revealNextHint() {
   const hints = (cur.hints ?? []).slice(0, 3);
   if (hintIndex >= hints.length) {
     statusText.textContent = "Todas as dicas já foram exibidas.";
+    // Sem mais dicas pra mostrar — some com o botão, só resta "Mostrar resposta".
+    showHintBtn.classList.add("d-none");
     showAnswerBtn.classList.remove("d-none");
     return;
   }
 
-  const li = document.createElement("li");
-  li.textContent = hints[hintIndex];
-  hintsList.appendChild(li);
+  // Preenche o marcador "N." que já estava na tela (ver buildHintPlaceholders)
+  // em vez de criar um item novo — o jogador já via "1. 2. 3." vazios.
+  const li = hintsList.children[hintIndex];
+  if (li) {
+    li.textContent = hints[hintIndex];
+    li.classList.remove("hint-pending");
+  }
 
   hintIndex += 1;
 
-  if (hintIndex >= 3) {
+  if (hintIndex >= hints.length) {
     statusText.textContent = "Última dica exibida. Se ninguém acertar, mostre a resposta.";
+    showHintBtn.classList.add("d-none");
     showAnswerBtn.classList.remove("d-none");
   } else {
     statusText.textContent = `Dica ${hintIndex}/3 exibida.`;
@@ -196,6 +310,14 @@ function revealAnswer() {
 
   answerBox.classList.remove("d-none");
   statusText.textContent = "Resposta exibida. Clique em Próximo.";
+
+  // Resposta já está na tela — "Mostrar dica"/"Mostrar resposta" não fazem
+  // mais sentido, só resta ir pra próxima rodada (e, com equipes, dar o ponto).
+  showHintBtn.classList.add("d-none");
+  showAnswerBtn.classList.add("d-none");
+
+  answerRevealed = true;
+  renderTeamScoreButtons();
 }
 
 function nextItem() {
@@ -208,8 +330,13 @@ function clearRoundUI() {
   answerBox.classList.add("d-none");
   answerText.textContent = "";
 
+  answerRevealed = false;
+  pointGiven = false;
+  renderTeamScoreButtons();
+
   if (referenceEl) referenceEl.textContent = "";
 
+  showHintBtn.classList.remove("d-none");
   showAnswerBtn.classList.add("d-none");
 }
 
@@ -230,6 +357,7 @@ function endGame(text) {
 
   statusText.textContent = "Encerrado.";
   answerBox.classList.add("d-none");
+  showHintBtn.classList.add("d-none");
   showAnswerBtn.classList.add("d-none");
 
   const total = pool.length || items.length || 0;

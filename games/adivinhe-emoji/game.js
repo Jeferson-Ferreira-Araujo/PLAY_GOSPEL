@@ -1,6 +1,5 @@
 import { createCountdownTimer, shuffleArray } from "../../assets/js/utils.js";
 import { Teams } from "../../assets/js/teams.js";
-import { renderTeamScoreboard } from "../../assets/js/scoreboard-ui.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 import { icon } from "../../playgospel-ui/js/core.js";
 
@@ -30,8 +29,10 @@ const brandLink = document.getElementById("brandLink");
 const playAgainBtn = document.getElementById("playAgainBtn");
 const gameOverNotice = document.getElementById("gameOverNotice");
 
-const teamsScoreboard = document.getElementById("teamsScoreboard");
+const scoreBtn = document.getElementById("scoreBtn");
 const teamScoreButtons = document.getElementById("teamScoreButtons");
+const pointsBox = document.getElementById("pointsBox");
+const timerRow = document.getElementById("presenterTimerRow");
 
 /* ===== STATE ===== */
 let data = null;
@@ -60,11 +61,24 @@ let countdownInterval = null;
 document.addEventListener("DOMContentLoaded", async () => {
   await loadItems();
   wireUI();
-  renderTeamScoreboard(teamsScoreboard, { clickable: false });
   renderTeamScoreButtons();
-  window.addEventListener("bibflix:teams:change", renderTeamScoreButtons);
+  updateScoreBtn();
+  window.addEventListener("bibflix:teams:change", () => {
+    renderTeamScoreButtons();
+    updateScoreBtn();
+  });
   applyParamsFromURL();
 });
+
+// Placar sob demanda (padrão do site): um botão no cabeçalho que abre o
+// popup com o ranking, em vez de um placar fixo. Só aparece durante o
+// jogo (não na tela de configuração) e só com equipes ativas.
+function updateScoreBtn() {
+  if (!scoreBtn) return;
+  const show = !gameScreen.classList.contains("d-none") && Teams.isEnabled();
+  scoreBtn.classList.toggle("d-none", !show);
+  pointsBox?.classList.toggle("d-none", !show);
+}
 
 /* ===== Formato "disputa": um botão de pontuação por equipe ativa =====
    Todas as equipes veem os mesmos emojis ao mesmo tempo; quem administra o
@@ -153,9 +167,16 @@ async function loadItems() {
 
 /* ========================= URL ========================= */
 function applyParamsFromURL() {
-  const params = new URLSearchParams(window.location.search);
+  // A tela de configuração ficou só no modal do catálogo (que já barra
+  // "Jogar" sem equipes ativas — ver assets/js/app.js). Se mesmo assim
+  // alguém cair aqui sem equipes (link direto, por exemplo), volta pro
+  // catálogo em vez de mostrar um jogo sem placar.
+  if (!Teams.isEnabled()) {
+    window.location.href = "../../index.html#catalogo";
+    return;
+  }
 
-  if (params.get("play") !== "1") return;
+  const params = new URLSearchParams(window.location.search);
 
   const categoryFromUrl = params.get("category");
   const timeFromUrl = params.get("time");
@@ -221,6 +242,8 @@ function wireUI() {
     nextRound();
   });
 
+  scoreBtn?.addEventListener("click", () => showScorePopup());
+
   exitBtn.addEventListener("click", confirmExit);
   brandLink.addEventListener("click", (e) => {
     // Só confirma se o jogo já estiver em andamento — na tela de
@@ -247,6 +270,7 @@ function startGame() {
 
   setupScreen.classList.add("d-none");
   gameScreen.classList.remove("d-none");
+  updateScoreBtn();
 
   badgeCategory.textContent = currentCategory.name;
 
@@ -268,7 +292,7 @@ function nextRound() {
   }
 
   round++;
-  badgeRound.textContent = `Rodada ${round}/${itemPool.length}`;
+  badgeRound.textContent = `${round}/${itemPool.length}`;
 
   currentItem = next;
   answerRevealed = false;
@@ -288,6 +312,9 @@ function startCountdown() {
   answerBox.classList.add("d-none");
   emojiDisplay.classList.add("ae-countdown");
 
+  // O timer só volta a aparecer quando a rodada realmente começar (ver
+  // beginRound) — durante o "Prepare-se!" ele fica escondido.
+  timerRow?.classList.add("d-none");
   timerBar.style.width = "0%";
 
   let n = 3;
@@ -314,6 +341,7 @@ function beginRound() {
   showAnswerBtn.classList.remove("d-none");
   showAnswerBtn.textContent = "Mostrar resposta";
 
+  timerRow?.classList.remove("d-none");
   setRoundPhase("playing");
   startOrResetTimer();
 
@@ -343,10 +371,11 @@ function toggleAnswer() {
 function revealAnswer() {
   answerRevealed = true;
 
-  // 🔥 PARA O TEMPO
+  // 🔥 PARA E ESCONDE O TEMPO — só volta quando uma rodada nova começar
+  // (ver startCountdown/beginRound), mesmo que a resposta seja ocultada
+  // de novo (toggleAnswer) nesta mesma rodada.
   stopTimer();
-  timerText.textContent = "Resposta revelada";
-  timerBar.style.width = "0%";
+  timerRow?.classList.add("d-none");
 
   // 🔥 MOSTRA A RESPOSTA (os emojis continuam visíveis, como pista)
   answerText.textContent = currentItem?.answer || "—";
@@ -369,6 +398,7 @@ function endGame() {
   gameOver = true;
   clearCountdown();
   stopTimer();
+  timerRow?.classList.add("d-none");
 
   emojiDisplay.classList.remove("ae-countdown");
   emojiDisplay.textContent = "🏁";
@@ -384,9 +414,7 @@ function endGame() {
 /* ========================= AFTER POINT ========================= */
 function afterPoint() {
   stopTimer();
-
-  timerText.textContent = "Ponto registrado!";
-  timerBar.style.width = "0%";
+  timerRow?.classList.add("d-none");
 }
 
 /* ========================= TIMER ========================= */
@@ -404,6 +432,7 @@ function createOrUpdateTimer() {
     onEnd: () => {
       timerText.textContent = "Tempo esgotado!";
       timerBar.style.width = "0%";
+      timerRow?.classList.add("d-none");
 
       timeExpired = true;
 
@@ -434,7 +463,6 @@ function stopTimer() {
 /* ========================= HELPERS ========================= */
 function setGameOverUI(isOver) {
   newRoundBtn.disabled = isOver;
-  teamsScoreboard.style.pointerEvents = isOver ? "none" : "";
   renderTeamScoreButtons();
 
   playAgainBtn.classList.toggle("d-none", !isOver);

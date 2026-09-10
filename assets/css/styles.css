@@ -27,98 +27,106 @@
 }
 
 /* ==============================
-   SHELL (sidebar + conteúdo principal)
+   SHELL (header + conteúdo + footer, uma coluna só — sem sidebar: o site
+   não tem navegação suficiente pra justificar uma coluna lateral fixa;
+   um header padrão de topo (logo à esquerda, ações à direita) é mais
+   direto e libera espaço horizontal pra grade de jogos.)
 ================================= */
 
 .pg-shell {
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
-  align-items: stretch;
 }
 
-.pg-sidebar {
-  width: 230px;
-  flex: 0 0 230px;
-  display: flex;
-  flex-direction: column;
-  padding: 20px 14px;
-  background: rgba(11, 18, 32, .96);
-  border-right: 1px solid rgba(255, 255, 255, .06);
+/* ---- Header (logo + nav central + busca/criar equipes) — igual em
+   qualquer largura de tela, só o padding/tamanho ajustam no mobile.
+   Nav fica flex:1 entre logo e ações, centralizando o conteúdo dela no
+   espaço que sobra (visualmente "no centro" sem precisar de grid). ---- */
+.pg-header {
   position: sticky;
   top: 0;
-  height: 100vh;
-  overflow-y: auto;
-}
-
-.pg-sidebar-brand {
-  padding: 6px 10px 22px;
-}
-
-.pg-sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.pg-sidebar-link {
+  z-index: 20;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border-left: 3px solid transparent;
-  color: var(--text-muted);
-  text-decoration: none;
-  font-weight: 500;
-  font-size: .92rem;
-  cursor: pointer;
-  transition: background .15s ease, color .15s ease;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  padding: 14px 32px;
+  background:
+    radial-gradient(700px 140px at 15% 0%, rgba(244, 196, 48, .16), transparent 70%),
+    linear-gradient(180deg, #141B2D, #0E1526);
+  border-bottom: 1px solid rgba(244, 196, 48, .22);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, .35);
 }
 
-.pg-sidebar-link:hover {
-  background: rgba(255, 255, 255, .04);
-  color: var(--text-main);
-}
-
-.pg-sidebar-link.active {
-  background: rgba(244, 196, 48, .12);
-  border-left-color: var(--gold);
-  color: var(--gold);
-  font-weight: 600;
-}
-
-.pg-sidebar-link[aria-disabled="true"] {
-  opacity: .45;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.pg-sidebar-icon {
-  display: inline-flex;
+.pg-header-brand {
+  display: flex;
+  align-items: center;
   flex: 0 0 auto;
 }
 
-.pg-sidebar-footer {
-  margin-top: auto;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, .06);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.pg-sidebar-section-label {
+.pg-header-nav {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  margin-top: 10px;
+  justify-content: center;
+  gap: 28px;
+  flex: 1 1 auto;
+}
+
+.pg-header-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 4px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
   color: var(--text-muted);
-  font-size: .74rem;
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  font-weight: 700;
-  opacity: .6;
+  font-weight: 600;
+  font-size: .88rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color .15s ease, border-color .15s ease;
+  white-space: nowrap;
+}
+
+.pg-header-nav-link:hover {
+  color: var(--text-main);
+}
+
+.pg-header-nav-link.active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+
+.pg-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Ícone de rede social solto no header (hoje só o TikTok) — círculo
+   discreto do lado do botão "Criar equipes", mesma linguagem visual do
+   ícone de busca que já existia ali antes. */
+.pg-header-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 1px solid rgba(255, 255, 255, .08);
+  color: var(--text-main);
+  transition: color .15s ease, border-color .15s ease;
+}
+
+.pg-header-social:hover {
+  color: var(--gold);
+  border-color: rgba(244, 196, 48, .4);
 }
 
 /* ---- Conteúdo principal ---- */
@@ -130,83 +138,57 @@
   flex-direction: column;
 }
 
-.pg-main-mobile-brand {
-  display: none;
-  align-items: center;
-  padding: 14px 16px;
-  background: rgba(11, 18, 32, .9);
-  border-bottom: 1px solid rgba(255, 255, 255, .06);
-}
+/* ==============================
+   CABEÇALHO DE SEÇÃO ("Jogos disponíveis")
+================================= */
 
-.pg-main-topbar {
+.pg-section-head {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 16px;
   flex-wrap: wrap;
-  padding: 28px 32px 8px;
+  gap: 12px 24px;
+  margin-bottom: 28px;
 }
 
-.pg-welcome-title {
-  font-size: 1.7rem;
-  font-weight: 700;
-  margin: 0 0 4px;
-}
-
-.pg-welcome-sub {
-  color: var(--text-muted);
+.pg-section-title {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 10px;
   margin: 0;
-  font-size: .92rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main);
 }
 
-.pg-text-gold {
+.pg-section-title svg {
   color: var(--gold);
 }
 
-.pg-main-topbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
+.pg-section-head .pg-category-pills {
+  flex: 1 1 auto;
+  justify-content: flex-end;
 }
 
 .pg-catalogo {
-  padding: 16px 32px 48px;
+  padding: 24px 32px 48px;
+}
+
+/* Quando o placar de equipes já apareceu logo acima, a própria margem
+   dele já separa da seção de jogos — não precisa dobrar o espaço. */
+#teamsBanner:not(.d-none) + .pg-catalogo {
+  padding-top: 4px;
 }
 
 .pg-logo {
-  height: 36px;
+  height: 42px;
 }
 
-/* SEARCH */
-.pg-search {
-  position: relative;
-  flex: 1 1 160px;
-  max-width: 220px;
-  min-width: 0;
-}
-
-.pg-search-icon {
-  position: absolute;
-  left: 10px;
-  top: 6px;
-  color: var(--text-muted);
-  font-size: 14px;
-}
-
-.pg-search-input {
-  background: var(--bg-secondary);
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 50px;
-  padding: 6px 12px 6px 28px;
-  color: var(--text-main);
-  width: 100%;
-  font-size: 0.85rem;
-}
-
-.pg-search-input:focus {
-  outline: none;
-  border-color: var(--gold);
+@media (min-width: 769px) {
+  .pg-logo {
+    height: 70px;
+  }
 }
 
 /* BUTTONS */
@@ -261,29 +243,35 @@
 
 .game-card {
   position: relative;
-  min-width: 180px;
-  max-width: 180px;
   background: var(--bg-secondary);
   border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
-  scroll-snap-align: start;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .game-card img {
   width: 100%;
-  height: 240px;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
 }
 
+/* Card mais quadrado: corpo enxuto (só o nome, sem linha de meta) e
+   padding curto — a imagem em si já é 1:1, então o card inteiro fica
+   perto de um quadrado em vez de esticar na vertical. */
 .game-card-body {
-  padding: 10px;
+  padding: 10px 10px 12px;
 }
 
+/* Título trunca em 1 linha só ("..." se não couber) — mantém o card
+   baixo e compacto; o nome completo aparece no modal de detalhes. */
 .game-card-title {
   font-size: 0.9rem;
   font-weight: 500;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .game-card:hover {
@@ -292,197 +280,28 @@
   z-index: 5;
 }
 
-/* ---- Enriquecimento dos cards (badge, favorito, meta) ---- */
-
-.game-card-badge,
-.pg-carousel-card-badge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  z-index: 2;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: rgba(11,18,32,.85);
-  border: 1px solid rgba(244,196,48,.4);
-  color: var(--gold);
-  font-size: .62rem;
-  font-weight: 700;
-  letter-spacing: .04em;
-  text-transform: uppercase;
+.game-card-media {
+  position: relative;
 }
 
-.game-card-fav,
-.pg-carousel-card-fav {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 2;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(11,18,32,.7);
-  color: rgba(255,255,255,.75);
+/* Jogo ainda não liberado (games.json "unavailable": true) — capa em
+   preto-e-branco + escurecida, com um selo "Em breve" por cima. O card
+   fica completamente inerte (sem clique/hover/foco — ver renderGames em
+   app.js, que nem registra os listeners nem deixa focável por teclado). */
+.game-card.is-unavailable {
   cursor: not-allowed;
 }
 
-.game-card-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 4px;
-  font-size: .68rem;
-  color: var(--text-muted);
+.game-card.is-unavailable img {
+  filter: grayscale(1) brightness(.55);
 }
 
-.game-card-meta span {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+.game-card.is-unavailable:hover {
+  transform: none;
+  box-shadow: none;
 }
 
-/* ==============================
-   VIEW TOGGLE (Carrossel / Grade)
-================================= */
-
-.pg-view-toggle {
-  display: inline-flex;
-  gap: 4px;
-  padding: 4px;
-  background: var(--bg-secondary);
-  border: 1px solid rgba(255,255,255,.08);
-  border-radius: 999px;
-}
-
-.pg-view-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 16px;
-  border-radius: 999px;
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background .2s ease, color .2s ease;
-}
-
-.pg-view-btn:hover {
-  color: var(--text-main);
-}
-
-.pg-view-btn.active {
-  background: var(--gold);
-  color: var(--bg-main);
-}
-
-/* ==============================
-   PLACAR DE EQUIPES (banner)
-================================= */
-
-.pg-teams-banner {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin-bottom: 22px;
-  padding: 14px 20px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(244,196,48,.14), rgba(20,27,45,.92));
-  border: 1px solid rgba(244,196,48,.3);
-}
-
-.pg-teams-banner-label {
-  font-size: .72rem;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  color: var(--text-muted);
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.pg-teams-banner-teams {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  flex: 1;
-}
-
-.pg-team-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 14px 6px 10px;
-  border-radius: 999px;
-  background: rgba(255,255,255,.06);
-  border: 2px solid var(--pill-color, var(--gold));
-  font-weight: 700;
-  font-size: .9rem;
-}
-
-.pg-team-pill.leading {
-  box-shadow: 0 0 0 2px var(--pill-color, var(--gold)) inset, 0 4px 14px rgba(244,196,48,.3);
-}
-
-.pg-team-pill-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--pill-color, var(--gold));
-  color: #0b1220;
-}
-
-.pg-team-pill-score {
-  background: var(--pill-color, var(--gold));
-  color: #0b1220;
-  border-radius: 999px;
-  padding: 1px 9px;
-  font-size: .8em;
-  font-weight: 800;
-}
-
-.pg-teams-banner-manage {
-  color: var(--gold);
-  font-size: .82rem;
-  font-weight: 600;
-  text-decoration: none;
-  white-space: nowrap;
-  cursor: pointer;
-  background: none;
-  border: none;
-}
-
-.pg-teams-banner-manage:hover {
-  text-decoration: underline;
-}
-
-/* ==============================
-   CARROSSEL 3D
-================================= */
-
-.pg-carousel-wrap {
-  position: relative;
-  max-width: 960px;
-  margin: 0 auto 14px;
-}
-
-.pg-carousel {
-  position: relative;
-  width: 100%;
-  height: 440px;
-  perspective: 1400px;
-  overflow: hidden;
-}
-
-.pg-carousel-track {
+.game-card-unavailable {
   position: absolute;
   inset: 0;
   display: flex;
@@ -490,156 +309,229 @@
   justify-content: center;
 }
 
-.pg-carousel-card {
-  position: absolute;
-  width: 250px;
-  height: 380px;
-  border-radius: 20px;
-  overflow: hidden;
-  cursor: pointer;
-  background: var(--bg-secondary);
-  box-shadow: 0 20px 45px rgba(0,0,0,.5);
-  transition: transform .45s cubic-bezier(.22,.68,0,1.01), opacity .45s ease, filter .45s ease;
-  /* posição/escala/opacidade de cada card são calculadas e aplicadas via JS
-     (assets/js/app.js, updateCarouselPositions) conforme a distância até o centro */
-}
-
-.pg-carousel-card[data-offset="0"] {
-  box-shadow: 0 0 0 3px var(--gold), 0 25px 60px rgba(244,196,48,.35);
-}
-
-.pg-carousel-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  -webkit-user-drag: none;
-  user-select: none;
-}
-
-.pg-carousel-card-body {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 16px 16px 14px;
-  background: linear-gradient(to top, rgba(0,0,0,.92), rgba(0,0,0,.55) 65%, transparent);
-}
-
-.pg-carousel-card-title {
-  font-weight: 700;
-  font-size: 1.05rem;
-  margin-bottom: 4px;
-}
-
-.pg-carousel-card-desc {
-  font-size: .78rem;
-  color: var(--text-muted);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.pg-carousel-card-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 6px;
+.game-card-unavailable-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(11, 18, 32, .85);
+  border: 1px solid rgba(255, 255, 255, .25);
+  color: var(--text-main);
   font-size: .72rem;
-  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
 }
 
-.pg-carousel-card-meta span {
+/* Selo de formato do jogo (games.json "matchType") — canto superior
+   direito da capa. "Disputa" (todo mundo compete pela mesma pergunta,
+   quem responde primeiro pontua) em tom quente; "Rodada" (equipes se
+   revezam, uma de cada vez) em tom frio — cor já basta pra diferenciar
+   à distância, o ícone+texto confirma de perto. */
+.game-card-matchtype {
+  position: absolute;
+  top: 8px;
+  right: 8px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
-}
-
-.pg-carousel-card-play {
-  display: none;
-  align-items: center;
-  gap: 6px;
-  margin-top: 10px;
-  padding: 8px 16px;
+  padding: 4px 9px;
   border-radius: 999px;
-  background: var(--gold);
-  color: var(--bg-main);
-  font-weight: 700;
-  font-size: .82rem;
-  border: none;
-  cursor: pointer;
-  transition: background .2s ease, transform .2s ease;
-}
-
-.pg-carousel-card-play:hover {
-  background: var(--gold-hover, var(--gold));
-  transform: translateY(-1px);
-}
-
-.pg-carousel-card[data-offset="0"] .pg-carousel-card-play {
-  display: inline-flex;
-}
-
-.pg-carousel-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,.15);
-  background: rgba(255,255,255,.06);
+  background: rgba(11, 18, 32, .78);
+  backdrop-filter: blur(2px);
+  border: 1px solid rgba(255, 255, 255, .15);
   color: var(--text-main);
+  font-size: .66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  z-index: 1;
+}
+
+.game-card-matchtype--disputa {
+  color: #ffb648;
+  border-color: rgba(255, 182, 72, .4);
+}
+
+.game-card-matchtype--rodada {
+  color: #5ec8ff;
+  border-color: rgba(94, 200, 255, .4);
+}
+
+/* ==============================
+   PLACAR DE EQUIPES (banner)
+================================= */
+
+/* Faixa cheia, logo abaixo do header (só aparece com equipes ativas) —
+   cada equipe é um cartão com o placar real (só leitura; pontuar
+   acontece dentro dos jogos, não aqui). Label "Equipes em jogo" e os
+   cartões ficam na mesma linha (mesmo padrão do cabeçalho da grade de
+   jogos), quebrando pra baixo só quando não cabe mais. */
+.pg-teams-banner {
   display: flex;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background .2s ease, transform .2s ease, border-color .2s ease;
-  z-index: 20;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin: 24px 32px 20px;
+  padding: 18px 22px;
+  border-radius: 16px;
+  background: var(--bg-secondary);
+  border: 1px solid rgba(255, 255, 255, .08);
 }
 
-.pg-carousel-arrow-left {
-  left: 6px;
-}
-
-.pg-carousel-arrow-right {
-  right: 6px;
-}
-
-.pg-carousel-arrow:hover {
-  background: var(--gold);
-  color: var(--bg-main);
-  border-color: var(--gold);
-  transform: translateY(-50%) scale(1.08);
-}
-
-.pg-carousel-dots {
+/* O label vira um botão (visualmente idêntico em desktop) porque no
+   mobile ele também funciona como toggle do colapso — ver
+   .pg-teams-banner-chevron e o bloco @media (max-width: 600px) abaixo. */
+.pg-teams-banner-toggle {
   display: flex;
-  justify-content: center;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 8px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.pg-teams-banner-label {
+  display: flex;
   align-items: center;
   gap: 8px;
-  margin: 6px 0 28px;
+  color: var(--text-main);
+  font-weight: 700;
+  font-size: 1rem;
+  white-space: nowrap;
 }
 
-.pg-carousel-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: rgba(255,255,255,.25);
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  transition: all .25s ease;
+.pg-teams-banner-label svg {
+  color: var(--gold);
 }
 
-.pg-carousel-dot:hover {
-  background: rgba(255,255,255,.5);
+/* Seta só aparece/gira no mobile (ver media query) — em telas maiores o
+   placar nunca colapsa, então a seta fica escondida pra não sugerir uma
+   interação que não existe ali. */
+.pg-teams-banner-chevron {
+  display: none;
+  color: var(--text-muted);
+  transition: transform .2s ease;
 }
 
-.pg-carousel-dot.active {
-  width: 26px;
+/* flex (não grid auto-fit) de propósito: com poucas equipes (2 de 4, por
+   exemplo) as pills não devem esticar pra preencher a largura toda do
+   banner — cada uma fica com uma largura confortável, alinhada à
+   esquerda, e o resto do espaço sobra vazio, em vez de virar uma barra
+   enorme. Só quando o máximo de 4 equipes está ativo (".is-full", ver
+   renderTeamsBanner em app.js) é que os cards já preenchem a linha
+   naturalmente — nesse caso centraliza (sem esticar) pra não sobrar
+   espaço só de um lado. */
+.pg-teams-banner-teams {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 14px;
+}
+
+.pg-teams-banner-teams.is-full {
+  justify-content: center;
+}
+
+.pg-team-pill {
+  flex: 0 1 240px;
+}
+
+.pg-team-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .03);
+  border: 1.5px solid var(--pill-color, var(--gold));
+  min-width: 0;
+}
+
+/* Time na frente: pills já vêm ordenadas por placar (maior primeiro, ver
+   renderTeamsBanner em app.js), mas isso sozinho é sutil demais — o
+   troféu (.pg-team-pill-leader) é o indicador principal de quem está
+   ganhando; o glow reforça sem depender só da ordem/borda. */
+.pg-team-pill.leading {
+  background: rgba(244, 196, 48, .06);
+  box-shadow: 0 0 0 1px var(--pill-color, var(--gold)) inset, 0 6px 16px rgba(244, 196, 48, .25);
+}
+
+.pg-team-pill-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* Selo cheio (não só um ícone soltinho do lado do nome) — bem mais fácil
+   de notar num relance do que um glifo pequeno na cor do texto. */
+.pg-team-pill-leader {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
   background: var(--gold);
+  color: var(--bg-main);
+  box-shadow: 0 0 0 3px rgba(244, 196, 48, .25), 0 2px 6px rgba(244, 196, 48, .5);
+  animation: pg-leader-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes pg-leader-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(244, 196, 48, .25), 0 2px 6px rgba(244, 196, 48, .5); }
+  50% { box-shadow: 0 0 0 5px rgba(244, 196, 48, .35), 0 2px 10px rgba(244, 196, 48, .7); }
+}
+
+.pg-team-pill-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--pill-color, var(--gold));
+  color: #0b1220;
+}
+
+.pg-team-pill-name {
+  font-weight: 700;
+  font-size: .92rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Selo da coroa fica depois do placar (não colado no nome) — menos
+   poluído visualmente, e a pontuação é o que justifica a coroa, então
+   fica lado a lado com o número. */
+.pg-team-pill-score-wrap {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 6px;
+}
+
+/* Placar real da equipe (só leitura) — a pontuação é sempre dada dentro
+   dos jogos (Acertou/Errou/etc.), nunca ajustada manualmente por aqui. */
+.pg-team-score-value {
+  flex: 0 0 auto;
+  min-width: 32px;
+  padding: 4px 10px;
+  border-radius: 10px;
+  text-align: center;
+  background: rgba(255, 255, 255, .06);
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: var(--pill-color, var(--gold));
 }
 
 /* ==============================
@@ -647,8 +539,8 @@
 ================================= */
 
 .pg-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   gap: 18px;
   padding-bottom: 10px;
 }
@@ -660,10 +552,8 @@
 .pg-category-pills {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 28px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(255,255,255,.06);
+  justify-content: flex-start;
+  gap: 12px;
 }
 
 .pg-category-pill {
@@ -724,6 +614,56 @@
 }
 
 /* ==============================
+   MODAL "COMO JOGAR"
+================================= */
+
+.pg-howto-list {
+  margin: 0;
+  padding-left: 1.3em;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--text-main);
+  font-size: .92rem;
+  line-height: 1.5;
+}
+
+.pg-howto-list li::marker {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+/* ==============================
+   MODAL "SOBRE ESSE PROJETO"
+================================= */
+
+.pg-about-text {
+  color: var(--text-main);
+  font-size: .92rem;
+  line-height: 1.55;
+}
+
+.pg-about-social {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .06);
+  color: var(--text-main);
+  font-size: .85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background .15s ease, color .15s ease;
+}
+
+.pg-about-social:hover {
+  background: var(--gold);
+  color: var(--bg-main);
+}
+
+/* ==============================
    MODAL DE DETALHES DO JOGO
 ================================= */
 
@@ -771,34 +711,22 @@
   gap: 10px;
 }
 
-/* ---- Cabeçalho: capa pequena + título/descrição ---- */
+/* ---- Cabeçalho: só título/descrição (a capa não aparece no modal, só
+   nos cards do catálogo — ver .game-card img). ---- */
 
 .pg-gm-header {
   display: flex;
-  gap: 14px;
   padding-right: 28px;
 }
 
-.pg-gm-thumb-wrap {
-  position: relative;
-  flex: 0 0 auto;
-  width: 78px;
+.pg-gm-header-text {
+  flex: 1;
+  min-width: 0;
 }
 
-.pg-gm-thumb-img {
-  display: block;
-  width: 78px;
-  height: 104px;
-  object-fit: cover;
-  border-radius: 10px;
-  background: var(--bg-main);
-}
-
-.pg-gm-thumb-badge {
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  z-index: 2;
+.pg-gm-category-badge {
+  display: inline-block;
+  margin-bottom: 6px;
   padding: 2px 7px;
   border-radius: 999px;
   background: rgba(11,18,32,.85);
@@ -808,11 +736,6 @@
   font-weight: 700;
   letter-spacing: .04em;
   text-transform: uppercase;
-}
-
-.pg-gm-header-text {
-  flex: 1;
-  min-width: 0;
 }
 
 .pg-gm-title-row {
@@ -826,20 +749,6 @@
   font-size: 1.1rem;
   font-weight: 700;
   margin: 0;
-}
-
-.pg-gm-fav {
-  flex: 0 0 auto;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255,255,255,.06);
-  color: rgba(255,255,255,.7);
-  font-size: .9rem;
-  cursor: not-allowed;
 }
 
 .pg-gm-desc {
@@ -1079,6 +988,20 @@
 
 /* ---- Rodapé ---- */
 
+/* Aviso de "precisa de equipes" no modal de detalhes — mesmo alerta que os
+   jogos "disputa" mostravam na própria tela de configuração, agora aqui
+   (a tela de configuração de cada jogo não existe mais). */
+.pg-gm-teams-warning {
+  margin: 10px 0 0;
+  font-size: 0.9rem;
+}
+
+#playButton.disabled {
+  opacity: .55;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
 .pg-gm-footer {
   display: flex;
   flex-direction: row;
@@ -1090,17 +1013,6 @@
   flex: 1;
   min-height: 38px;
   font-size: .84rem;
-}
-
-@media (min-width: 480px) {
-  .pg-gm-thumb-wrap {
-    width: 92px;
-  }
-
-  .pg-gm-thumb-img {
-    width: 92px;
-    height: 122px;
-  }
 }
 
 @media (min-width: 768px) {
@@ -1160,32 +1072,120 @@
 
 /* ==============================
    MODAL DE EQUIPES
+   (visão resumo, quando já existem equipes, + assistente de 2 passos
+   pra criar/editar)
 ================================= */
 
-.pg-teams-modal-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: .85rem;
-  color: var(--text-muted);
-  font-weight: 500;
+/* ---- Visão resumo ---- */
+
+.pg-teams-summary-list {
+  display: flex;
+  flex-direction: column;
 }
 
-.pg-status-dot {
+.pg-team-row-summary-score {
+  margin-left: auto;
+  flex: 0 0 auto;
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--pill-color, var(--gold));
+}
+
+.pg-teams-summary-footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+}
+
+.pg-teams-wizard-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+/* ---- Pergunta "Quer sortear as pessoas entre as equipes?" ---- */
+
+.pg-teams-ask {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, .08);
+}
+
+.pg-teams-ask-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.pg-teams-ask-btn {
+  flex: 1;
+  padding: 9px 0;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: var(--bg-main);
+  color: var(--text-main);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease, color .2s ease;
+}
+
+.pg-teams-ask-btn:hover {
+  border-color: rgba(244,196,48,.5);
+}
+
+.pg-teams-ask-btn.active {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--bg-main);
+}
+
+/* Indicador de passo — bolinhas simples (sem números) ligadas por um
+   traço. Sem números pra não confundir com a lista de quantidade de
+   equipes (2/3/4) logo abaixo. Passo atual em dourado cheio e maior;
+   passo já concluído fica preenchido também, pra dar noção de progresso. */
+.pg-teams-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.pg-teams-step-dot {
+  flex: 0 0 auto;
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--text-muted);
-  flex: 0 0 auto;
+  background: rgba(255, 255, 255, .18);
+  transition: background .2s ease, transform .2s ease;
 }
 
-.pg-teams-modal-status.active {
-  color: var(--gold);
-}
-
-.pg-teams-modal-status.active .pg-status-dot {
+.pg-teams-step-dot.active {
   background: var(--gold);
-  box-shadow: 0 0 0 3px rgba(244,196,48,.2);
+  transform: scale(1.35);
+}
+
+.pg-teams-step-dot.done {
+  background: var(--gold);
+}
+
+.pg-teams-step-track {
+  width: 22px;
+  height: 1.5px;
+  background: rgba(255, 255, 255, .15);
+}
+
+.pg-teams-step-title {
+  text-align: center;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 18px;
+}
+
+.pg-teams-step-panel {
+  min-height: 120px;
 }
 
 .pg-teams-section-label {
@@ -1199,7 +1199,7 @@
 
 .pg-count-toggle {
   display: flex;
-  gap: 6px;
+  gap: 12px;
   margin-bottom: 20px;
 }
 
@@ -1207,7 +1207,7 @@
   flex: 1;
   padding: 8px 0;
   border-radius: 10px;
-  border: 1px solid rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.16);
   background: var(--bg-main);
   color: var(--text-main);
   font-weight: 600;
@@ -1232,18 +1232,112 @@
   margin-bottom: 14px;
 }
 
+/* Cabeçalho de colunas acima do formulário — mostra "Cor" / "Ícone" /
+   "Nome da equipe" uma vez só, alinhado com as mesmas 3 colunas de
+   ".pg-team-row" abaixo (largura fixa 40px pros dois primeiros
+   controles, resto pro nome). Deixa claro que cor e ícone também são
+   campos editáveis, não só decoração ao lado do nome. */
+.pg-teams-form-head {
+  display: grid;
+  grid-template-columns: 40px 40px 1fr;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.pg-teams-form-head-cell {
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-align: center;
+}
+
+.pg-teams-form-head-name {
+  text-align: left;
+}
+
 .pg-team-row {
+  display: grid;
+  grid-template-columns: 40px 40px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ---- Resumo de equipe (passo 3, só leitura) + linha "quem ficou
+   aqui" — mesma linguagem visual do passo 2, mas sem os controles
+   editáveis (ali já não dá pra mexer em cor/ícone/nome). ---- */
+
+.pg-team-row-summary {
   display: flex;
   align-items: center;
   gap: 10px;
+  padding: 6px 0;
+}
+
+.pg-team-row-summary:not(:first-child) {
+  border-top: 1px solid rgba(255, 255, 255, .06);
+  margin-top: 4px;
+  padding-top: 10px;
+}
+
+.pg-team-row-summary-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--pill-color, var(--gold));
+  color: #0b1220;
+}
+
+.pg-team-row-summary-name {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* Linha "quem ficou aqui" — some se ninguém foi sorteado pra essa
+   equipe ainda; clicável quando tem gente (abre o modal com a lista
+   completa, útil quando o texto trunca). */
+.pg-team-row-preview {
+  margin: -2px 0 4px 42px;
+  cursor: pointer;
+}
+
+.pg-team-row-preview-names {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--pill-color, var(--gold));
+  font-size: .78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pg-team-row-preview-names svg {
+  flex: 0 0 auto;
+}
+
+/* Envolve o <input type="color"> num wrapper só pra poder colar um
+   selinho de lápis no canto — o swatch nativo sozinho não deixa claro
+   que é clicável (pedido explícito do usuário: "precisamos indicar que
+   é possível selecionar a cor"). */
+.pg-team-color-wrap {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
 }
 
 .pg-team-color {
   -webkit-appearance: none;
   appearance: none;
-  width: 40px;
-  height: 40px;
-  flex: 0 0 auto;
+  width: 100%;
+  height: 100%;
   padding: 0;
   border: 2px solid rgba(255,255,255,.15);
   border-radius: 12px;
@@ -1261,8 +1355,23 @@
   border-radius: 10px;
 }
 
+.pg-team-color-edit {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--bg-main);
+  color: var(--text-main);
+  pointer-events: none;
+}
+
 .pg-team-name-input {
-  flex: 1;
   min-width: 0;
   background: var(--bg-main);
   border: 1px solid rgba(255,255,255,.1);
@@ -1287,30 +1396,33 @@
   flex: 0 0 auto;
 }
 
+/* A cor do ícone (glifo + borda) segue --icon-color, que app.js mantém
+   sincronizado com a cor escolhida ao lado — deixa visualmente óbvio
+   que os dois controles pertencem à mesma equipe. */
 .pg-team-icon-trigger {
   width: 40px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid rgba(255,255,255,.15);
+  border: 2px solid var(--icon-color, rgba(255,255,255,.15));
   border-radius: 12px;
   background: var(--bg-main);
-  color: var(--gold);
+  color: var(--icon-color, var(--gold));
   cursor: pointer;
-  transition: border-color .2s ease;
+  transition: transform .15s ease;
 }
 
 .pg-team-icon-trigger:hover {
-  border-color: var(--gold);
+  transform: scale(1.06);
 }
 
 .pg-team-icon-menu {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 4px;
-  min-width: 180px;
-  padding: 8px;
+  gap: 6px;
+  min-width: 216px;
+  padding: 10px;
 }
 
 /* dropdown.css (playgospel-ui) espera o reset.css da lib, que não
@@ -1326,17 +1438,162 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   padding: 0;
-  border-radius: 8px;
+  border-radius: 9px;
+  border: 1.5px solid transparent;
   color: var(--text-main);
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
 }
 
 .pg-team-icon-option:hover,
 .pg-team-icon-option:focus-visible {
   background: rgba(244,196,48,.14);
   color: var(--gold);
+}
+
+.pg-team-icon-option.active {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(244,196,48,.1);
+}
+
+/* ---- Sorteio de participantes entre as equipes (opcional) ---- */
+
+.pg-teams-draw-hint {
+  margin: 0 0 14px;
+  font-size: .82rem;
+  color: var(--text-muted);
+}
+
+/* Lista de equipes só-leitura no topo do passo 3 (nome+ícone de cada
+   uma, ver renderDrawTeamsPreview em app.js) — pra saber pra quem tá
+   sorteando sem precisar voltar ao passo 2. */
+.pg-teams-draw-teams-preview {
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  background: var(--bg-main);
+  border: 1px solid rgba(255, 255, 255, .08);
+}
+
+/* Um campo por pessoa (em vez de um textarea "um nome por linha") — sem
+   risco de a pessoa esquecer de quebrar linha ou usar vírgula errado e
+   o sorteio sair juntando/cortando nomes sem querer. */
+.pg-teams-draw-names {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.pg-teams-draw-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pg-teams-draw-name-input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: var(--bg-main);
+  color: var(--text-main);
+  font-size: .9rem;
+}
+
+.pg-teams-draw-name-input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.pg-teams-draw-name-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(255,107,107,.1);
+  color: #ff9a9a;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+
+.pg-teams-draw-name-remove:hover {
+  background: rgba(255,107,107,.22);
+  color: #ff6b6b;
+}
+
+.pg-teams-draw-add {
+  margin-bottom: 10px;
+}
+
+/* ---- Modal "Participantes" (compartilhado) ---- */
+
+.pg-team-members-modal-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--pill-color, var(--gold));
+  color: #0b1220;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.pg-team-members-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pg-team-members-list li {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--bg-main);
+  border: 1px solid rgba(255,255,255,.08);
+  color: var(--text-main);
+  font-size: .9rem;
+}
+
+.pg-team-members-list li.pg-team-members-empty {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Botão "ver participantes" dentro do pill de equipe do catálogo — na
+   cor da própria equipe (não cinza neutro) pra não passar despercebido
+   ao lado do nome. */
+.pg-team-pill-members-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid var(--pill-color, var(--gold));
+  background: rgba(255,255,255,.06);
+  color: var(--pill-color, var(--gold));
+  cursor: pointer;
+  transition: background .15s ease, transform .15s ease;
+}
+
+.pg-team-pill-members-btn:hover {
+  background: var(--pill-color, var(--gold));
+  color: var(--bg-main);
+  transform: scale(1.08);
 }
 
 .pg-chip-btn {
@@ -1371,27 +1628,10 @@
   color: #ff6b6b;
 }
 
-.pg-teams-hint {
-  font-size: .75rem;
-  color: var(--text-muted);
-  margin-top: 12px;
-}
-
 .pg-teams-modal-footer {
-  display: block;
-}
-
-.pg-teams-footer-actions {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  justify-content: space-between;
   gap: 10px;
-  width: 100%;
-}
-
-.pg-teams-footer-actions > .pg-btn-primary {
-  margin-left: auto;
 }
 
 .pg-teams-footer-confirm {
@@ -1421,6 +1661,58 @@
   border-top: 1px solid rgba(255,255,255,0.05);
   color: var(--text-muted);
   background: var(--bg-main);
+  padding: 22px 32px;
+}
+
+.pg-footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px 24px;
+}
+
+/* Versículo curto e aleatório (ver renderFooterVerse em app.js — sorteia
+   um novo a cada carregamento da página) — itálico, discreto, ocupa o
+   espaço à esquerda que sobra. */
+.pg-footer-verse {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: .85rem;
+  font-style: italic;
+}
+
+.pg-footer-credit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  color: var(--text-muted);
+  font-size: .85rem;
+  text-decoration: none;
+  transition: color .15s ease;
+}
+
+.pg-footer-credit-name {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.pg-footer-credit-icon {
+  flex: 0 0 auto;
+  color: var(--text-muted);
+  transition: color .15s ease;
+}
+
+.pg-footer-credit:hover {
+  color: var(--gold);
+}
+
+.pg-footer-credit:hover .pg-footer-credit-name,
+.pg-footer-credit:hover .pg-footer-credit-icon {
+  color: var(--gold);
 }
 
 /* ==============================
@@ -1445,37 +1737,8 @@
 ================================= */
 
 @media (max-width: 768px) {
-  .game-card {
-    min-width: 140px;
-    max-width: 140px;
-  }
-
-  .game-card img {
-    height: 190px;
-  }
-
-  .pg-carousel-wrap {
-    max-width: 640px;
-  }
-
-  .pg-carousel {
-    height: 340px;
-    perspective: 900px;
-  }
-
-  .pg-carousel-card {
-    width: 190px;
-    height: 290px;
-  }
-
-  .pg-carousel-arrow {
-    width: 36px;
-    height: 36px;
-  }
-
   .pg-teams-banner {
-    gap: 10px;
-    padding: 12px 16px;
+    padding: 14px 16px;
   }
 }
 
@@ -1485,74 +1748,136 @@
     row-gap: 8px;
   }
 
-  .pg-search {
-    order: 3;
-    flex-basis: 100%;
-    max-width: 100%;
+}
+
+/* Grade: 5 colunas em desktop/tablet; só no celular (não no tablet, que
+   ainda cabe as 5) cai pra 2 colunas fixas, igual ao modelo de referência. */
+@media (max-width: 600px) {
+  .pg-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 
-  .pg-carousel-wrap {
-    max-width: 100%;
+  /* Placar de equipes: fica fechado por padrão (só o cabeçalho, sem os
+     cartões) — no mobile o espaço vertical é curto e não faz sentido
+     empurrar a lista de jogos pra fora da dobra por causa do placar. O
+     usuário abre tocando no cabeçalho; ".is-open" (via JS, ver
+     renderTeamsBanner em app.js) revela os cartões. */
+  .pg-teams-banner {
+    margin: 16px 16px 14px;
+    padding: 14px 16px;
   }
 
-  .pg-carousel {
-    height: 300px;
-  }
-
-  .pg-carousel-card {
-    width: 160px;
-    height: 250px;
-  }
-
-  .pg-carousel-arrow {
-    width: 32px;
-    height: 32px;
-  }
-
-  .pg-carousel-arrow-left {
-    left: 2px;
-  }
-
-  .pg-carousel-arrow-right {
-    right: 2px;
-  }
-
-  .pg-view-toggle {
+  /* No mobile o toggle ocupa a largura toda do bloco e empurra a seta
+     pra ponta direita — colada no texto ela parecia parte da palavra
+     "jogo" em vez de um controle de abrir/fechar separado. */
+  .pg-teams-banner-toggle {
     width: 100%;
-    justify-content: center;
+    justify-content: space-between;
   }
 
-  .pg-view-btn {
-    flex: 1;
-    justify-content: center;
+  .pg-teams-banner-teams {
+    display: none;
+    flex: 1 1 100%;
+    width: 100%;
+    margin-top: 14px;
+  }
+
+  .pg-teams-banner.is-open .pg-teams-banner-teams {
+    display: flex;
+  }
+
+  .pg-teams-banner-chevron {
+    display: flex;
+  }
+
+  .pg-teams-banner.is-open .pg-teams-banner-chevron {
+    transform: rotate(180deg);
+  }
+
+  /* Filtros de categoria: uma linha só que arrasta pro lado (sem
+     quebrar) — evita a altura variável de sobrar pills em linhas novas
+     e deixa mais espaço acima da grade de jogos. */
+  /* Mesma especificidade de ".pg-section-head .pg-category-pills" (a
+     regra do desktop que põe justify-content:flex-end) — precisa bater
+     essa especificidade aqui dentro, senão a regra do desktop ganha
+     mesmo estando numa media query "depois" no arquivo. */
+  .pg-section-head .pg-category-pills,
+  .pg-category-pills {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    gap: 6px;
+    margin: 0 -16px;
+    padding: 2px 16px 4px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .pg-category-pills::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pg-category-pill {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    padding: 5px 10px;
+    font-size: .72rem;
+    gap: 5px;
+  }
+
+  .pg-category-pill-count {
+    font-size: .68rem;
   }
 }
 
 @media (max-width: 880px) {
-  .pg-sidebar {
-    display: none;
+  .pg-header {
+    padding: 14px 16px;
   }
 
-  .pg-main-mobile-brand {
-    display: flex;
+  /* Sem espaço pra logo + nav + busca/botão numa linha só — a nav de
+     "Início / Como jogar / Criar equipes" desce pra própria linha,
+     centralizada, abaixo de logo e ações. Gap menor + flex-wrap pra não
+     estourar a largura da tela com os 3 itens (o botão "Criar equipes"
+     é o mais largo dos três). */
+  .pg-header-nav {
+    order: 3;
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 8px;
+    column-gap: 10px;
+    padding-top: 4px;
+    border-top: 1px solid rgba(255, 255, 255, .06);
   }
 
-  .pg-main-topbar {
-    flex-direction: column;
-    align-items: stretch;
+  .pg-welcome {
     padding: 20px 16px 8px;
-  }
-
-  .pg-main-topbar-actions {
-    width: 100%;
-  }
-
-  .pg-search {
-    max-width: none;
-    flex: 1;
   }
 
   .pg-catalogo {
     padding: 12px 16px 32px;
+  }
+
+  /* Botão "Criar equipes" no header mobile. */
+  #teamsNavBtn {
+    padding: 6px 14px;
+    font-size: .82rem;
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .pg-teams-banner {
+    padding: 14px 16px;
+  }
+
+  .pg-team-pill {
+    padding: 10px 12px;
+  }
+
+  .pg-team-pill-name {
+    font-size: .85rem;
   }
 }

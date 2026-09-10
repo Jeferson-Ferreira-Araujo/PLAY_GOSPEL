@@ -25,154 +25,66 @@
 <body class="pg-body">
 
   <div class="pg-shell">
-    <!-- SIDEBAR -->
-    <aside class="pg-sidebar">
-      <div class="pg-sidebar-brand">
+    <!-- HEADER (logo à esquerda, busca + criar equipes à direita — padrão
+         comum de site, igual em qualquer largura de tela) -->
+    <header class="pg-header">
+      <a href="index.html" class="pg-header-brand">
         <img src="assets/img/playgospel-logo.png" alt="PlayGospel" class="pg-logo">
-      </div>
+      </a>
 
-      <nav class="pg-sidebar-nav" aria-label="Navegação principal">
-        <a href="index.html" class="pg-sidebar-link active">
-          <span class="pg-sidebar-icon" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
-          </span>
+      <nav class="pg-header-nav" aria-label="Navegação principal">
+        <a href="index.html" class="pg-header-nav-link active">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
           Início
         </a>
-        <a class="pg-sidebar-link" aria-disabled="true" title="Em breve">
-          <span class="pg-sidebar-icon" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
-          </span>
-          Todos os jogos
-        </a>
-        <a class="pg-sidebar-link" aria-disabled="true" title="Em breve">
-          <span class="pg-sidebar-icon" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-9.6-9.3C.8 7 2.5 3.7 6 3.2c2-.3 3.8.7 5 2.5C12.2 3.9 14 2.9 16 3.2c3.5.5 5.2 3.8 3.6 7.5C19.5 15.4 12 20 12 20Z"/></svg>
-          </span>
-          Favoritos
-        </a>
-        <a class="pg-sidebar-link" aria-disabled="true" title="Em breve">
-          <span class="pg-sidebar-icon" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          </span>
-          Minhas equipes
-        </a>
-        <a class="pg-sidebar-link" aria-disabled="true" title="Em breve">
-          <span class="pg-sidebar-icon" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
-          </span>
-          Histórico
-        </a>
-        <a class="pg-sidebar-link" aria-disabled="true" title="Em breve">
-          <span class="pg-sidebar-icon" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01"/><path d="M11 11h1v5h1"/></svg>
-          </span>
-          Como jogar
-        </a>
+        <button type="button" class="pg-header-nav-link" data-bs-toggle="modal" data-bs-target="#howToModal">Como jogar</button>
+        <button type="button" class="pg-header-nav-link" data-bs-toggle="modal" data-bs-target="#aboutModal">Sobre esse projeto</button>
       </nav>
 
-      <div class="pg-sidebar-footer">
-        <a class="pg-sidebar-link" aria-disabled="true" title="Em breve">
-          <span class="pg-sidebar-icon" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
-          </span>
-          Configurações
+      <div class="pg-header-actions" id="topbarActions">
+        <button id="teamsNavBtn" class="btn pg-btn-primary btn-sm d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#teamsModal" aria-label="Criar equipes">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          <span id="teamsNavBtnLabel">Criar equipes</span>
+        </button>
+
+        <a href="https://www.tiktok.com/@playgospel" target="_blank" rel="noopener noreferrer" class="pg-header-social" aria-label="PlayGospel no TikTok" title="PlayGospel no TikTok">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M16.6 5.82c-.9-.8-1.46-1.96-1.46-3.25h-3.1v13.4c0 1.5-1.22 2.72-2.72 2.72a2.72 2.72 0 0 1 0-5.44c.27 0 .53.04.78.11V10.3a5.83 5.83 0 0 0-.78-.05A5.85 5.85 0 0 0 3.4 16.1a5.85 5.85 0 0 0 5.87 5.85 5.85 5.85 0 0 0 5.85-5.85V9.15a8.9 8.9 0 0 0 5.18 1.66V7.7a5.5 5.5 0 0 1-3.7-1.88Z"/>
+          </svg>
         </a>
-        <div class="pg-sidebar-section-label">
-          <span class="pg-sidebar-icon" aria-hidden="true">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24L4 3a1 1 0 0 0-1 1l.24 5.59a2 2 0 0 0 .59 1.41l9.58 9.58a2 2 0 0 0 2.83 0l4.35-4.35a2 2 0 0 0 0-2.82Z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg>
-          </span>
-          Categorias
-        </div>
       </div>
-    </aside>
+    </header>
 
     <!-- CONTEÚDO PRINCIPAL -->
     <div class="pg-main">
-      <div class="pg-main-mobile-brand">
-        <img src="assets/img/playgospel-logo.png" alt="PlayGospel" class="pg-logo">
-      </div>
 
-      <div class="pg-main-topbar">
-        <div>
-          <h1 class="pg-welcome-title">Bem-vindo ao <span class="pg-text-gold">PlayGospel</span>!</h1>
-          <p class="pg-welcome-sub">Escolha um jogo e divirta-se com sua equipe.</p>
-        </div>
-
-        <div class="pg-main-topbar-actions">
-          <div class="pg-search">
-            <span class="pg-search-icon" aria-hidden="true">⌕</span>
-            <input
-              id="searchInput"
-              class="pg-search-input"
-              placeholder="Buscar jogo..."
-              autocomplete="off"
-            />
-          </div>
-          <button id="teamsNavBtn" class="btn pg-btn-primary btn-sm d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#teamsModal">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
-            <span id="teamsNavBtnLabel">Criar equipes</span>
-          </button>
-        </div>
-      </div>
+      <!-- PLACAR DE EQUIPES (aparece se já houver equipes ativas) — fica
+           logo abaixo do header, acima da lista de jogos. -->
+      <div id="teamsBanner" class="pg-teams-banner d-none"></div>
 
       <!-- CATALOGO -->
       <main id="catalogo" class="pg-catalogo">
 
-        <div class="d-flex justify-content-between align-items-end mb-3 flex-wrap gap-3">
-          <div>
-            <h2 class="pg-row-title m-0">Jogos disponíveis</h2>
-            <small id="filterInfo" class="pg-muted"></small>
-          </div>
+        <div class="pg-section-head">
+          <h2 class="pg-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="11" rx="4"/><path d="M7 10.5v4"/><path d="M5 12.5h4"/><circle cx="16" cy="10.5" r="1" fill="currentColor" stroke="none"/><circle cx="18.5" cy="13" r="1" fill="currentColor" stroke="none"/></svg>
+            Jogos disponíveis
+          </h2>
 
-          <div class="pg-view-toggle" id="viewToggle" role="group" aria-label="Modo de exibição">
-            <button type="button" class="pg-view-btn active" data-view="carousel">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect x="3" y="4" width="7" height="16" rx="1.5"/>
-                <rect x="14" y="7" width="7" height="10" rx="1.5" opacity=".55"/>
-              </svg>
-              Carrossel
-            </button>
-            <button type="button" class="pg-view-btn" data-view="grid">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect x="3" y="3" width="8" height="8" rx="1.5"/>
-                <rect x="13" y="3" width="8" height="8" rx="1.5"/>
-                <rect x="3" y="13" width="8" height="8" rx="1.5"/>
-                <rect x="13" y="13" width="8" height="8" rx="1.5"/>
-              </svg>
-              Grade
-            </button>
-          </div>
+          <!-- CATEGORIAS (pills com contagem real) -->
+          <div class="pg-category-pills" id="categoryPills"></div>
         </div>
 
-        <!-- PLACAR DE EQUIPES (aparece se já houver equipes ativas) -->
-        <div id="teamsBanner" class="pg-teams-banner d-none"></div>
-
-        <!-- CARROSSEL 3D -->
-        <div id="carouselView" class="pg-carousel-wrap">
-          <button type="button" class="pg-carousel-arrow pg-carousel-arrow-left" id="carouselPrev" aria-label="Jogo anterior">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-          </button>
-
-          <div class="pg-carousel" id="carouselStage">
-            <div class="pg-carousel-track" id="carouselTrack">
-              <!-- Cards do carrossel via JS -->
-            </div>
-          </div>
-
-          <button type="button" class="pg-carousel-arrow pg-carousel-arrow-right" id="carouselNext" aria-label="Próximo jogo">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-          </button>
-        </div>
-
-        <div class="pg-carousel-dots" id="carouselDots"></div>
-
-        <!-- GRADE (todos os jogos) -->
-        <section class="d-none" id="gridView">
+        <!-- GRADE (todos os jogos) — no desktop, grade normal (quebra linha);
+             no mobile, mesma grade mas em carrossel horizontal (arrasta pro
+             lado), pra não precisar descer muito a tela (ver .pg-grid no
+             styles.css). -->
+        <section id="gridView">
           <div class="pg-grid" id="gamesGrid">
             <!-- Cards entram via JS -->
           </div>
@@ -181,20 +93,21 @@
         <div id="emptyState" class="text-center pg-muted py-5 d-none">
           Nenhum jogo encontrado.
         </div>
-
-        <!-- CATEGORIAS (pills com contagem real) -->
-        <div class="pg-category-pills" id="categoryPills"></div>
       </main>
 
       <!-- FOOTER -->
       <footer class="pg-footer">
-        <div class="d-flex flex-column flex-md-row justify-content-between gap-2">
-          <div class="pg-muted small">
-            © <span id="yearNow"></span> PlayGospel • Feito para aprender brincando.
-          </div>
-          <div class="pg-muted small">
-            100% Offline • Modular • Fácil de expandir
-          </div>
+        <div class="pg-footer-inner">
+          <p class="pg-footer-verse" id="footerVerse"></p>
+
+          <a class="pg-footer-credit" href="https://www.instagram.com/jefersontecinfo" target="_blank" rel="noopener noreferrer">
+            Desenvolvido por <span class="pg-footer-credit-name">Jeferson Araújo</span>
+            <svg class="pg-footer-credit-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="5"/>
+              <circle cx="12" cy="12" r="4"/>
+              <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+            </svg>
+          </a>
         </div>
       </footer>
     </div>
@@ -210,15 +123,11 @@
 
         <div class="pg-gm-info">
           <div class="pg-gm-header">
-            <div class="pg-gm-thumb-wrap">
-              <span class="pg-gm-thumb-badge" id="modalCategoryBadge"></span>
-              <img id="modalCoverImg" class="pg-gm-thumb-img" alt="">
-            </div>
-
             <div class="pg-gm-header-text">
+              <span class="pg-gm-category-badge" id="modalCategoryBadge"></span>
+
               <div class="pg-gm-title-row">
                 <h2 class="pg-gm-title" id="modalTitle">Detalhes do jogo</h2>
-                <span class="pg-gm-fav" title="Favoritos (em breve)" aria-hidden="true">★</span>
               </div>
 
               <p class="pg-gm-desc" id="modalDesc"></p>
@@ -253,6 +162,15 @@
             </div>
           </div>
 
+          <div class="pg-gm-teams-warning pg-gm-unavailable-warning alert alert-warning d-none" id="modalUnavailableWarning" role="alert">
+            🔒 Esse jogo ainda não foi liberado. Volte em breve!
+          </div>
+
+          <div class="pg-gm-teams-warning alert alert-warning d-none" id="modalTeamsWarning" role="alert">
+            ⚠️ Este jogo é jogado em <b>equipes</b> — nenhuma equipe ativa ainda.
+            <a href="#" id="modalTeamsWarningLink">Crie as equipes</a> e volte pra jogar.
+          </div>
+
           <div class="pg-gm-footer">
             <button type="button" class="pgui-btn pgui-btn-outline pg-gm-btn" data-bs-dismiss="modal">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M11 18 5 12l6-6"/></svg>
@@ -272,59 +190,115 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content pg-modal">
       <div class="modal-header pg-modal-header">
-        <div>
-          <h5 class="modal-title mb-1">Equipes</h5>
-          <div class="pg-teams-modal-status" id="teamsStatus">
-            <span class="pg-status-dot"></span>
-            Desativadas
-          </div>
-        </div>
+        <h5 class="modal-title mb-0">Equipes</h5>
         <button type="button" class="btn-close pg-btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
       </div>
 
       <div class="modal-body">
-        <div class="pg-teams-section-label">Quantidade de equipes</div>
-        <div class="pg-count-toggle" id="teamsCountToggle" role="group" aria-label="Quantidade de equipes">
-          <button type="button" class="pg-count-btn" data-count="2">2</button>
-          <button type="button" class="pg-count-btn" data-count="3">3</button>
-          <button type="button" class="pg-count-btn" data-count="4">4</button>
-        </div>
-        <select id="teamsCount" class="d-none">
-          <option value="2" selected>2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-        </select>
-
-        <div id="teamsForm" class="pg-teams-form"></div>
-
-        <div class="d-flex gap-2">
-          <button type="button" class="pg-chip-btn" id="btnTeamsAutoNames">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="3" y="3" width="18" height="18" rx="4"/>
-              <circle cx="8" cy="8" r="1" fill="currentColor" stroke="none"/>
-              <circle cx="16" cy="8" r="1" fill="currentColor" stroke="none"/>
-              <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/>
-              <circle cx="8" cy="16" r="1" fill="currentColor" stroke="none"/>
-              <circle cx="16" cy="16" r="1" fill="currentColor" stroke="none"/>
-            </svg>
-            Gerar nomes
-          </button>
-          <button type="button" class="pg-chip-btn" id="btnTeamsClearNames">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M18 6 6 18"/>
-              <path d="M6 6 18 18"/>
-            </svg>
-            Limpar
-          </button>
+        <!-- VISÃO RESUMO — mostrada quando já existem equipes (clicou em
+             "Editar equipes" no header). Nomes, participantes e as ações
+             de manutenção (excluir/zerar) só fazem sentido aqui, nunca
+             durante a criação. -->
+        <div id="teamsSummaryView">
+          <div class="pg-teams-summary-list" id="teamsSummaryList"></div>
         </div>
 
-        <div id="teamsError" class="text-danger small mt-2 d-none"></div>
+        <!-- VISÃO CRIAR/EDITAR — assistente de 2 passos. -->
+        <div id="teamsWizardView" class="d-none">
+          <div class="pg-teams-steps" id="teamsSteps" aria-hidden="true">
+            <span class="pg-teams-step-dot" data-step-dot="1"></span>
+            <span class="pg-teams-step-track"></span>
+            <span class="pg-teams-step-dot" data-step-dot="2"></span>
+          </div>
+          <div class="pg-teams-step-title" id="teamsStepTitle">Quantidade e equipes</div>
 
-        <div class="pg-teams-hint">Fica salvo só nesta sessão do navegador.</div>
+          <!-- PASSO 1: quantidade + cor/ícone/nome + pergunta do sorteio -->
+          <div class="pg-teams-step-panel" data-step-panel="1">
+            <div class="pg-count-toggle" id="teamsCountToggle" role="group" aria-label="Quantidade de equipes">
+              <button type="button" class="pg-count-btn" data-count="2">2</button>
+              <button type="button" class="pg-count-btn" data-count="3">3</button>
+              <button type="button" class="pg-count-btn" data-count="4">4</button>
+            </div>
+            <select id="teamsCount" class="d-none">
+              <option value="2" selected>2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+
+            <div class="pg-teams-form-head" aria-hidden="true">
+              <span class="pg-teams-form-head-cell">Cor</span>
+              <span class="pg-teams-form-head-cell">Ícone</span>
+              <span class="pg-teams-form-head-cell pg-teams-form-head-name">Nome da equipe</span>
+            </div>
+            <div id="teamsForm" class="pg-teams-form"></div>
+
+            <div class="d-flex gap-2">
+              <button type="button" class="pg-chip-btn" id="btnTeamsAutoNames">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="3" width="18" height="18" rx="4"/>
+                  <circle cx="8" cy="8" r="1" fill="currentColor" stroke="none"/>
+                  <circle cx="16" cy="8" r="1" fill="currentColor" stroke="none"/>
+                  <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/>
+                  <circle cx="8" cy="16" r="1" fill="currentColor" stroke="none"/>
+                  <circle cx="16" cy="16" r="1" fill="currentColor" stroke="none"/>
+                </svg>
+                Gerar nomes
+              </button>
+              <button type="button" class="pg-chip-btn" id="btnTeamsClearNames">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M18 6 6 18"/>
+                  <path d="M6 6 18 18"/>
+                </svg>
+                Limpar
+              </button>
+            </div>
+
+            <div id="teamsError" class="text-danger small mt-2 d-none"></div>
+
+            <!-- Pergunta obrigatória antes de liberar "Próximo"/"Criar
+                 equipes" — Sim leva pro sorteio, Não já libera criar. -->
+            <div class="pg-teams-ask">
+              <p class="pg-teams-section-label">Quer sortear as pessoas entre as equipes?</p>
+              <div class="pg-teams-ask-buttons" id="teamsAskButtons" role="group" aria-label="Quer sortear as pessoas entre as equipes?">
+                <button type="button" class="pg-teams-ask-btn" data-ask="yes">Sim</button>
+                <button type="button" class="pg-teams-ask-btn" data-ask="no">Não</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- PASSO 2: sortear participantes (só chega aqui quem respondeu "Sim") -->
+          <div class="pg-teams-step-panel d-none" data-step-panel="2">
+            <p class="pg-teams-draw-hint">Sorteie quem fica em cada equipe — distribuímos igualmente entre elas.</p>
+
+            <div class="pg-teams-draw-teams-preview" id="drawTeamsPreview"></div>
+
+            <div class="pg-teams-draw-names" id="drawNamesList"></div>
+
+            <div class="d-flex gap-2">
+              <button type="button" class="pg-chip-btn" id="btnDrawAddName">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                Adicionar pessoa
+              </button>
+              <button type="button" class="pg-chip-btn" id="btnDrawPeople">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="3" width="18" height="18" rx="4"/>
+                  <circle cx="8.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/>
+                  <circle cx="15.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/>
+                  <circle cx="8.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/>
+                  <circle cx="15.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/>
+                  <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/>
+                </svg>
+                <span id="btnDrawPeopleLabel">Sortear agora</span>
+              </button>
+            </div>
+            <div id="drawError" class="text-danger small mt-2 d-none"></div>
+          </div>
+        </div>
       </div>
 
       <div class="modal-footer pg-modal-footer pg-teams-modal-footer">
-        <div class="pg-teams-footer-actions" id="teamsFooterActions">
+        <!-- Rodapé da visão resumo -->
+        <div class="pg-teams-summary-footer" id="teamsSummaryFooter">
           <button type="button" class="pg-chip-btn pg-chip-btn-danger" id="btnTeamsDisable">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M3 6h18"/>
@@ -340,7 +314,7 @@
             </svg>
             Zerar placar
           </button>
-          <button type="button" class="btn pg-btn-primary" id="btnTeamsSave">Criar equipes</button>
+          <button type="button" class="btn pg-btn-primary ms-auto" id="btnTeamsEdit">Editar equipes</button>
         </div>
 
         <div class="pg-teams-footer-confirm d-none" id="teamsDeleteConfirm">
@@ -352,14 +326,101 @@
             </button>
           </div>
         </div>
+
+        <!-- Rodapé do assistente -->
+        <div class="pg-teams-wizard-footer d-none" id="teamsWizardFooter">
+          <button type="button" class="pg-chip-btn d-none" id="btnTeamsBack">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M11 18 5 12l6-6"/></svg>
+            Voltar
+          </button>
+          <button type="button" class="btn pg-btn-primary ms-auto d-none" id="btnTeamsNext">Próximo</button>
+          <button type="button" class="btn pg-btn-primary ms-auto d-none" id="btnTeamsSave">Criar equipes</button>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-  <script>
-    document.getElementById("yearNow").textContent = new Date().getFullYear();
-  </script>
+  <!-- MODAL "PARTICIPANTES DA EQUIPE" — reaproveitado tanto pelo ícone
+       de cada linha no modal de Equipes quanto pelo botão no placar do
+       catálogo. -->
+  <div class="modal fade" id="teamMembersModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content pg-modal">
+        <div class="modal-header pg-modal-header">
+          <h5 class="modal-title mb-0" id="teamMembersModalTitle">Participantes</h5>
+          <button type="button" class="btn-close pg-btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <ul class="pg-team-members-list" id="teamMembersModalList"></ul>
+        </div>
+        <div class="modal-footer pg-modal-footer">
+          <button type="button" class="btn pg-btn-primary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL "COMO JOGAR" -->
+  <div class="modal fade" id="howToModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content pg-modal">
+        <div class="modal-header pg-modal-header">
+          <h5 class="modal-title mb-0">Como jogar</h5>
+          <button type="button" class="btn-close pg-btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+
+        <div class="modal-body">
+          <ol class="pg-howto-list">
+            <li>Crie suas equipes (2 a 4) no botão <b>Criar equipes</b>, no topo da página.</li>
+            <li>Escolha um jogo no catálogo — use a busca ou os filtros de categoria pra achar mais rápido.</li>
+            <li>No modal do jogo, ajuste as opções (categoria, dificuldade, tempo) se houver, e clique em <b>Jogar</b>.</li>
+            <li>Durante a partida, use os botões na tela (Acertou, Errou, Passar a vez...) pra registrar os pontos de cada equipe.</li>
+            <li>Acompanhe o placar a qualquer momento pelo botão <b>Placar</b> no topo do jogo.</li>
+          </ol>
+        </div>
+
+        <div class="modal-footer pg-modal-footer">
+          <button type="button" class="btn pg-btn-primary" data-bs-dismiss="modal">Entendi</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL "SOBRE ESSE PROJETO" -->
+  <div class="modal fade" id="aboutModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content pg-modal">
+        <div class="modal-header pg-modal-header">
+          <h5 class="modal-title mb-0">Sobre esse projeto</h5>
+          <button type="button" class="btn-close pg-btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+
+        <div class="modal-body">
+          <p class="pg-about-text">
+            O PlayGospel nasceu pra ajudar grupos, células e cultos a viverem
+            momentos de diversão com propósito — jogos rápidos, feitos por
+            equipes, com temas bíblicos, pra aprender brincando.
+          </p>
+          <p class="pg-about-text">
+            100% offline, sem cadastro: crie suas equipes e comece a jogar em
+            segundos.
+          </p>
+
+          <a href="https://www.tiktok.com/@playgospel" target="_blank" rel="noopener" class="pg-about-social">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M16.6 5.82c-.9-.8-1.46-1.96-1.46-3.25h-3.1v13.4c0 1.5-1.22 2.72-2.72 2.72a2.72 2.72 0 0 1 0-5.44c.27 0 .53.04.78.11V10.3a5.83 5.83 0 0 0-.78-.05A5.85 5.85 0 0 0 3.4 16.1a5.85 5.85 0 0 0 5.87 5.85 5.85 5.85 0 0 0 5.85-5.85V9.15a8.9 8.9 0 0 0 5.18 1.66V7.7a5.5 5.5 0 0 1-3.7-1.88Z"/>
+            </svg>
+            Siga a gente no TikTok
+          </a>
+        </div>
+
+        <div class="modal-footer pg-modal-footer">
+          <button type="button" class="btn pg-btn-primary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script type="module" src="assets/js/app.js"></script>

@@ -66,6 +66,13 @@ export function createCountdownTimer({
   return { start, stop, reset, getRemainingSec };
 }
 
+// Texto padrão pro box "Pontos em jogo" no topo dos jogos com pontuação —
+// mesmo texto usado em qual-e-a-musica, agora compartilhado.
+export function pointsLabel(n) {
+  const v = Math.abs(Number(n) || 0);
+  return `Vale ${v} ${v === 1 ? "ponto" : "pontos"}`;
+}
+
 export function shuffleArray(arr) {
   // Fisher-Yates (não muta o original)
   const a = [...arr];

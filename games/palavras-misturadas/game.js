@@ -1,6 +1,5 @@
 import { createCountdownTimer, shuffleArray } from "../../assets/js/utils.js";
 import { Teams } from "../../assets/js/teams.js";
-import { renderTeamScoreboard } from "../../assets/js/scoreboard-ui.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 import { icon } from "../../playgospel-ui/js/core.js";
 
@@ -11,6 +10,7 @@ const gameScreen = document.getElementById("gameScreen");
 const categorySelect = document.getElementById("categorySelect");
 const timeSelect = document.getElementById("timeSelect");
 const startBtn = document.getElementById("startBtn");
+const teamsSetupWarning = document.getElementById("teamsSetupWarning");
 
 const scrambledWordEl = document.getElementById("scrambledWord");
 
@@ -29,8 +29,10 @@ const brandLink = document.getElementById("brandLink");
 const playAgainBtn = document.getElementById("playAgainBtn");
 const gameOverNotice = document.getElementById("gameOverNotice");
 
-const teamsScoreboard = document.getElementById("teamsScoreboard");
+const scoreBtn = document.getElementById("scoreBtn");
 const teamScoreButtons = document.getElementById("teamScoreButtons");
+const pointsBox = document.getElementById("pointsBox");
+const timerRow = document.getElementById("presenterTimerRow");
 
 /* ===== STATE ===== */
 let data = null;
@@ -59,11 +61,36 @@ let countdownInterval = null;
 document.addEventListener("DOMContentLoaded", async () => {
   await loadWords();
   wireUI();
-  renderTeamScoreboard(teamsScoreboard, { clickable: false });
   renderTeamScoreButtons();
-  window.addEventListener("bibflix:teams:change", renderTeamScoreButtons);
+  updateTeamsGate();
+  updateScoreBtn();
+  window.addEventListener("bibflix:teams:change", () => {
+    renderTeamScoreButtons();
+    updateTeamsGate();
+    updateScoreBtn();
+  });
   applyParamsFromURL();
 });
+
+// Placar sob demanda (padrão do site): um botão no cabeçalho que abre o
+// popup com o ranking, em vez de um placar fixo. Só aparece durante o
+// jogo (não na tela de configuração) e só com equipes ativas.
+function updateScoreBtn() {
+  if (!scoreBtn) return;
+  const show = !gameScreen.classList.contains("d-none") && Teams.isEnabled();
+  scoreBtn.classList.toggle("d-none", !show);
+  pointsBox?.classList.toggle("d-none", !show);
+}
+
+/* ===== Trava de equipes (tela de configuração) =====
+   Sem equipes ativas não existe como pontuar (é um jogo de "disputa" — os
+   botões de ponto só aparecem por equipe), então o Iniciar fica bloqueado
+   e um aviso explica onde criar as equipes. */
+function updateTeamsGate() {
+  const enabled = Teams.isEnabled();
+  if (teamsSetupWarning) teamsSetupWarning.classList.toggle("d-none", enabled);
+  startBtn.disabled = !enabled;
+}
 
 /* ===== Formato "disputa": um botão de pontuação por equipe ativa =====
    Todas as equipes veem a mesma palavra ao mesmo tempo; quem administra o
@@ -127,9 +154,16 @@ function setRoundPhase(phase) {
   roundPhase = phase;
 
   newWordBtn.disabled = gameOver || phase === "countdown";
-  restartTimerBtn.disabled = gameOver || phase !== "playing";
+  updateRestartButtonState();
 
   renderTeamScoreButtons();
+}
+
+// Com a resposta revelada o tempo já foi parado de propósito (ver
+// revealAnswer) — "Reiniciar tempo" não pode voltar a embaralhar a palavra
+// por baixo disso, senão desfaz a revelação sem avisar quem tá jogando.
+function updateRestartButtonState() {
+  restartTimerBtn.disabled = gameOver || roundPhase !== "playing" || answerRevealed;
 }
 
 function clearCountdown() {
@@ -153,9 +187,16 @@ async function loadWords() {
 
 /* ========================= URL ========================= */
 function applyParamsFromURL() {
-  const params = new URLSearchParams(window.location.search);
+  // A tela de configuração ficou só no modal do catálogo (que já barra
+  // "Jogar" sem equipes ativas — ver assets/js/app.js). Se mesmo assim
+  // alguém cair aqui sem equipes (link direto, por exemplo), volta pro
+  // catálogo em vez de mostrar uma tela quebrada.
+  if (!Teams.isEnabled()) {
+    window.location.href = "../../index.html#catalogo";
+    return;
+  }
 
-  if (params.get("play") !== "1") return;
+  const params = new URLSearchParams(window.location.search);
 
   const categoryFromUrl = params.get("category");
   const timeFromUrl = params.get("time");
@@ -213,16 +254,10 @@ function wireUI() {
   });
 
   restartTimerBtn.addEventListener("click", () => {
-    if (gameOver || roundPhase !== "playing") return;
+    if (gameOver || roundPhase !== "playing" || answerRevealed) return;
 
-    if (!answerRevealed) {
-      scrambledWordEl.textContent = scrambleKeepSpaces(currentWord);
-    }
-
+    scrambledWordEl.textContent = scrambleKeepSpaces(currentWord);
     timeExpired = false;
-    answerRevealed = false;
-
-    showAnswerBtn.textContent = "Mostrar resposta";
 
     startOrResetTimer();
   });
@@ -235,6 +270,8 @@ function wireUI() {
     buildWordPool();
     nextWord();
   });
+
+  scoreBtn?.addEventListener("click", () => showScorePopup());
 
   exitBtn.addEventListener("click", confirmExit);
   brandLink.addEventListener("click", (e) => {
@@ -258,10 +295,11 @@ function wireUI() {
 
 /* ========================= GAME ========================= */
 function startGame() {
-  if (!currentCategory) return;
+  if (!currentCategory || !Teams.isEnabled()) return;
 
   setupScreen.classList.add("d-none");
   gameScreen.classList.remove("d-none");
+  updateScoreBtn();
 
   badgeCategory.textContent = currentCategory.name;
 
@@ -283,7 +321,7 @@ function nextWord() {
   }
 
   round++;
-  badgeRound.textContent = `Rodada ${round}/${wordPool.length}`;
+  badgeRound.textContent = `${round}/${wordPool.length}`;
 
   currentWord = next;
   answerRevealed = false;
@@ -302,6 +340,9 @@ function startCountdown() {
   showAnswerBtn.classList.add("d-none");
   scrambledWordEl.classList.add("pm-countdown");
 
+  // O timer só volta a aparecer quando a rodada realmente começar (ver
+  // beginRound) — durante o "Prepare-se!" ele fica escondido.
+  timerRow?.classList.add("d-none");
   timerBar.style.width = "0%";
 
   let n = 3;
@@ -328,6 +369,7 @@ function beginRound() {
   showAnswerBtn.classList.remove("d-none");
   showAnswerBtn.textContent = "Mostrar resposta";
 
+  timerRow?.classList.remove("d-none");
   setRoundPhase("playing");
   startOrResetTimer();
 
@@ -350,15 +392,17 @@ function toggleAnswer() {
 function revealAnswer() {
   answerRevealed = true;
 
-  // 🔥 PARA O TEMPO
+  // 🔥 PARA E ESCONDE O TEMPO — só volta quando uma rodada nova começar
+  // (ver startCountdown/beginRound), mesmo que a resposta seja ocultada
+  // de novo (toggleAnswer) nesta mesma rodada.
   stopTimer();
-  timerText.textContent = "Resposta revelada";
-  timerBar.style.width = "0%";
+  timerRow?.classList.add("d-none");
 
   // 🔥 MOSTRA NO CENTRO
   scrambledWordEl.textContent = currentWord;
 
   showAnswerBtn.textContent = "Ocultar resposta";
+  updateRestartButtonState();
   renderTeamScoreButtons();
 }
 
@@ -368,6 +412,7 @@ function hideAnswer() {
   scrambledWordEl.textContent = scrambleKeepSpaces(currentWord);
 
   showAnswerBtn.textContent = "Mostrar resposta";
+  updateRestartButtonState();
   renderTeamScoreButtons();
 }
 
@@ -375,6 +420,7 @@ function endGame() {
   gameOver = true;
   clearCountdown();
   stopTimer();
+  timerRow?.classList.add("d-none");
 
   scrambledWordEl.classList.remove("pm-countdown");
   scrambledWordEl.textContent = "FIM DE JOGO";
@@ -389,9 +435,7 @@ function endGame() {
 /* ========================= AFTER POINT ========================= */
 function afterPoint() {
   stopTimer();
-
-  timerText.textContent = "Ponto registrado!";
-  timerBar.style.width = "0%";
+  timerRow?.classList.add("d-none");
 }
 
 /* ========================= TIMER ========================= */
@@ -409,6 +453,7 @@ function createOrUpdateTimer() {
     onEnd: () => {
       timerText.textContent = "Tempo esgotado!";
       timerBar.style.width = "0%";
+      timerRow?.classList.add("d-none");
 
       timeExpired = true;
 
@@ -445,7 +490,6 @@ function scrambleToken(token) {
 function setGameOverUI(isOver) {
   newWordBtn.disabled = isOver;
   restartTimerBtn.disabled = isOver;
-  teamsScoreboard.style.pointerEvents = isOver ? "none" : "";
   renderTeamScoreButtons();
 
   playAgainBtn.classList.toggle("d-none", !isOver);

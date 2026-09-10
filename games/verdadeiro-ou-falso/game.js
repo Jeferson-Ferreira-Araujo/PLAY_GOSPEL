@@ -1,11 +1,14 @@
 import { shuffleArray, createCountdownTimer } from "../../assets/js/utils.js";
 import { Teams } from "../../assets/js/teams.js";
-import { renderTeamScoreboard } from "../../assets/js/scoreboard-ui.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 
-const teamsScoreboard = document.getElementById("teamsScoreboard");
+// Máximo de rodadas por partida (evita jogar todas as afirmações de uma vez).
+const ROUND_SIZE = 10;
+
+const scoreBtn = document.getElementById("scoreBtn");
 const turnBanner = document.getElementById("turnBanner");
 const turnBannerTeam = document.getElementById("turnBannerTeam");
+const pointsBox = document.getElementById("pointsBox");
 
 /* ===== Elements (setup) ===== */
 const setupScreen = document.getElementById("setupScreen");
@@ -40,6 +43,7 @@ const brandLink = document.getElementById("brandLink");
 
 const playAgainBtn = document.getElementById("playAgainBtn");
 const gameOverNotice = document.getElementById("gameOverNotice");
+const timerRow = document.getElementById("presenterTimerRow");
 
 /* ===== State ===== */
 let data = null;
@@ -57,26 +61,41 @@ let score = 0;
 
 let timer = null;
 let gameOver = false;
+let countdownInterval = null;
 
 /* ===== Init ===== */
 document.addEventListener("DOMContentLoaded", async () => {
   await loadData();
   wireUI();
-  renderTeamScoreboard(teamsScoreboard, { clickable: false });
   renderTurnBanner();
-  window.addEventListener("bibflix:teams:change", renderTurnBanner);
+  updateScoreBtn();
+  window.addEventListener("bibflix:teams:change", () => {
+    renderTurnBanner();
+    updateScoreBtn();
+  });
   checkAutoStartFromURL(); // ✅ novo fluxo
 });
+
+// Placar sob demanda (padrão do site): um botão no cabeçalho que abre o
+// popup com o ranking, em vez de um placar fixo. Só aparece durante o
+// jogo (não na tela de configuração) e só com equipes ativas.
+function updateScoreBtn() {
+  if (!scoreBtn) return;
+  const show = !gameScreen.classList.contains("d-none") && Teams.isEnabled();
+  scoreBtn.classList.toggle("d-none", !show);
+}
 
 /* ===== Vez da equipe (banner) ===== */
 function renderTurnBanner() {
   if (!Teams.isEnabled()) {
     turnBanner?.classList.add("d-none");
+    pointsBox?.classList.add("d-none");
     return;
   }
 
   const t = Teams.currentTeam();
   turnBanner?.classList.toggle("d-none", !t);
+  pointsBox?.classList.toggle("d-none", !t);
   if (!t) return;
 
   if (turnBannerTeam) turnBannerTeam.textContent = t.name;
@@ -93,8 +112,16 @@ async function loadData() {
    ?play=1&difficulty=hard&time=20
 ========================= */
 function checkAutoStartFromURL() {
+  // A tela de configuração ficou só no modal do catálogo (que já barra
+  // "Jogar" sem equipes ativas — ver assets/js/app.js). Se mesmo assim
+  // alguém cair aqui sem equipes (link direto, por exemplo), volta pro
+  // catálogo em vez de mostrar um jogo sem placar.
+  if (!Teams.isEnabled()) {
+    window.location.href = "../../index.html#catalogo";
+    return;
+  }
+
   const params = new URLSearchParams(window.location.search);
-  if (params.get("play") !== "1") return;
 
   const diff = params.get("difficulty");
   const t = params.get("time");
@@ -111,6 +138,8 @@ function checkAutoStartFromURL() {
 /* ===== UI wiring ===== */
 /* ===== Sair (confirma antes de deixar o jogo, com ou sem equipes) ===== */
 function confirmExit() {
+  stopTimer();
+  clearCountdown();
   const goToCatalog = () => { window.location.href = "../../index.html#catalogo"; };
   const shown = showScorePopup({
     title: "👋 Sair do jogo?",
@@ -146,6 +175,8 @@ function wireUI() {
 
   playAgainBtn.addEventListener("click", () => restartGame());
 
+  scoreBtn?.addEventListener("click", () => showScorePopup());
+
   // ✅ sair volta pro catálogo principal
   exitBtn.addEventListener("click", confirmExit);
   brandLink.addEventListener("click", (e) => {
@@ -174,6 +205,7 @@ function wireUI() {
 function startGame() {
   setupScreen.classList.add("d-none");
   gameScreen.classList.remove("d-none");
+  updateScoreBtn();
   restartGame();
 }
 
@@ -187,7 +219,9 @@ function restartGame() {
   badgeDifficulty.textContent = difficultyLabel(currentDifficulty);
 
   const list = (data?.[currentDifficulty] ?? []).filter(Boolean);
-  pool = shuffleArray(list);
+  // Cada partida sorteia até ROUND_SIZE afirmações (evita jogar todas de
+  // uma vez).
+  pool = shuffleArray(list).slice(0, ROUND_SIZE);
   idx = 0;
   score = 0;
   updateScore();
@@ -197,9 +231,13 @@ function restartGame() {
     return;
   }
 
-  loadAtIndex(idx);
   updateProgress();
-  resetAndStartTimer();
+
+  startPrepareCountdown(() => {
+    loadAtIndex(idx);
+    timerRow?.classList.remove("d-none");
+    resetAndStartTimer();
+  });
 }
 
 function nextStatement() {
@@ -211,9 +249,40 @@ function nextStatement() {
     return;
   }
 
-  loadAtIndex(idx);
   updateProgress();
-  resetAndStartTimer();
+
+  startPrepareCountdown(() => {
+    loadAtIndex(idx);
+    timerRow?.classList.remove("d-none");
+    resetAndStartTimer();
+  });
+}
+
+function clearCountdown() {
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+    countdownInterval = null;
+  }
+}
+
+/* Contagem "3, 2, 1" antes de cada afirmação nova — dá tempo da equipe se
+   preparar antes do timer voltar a contar. */
+function startPrepareCountdown(onDone) {
+  clearCountdown();
+  timerRow?.classList.add("d-none");
+
+  let n = 3;
+  statementText.textContent = `Prepare-se! ${n}`;
+
+  countdownInterval = setInterval(() => {
+    n -= 1;
+    if (n > 0) {
+      statementText.textContent = `Prepare-se! ${n}`;
+      return;
+    }
+    clearCountdown();
+    onDone();
+  }, 1000);
 }
 
 function loadAtIndex(i) {
@@ -237,7 +306,10 @@ function choose(choice) {
   if (!current || answered || gameOver) return;
 
   answered = true;
+  // Resposta dada — não precisa mais contar. Esconde o timer até a
+  // próxima afirmação começar.
   stopTimer();
+  timerRow?.classList.add("d-none");
 
   const correct = choice === Boolean(current.answer);
 
@@ -300,7 +372,7 @@ function updateProgress() {
 }
 
 function updateScore() {
-  badgeScore.textContent = `${score} acertos`;
+  badgeScore.textContent = `${score}`;
 }
 
 /* ===== Timer ===== */
@@ -332,6 +404,7 @@ function createOrUpdateTimer() {
       if (!answered && current && !gameOver) {
         answered = true;
         setAnswerButtonsEnabled(false);
+        timerRow?.classList.add("d-none");
 
         if (Teams.isEnabled()) Teams.nextTurn();
 
@@ -376,8 +449,10 @@ function setGameOverUI(isOver) {
 
 function endGame(text) {
   stopTimer();
+  clearCountdown();
   gameOver = true;
   setGameOverUI(true);
+  timerRow?.classList.add("d-none");
 
   statementText.textContent = text;
 

@@ -93,16 +93,27 @@
 
 /* ---- Destaque da equipe líder (usado no popup de placar, assets/js/score-popup.js) ---- */
 .pgui-ranking-leader {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--pgui-space-8);
-  padding: var(--pgui-space-24) var(--pgui-space-16);
+  padding: var(--pgui-space-32) var(--pgui-space-16) var(--pgui-space-20);
   margin-bottom: var(--pgui-space-16);
   border-radius: var(--pgui-radius-lg);
   background: linear-gradient(135deg, rgba(255, 193, 7, .18), rgba(255, 193, 7, .04));
   border: 1px solid rgba(255, 193, 7, .35);
   text-align: center;
+}
+
+.pgui-ranking-leader__trophy {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 34px;
+  line-height: 1;
+  filter: drop-shadow(0 4px 10px rgba(255, 193, 7, .5));
 }
 
 .pgui-ranking-leader__icon {
@@ -115,6 +126,7 @@
   justify-content: center;
   background: var(--team-color, var(--pgui-color-primary));
   color: var(--pgui-on-primary);
+  box-shadow: 0 0 0 3px var(--pgui-bg-surface), 0 0 0 4px var(--team-color, var(--pgui-color-primary));
 }
 
 .pgui-ranking-leader__label {
@@ -135,4 +147,49 @@
   font-size: var(--pgui-fs-heading-m);
   font-weight: 900;
   color: var(--pgui-color-primary);
+}
+
+/* ---- Popup de placar (assets/js/score-popup.js) — cabeçalho de coluna +
+   linhas do ranking mais "encorpadas" (painel colorido por equipe, em vez
+   da lista fina com linha pontilhada usada nos outros usos de .pgui-ranking
+   pelo site, ex: prévia da tela de setup). Fica só dentro de
+   .pgui-score-popup de propósito — não mexe no ranking padrão. */
+.pgui-score-popup__columns {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 var(--pgui-space-8);
+  margin-bottom: var(--pgui-space-4);
+  font-size: var(--pgui-fs-caption);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--pgui-text-muted);
+}
+
+.pgui-score-popup .pgui-ranking__row {
+  padding: var(--pgui-space-8) var(--pgui-space-12);
+  border-radius: var(--pgui-radius-md);
+  background: color-mix(in srgb, var(--team-color, var(--pgui-color-primary)) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--team-color, var(--pgui-color-primary)) 25%, transparent);
+}
+
+.pgui-score-popup .pgui-ranking__pos {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--team-color, var(--pgui-color-primary));
+  color: var(--pgui-on-primary);
+  font-size: 11px;
+}
+
+.pgui-score-popup .pgui-ranking__line {
+  display: none;
+}
+
+.pgui-score-popup .pgui-ranking__name {
+  flex: 1;
+  max-width: none;
 }

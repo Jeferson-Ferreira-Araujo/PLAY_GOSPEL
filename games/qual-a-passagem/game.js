@@ -1,7 +1,24 @@
-import { renderTeamScoreboard } from "../../assets/js/scoreboard-ui.js";
+import { createCountdownTimer, shuffleArray, pointsLabel } from "../../assets/js/utils.js";
+import { Teams } from "../../assets/js/teams.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 
+// Máximo de rodadas por partida (evita jogar todos os versículos de uma vez).
+const ROUND_SIZE = 10;
+
 const $ = (id) => document.getElementById(id);
+
+const scoreBtn = $("scoreBtn");
+
+const turnBanner = $("turnBanner");
+const turnBannerTeam = $("turnBannerTeam");
+
+const pointsBox = $("pointsBox");
+const pointsValue = $("pointsValue");
+
+const correctBtn = $("correctBtn");
+const wrongBtn = $("wrongBtn");
+const passTurnBtn = $("passTurnBtn");
+const timerRow = $("presenterTimerRow");
 
 let DATA = [];
 let pool = [];
@@ -12,11 +29,20 @@ let settings = {
   time: 30
 };
 
-let timer = {
-  total: 0,
-  left: 0,
-  interval: null
-};
+let timer = null;
+let gameOver = false;
+let countdownInterval = null;
+
+// Passar a vez: quantas vezes a vez já passou nesta rodada, e quem já tentou
+let passCount = 0;
+let triedTeamIds = new Set();
+let verseStartTurn = 0; // time que iniciou a rodada (base da rotação p/ a próxima)
+
+// Resposta revelada nesta rodada — Acertou/Errou (dão ponto) só aparecem
+// depois de "Revelar", pra evitar cliques sem querer que pontuem a equipe
+// errada por engano. "Passar a vez" continua disponível antes, já que
+// passar não exige (nem deveria exigir) mostrar a resposta.
+let answerRevealed = false;
 
 function getParams() {
   const url = new URL(window.location.href);
@@ -36,15 +62,6 @@ function setBadgeDifficulty(diff) {
   $("badgeDifficulty").textContent = labelDifficulty(diff);
 }
 
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
 function updateProgress() {
   const total = pool.length;
   const current = total ? Math.min(index + 1, total) : 0;
@@ -53,67 +70,180 @@ function updateProgress() {
 
 function showAnswer(show) {
   $("answerBox").classList.toggle("d-none", !show);
+
+  if (show) {
+    answerRevealed = true;
+    // Depois de revelar não precisa mais contar — esconde o timer até a
+    // próxima rodada começar.
+    stopTimer();
+    timerRow?.classList.add("d-none");
+    renderTeamUI();
+  }
 }
 
-function stopTimer() {
-  if (timer.interval) clearInterval(timer.interval);
-  timer.interval = null;
+function clearCountdown() {
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+    countdownInterval = null;
+  }
 }
 
-function startTimer(seconds) {
-  stopTimer();
+/* Contagem "3, 2, 1" antes de cada rodada nova — dá tempo da equipe se
+   preparar antes do timer voltar a contar. */
+function startPrepareCountdown(onDone) {
+  clearCountdown();
+  timerRow?.classList.add("d-none");
 
-  const s = Number(seconds || 0);
-  timer.total = s;
-  timer.left = s;
+  let n = 3;
+  $("verseText").textContent = `Prepare-se! ${n}`;
 
-  if (s <= 0) {
-    $("timerText").textContent = "--";
-    $("timerBar").style.width = "0%";
+  countdownInterval = setInterval(() => {
+    n -= 1;
+    if (n > 0) {
+      $("verseText").textContent = `Prepare-se! ${n}`;
+      return;
+    }
+    clearCountdown();
+    onDone();
+  }, 1000);
+}
+
+/* =========================
+   TEAMS UI (placar + vez da equipe + botões de pontuação)
+========================= */
+function setTeamsControlsVisible(visible) {
+  // Acertou/Errou dão ponto — só depois de revelar a resposta.
+  const showScoring = visible && answerRevealed;
+  if (correctBtn) correctBtn.style.display = showScoring ? "inline-block" : "none";
+  if (wrongBtn) wrongBtn.style.display = showScoring ? "inline-block" : "none";
+  // Passar não dá ponto nem exige revelar — some só sem equipes.
+  if (passTurnBtn) passTurnBtn.style.display = visible ? "inline-block" : "none";
+}
+
+function renderTeamUI() {
+  const enabled = Teams.isEnabled();
+  setTeamsControlsVisible(enabled);
+
+  if (!enabled) {
+    turnBanner?.classList.add("d-none");
+    pointsBox?.classList.add("d-none");
     return;
   }
 
-  $("timerText").textContent = String(timer.left);
-  $("timerBar").style.width = "0%";
+  const t = Teams.currentTeam();
+  turnBanner?.classList.toggle("d-none", !t);
+  pointsBox?.classList.toggle("d-none", !t);
+  if (!t) return;
 
-  timer.interval = setInterval(() => {
-    timer.left = Math.max(0, timer.left - 1);
-    $("timerText").textContent = String(timer.left);
+  if (turnBannerTeam) turnBannerTeam.textContent = t.name;
+  turnBanner?.style.setProperty("--team-color", t.color || "#F4C430");
 
-    const elapsed = timer.total - timer.left;
-    const pct = Math.min(100, Math.round((elapsed / timer.total) * 100));
-    $("timerBar").style.width = `${pct}%`;
+  if (correctBtn) correctBtn.textContent = `Acertou (+${passCount + 1})`;
+  if (wrongBtn) wrongBtn.textContent = `Errou (-${passCount + 1})`;
+  if (pointsValue) pointsValue.textContent = pointsLabel(passCount + 1);
 
-    // quando zera, para; rodada continua
-    if (timer.left <= 0) stopTimer();
-  }, 1000);
+  const state = Teams.getState();
+  const canPass = state.teams.length > triedTeamIds.size;
+  if (passTurnBtn) passTurnBtn.disabled = gameOver || !canPass;
+}
+
+window.addEventListener("bibflix:teams:change", renderTeamUI);
+
+/* =========================
+   PASSAR A VEZ
+========================= */
+function resetPassChain() {
+  passCount = 0;
+  triedTeamIds = new Set();
+  verseStartTurn = Teams.getState().turn;
+  answerRevealed = false;
+
+  const t = Teams.currentTeam();
+  if (t) triedTeamIds.add(t.id);
+
+  renderTeamUI();
+}
+
+// Avança a rotação a partir de quem INICIOU a rodada (não de quem respondeu
+// depois de um "passar a vez"), assim cada time mantém sua vez de começar.
+function advanceFromVerseStart() {
+  const n = Teams.getState().teams.length;
+  if (!n) return;
+  Teams.setTurn((verseStartTurn + 1) % n);
+}
+
+function passTurn() {
+  if (!Teams.isEnabled()) return;
+
+  const state = Teams.getState();
+  const n = state.teams.length;
+
+  if (n === 2) {
+    Teams.nextTurn();
+  } else {
+    const candidates = state.teams
+      .map((_, i) => i)
+      .filter((i) => !triedTeamIds.has(state.teams[i].id));
+
+    if (!candidates.length) return; // botão já deveria estar desabilitado
+
+    const pick = candidates[Math.floor(Math.random() * candidates.length)];
+    Teams.setTurn(pick);
+  }
+
+  passCount += 1;
+
+  const t = Teams.currentTeam();
+  if (t) triedTeamIds.add(t.id);
+
+  renderTeamUI();
+  timerRow?.classList.remove("d-none");
+  startTimer(settings.time);
+}
+
+function shuffle(arr) {
+  return shuffleArray(arr);
 }
 
 function renderCard() {
   if (!pool.length) return;
 
   const item = pool[index];
-  $("verseText").textContent = item.verse || "—";
-  $("answerText").textContent = item.reference || "—";
 
   showAnswer(false);
   updateProgress();
-  startTimer(settings.time);
+  // Esconde os botões de pontuação enquanto conta "Prepare-se!" — só
+  // voltam (com o passCount certo) quando resetPassChain roda lá embaixo,
+  // pra ninguém clicar Passar a vez antes da rodada realmente começar.
+  setTeamsControlsVisible(false);
+
+  startPrepareCountdown(() => {
+    $("verseText").textContent = item.verse || "—";
+    $("answerText").textContent = item.reference || "—";
+    timerRow?.classList.remove("d-none");
+    startTimer(settings.time);
+    resetPassChain();
+  });
 }
 
+// Avança pra próxima carta — quem chama decide o que acontece com a vez
+// (o botão "Próximo" mantém quem iniciou a rodada; Acertou/Errou já
+// avançaram a vez via advanceFromVerseStart antes de chamar isto).
 function nextCard() {
   if (!pool.length) return;
 
   index++;
   if (index >= pool.length) {
-    gameOver();
+    gameOverScreen();
     return;
   }
   renderCard();
 }
 
-function gameOver() {
+function gameOverScreen() {
   stopTimer();
+  clearCountdown();
+  gameOver = true;
 
   $("verseText").textContent = "FIM! ✅";
   $("answerText").textContent = "";
@@ -125,10 +255,14 @@ function gameOver() {
   $("revealBtn").disabled = true;
   $("nextBtn").disabled = true;
   $("restartTimerBtn").disabled = true;
+  setGameOverButtons(true);
 
   $("timerText").textContent = "--";
   $("timerBar").style.width = "0%";
+  timerRow?.classList.add("d-none");
   $("badgeProgress").textContent = `${pool.length}/${pool.length}`;
+
+  turnBanner?.classList.add("d-none");
 
   showScorePopup({
     title: "🏁 Fim de jogo!",
@@ -136,10 +270,19 @@ function gameOver() {
   });
 }
 
+function setGameOverButtons(isOver) {
+  if (correctBtn) correctBtn.disabled = isOver;
+  if (wrongBtn) wrongBtn.disabled = isOver;
+  if (passTurnBtn) passTurnBtn.disabled = isOver;
+}
+
 function resetGame() {
   index = 0;
+  gameOver = false;
 
-  pool = shuffle(DATA.filter((x) => x.level === settings.difficulty));
+  // Cada partida sorteia até ROUND_SIZE versículos (evita jogar todos de
+  // uma vez).
+  pool = shuffle(DATA.filter((x) => x.level === settings.difficulty)).slice(0, ROUND_SIZE);
 
   $("playAgainBtn").classList.add("d-none");
   $("gameOverNotice").classList.add("d-none");
@@ -147,6 +290,7 @@ function resetGame() {
   $("revealBtn").disabled = false;
   $("nextBtn").disabled = false;
   $("restartTimerBtn").disabled = false;
+  setGameOverButtons(false);
 
   if (!pool.length) {
     $("verseText").textContent = "Sem versículos para esta dificuldade.";
@@ -155,6 +299,8 @@ function resetGame() {
     $("badgeProgress").textContent = "0/0";
     $("timerText").textContent = "--";
     $("timerBar").style.width = "0%";
+    timerRow?.classList.add("d-none");
+    turnBanner?.classList.add("d-none");
     return;
   }
 
@@ -175,12 +321,14 @@ async function loadData() {
 function startFromSettings() {
   setBadgeDifficulty(settings.difficulty);
   showScreen(true);
+  updateScoreBtn();
   resetGame();
 }
 
 /* ===== Sair (confirma antes de deixar o jogo, com ou sem equipes) ===== */
 function confirmExit() {
   stopTimer();
+  clearCountdown();
   const goToCatalog = () => { window.location.href = "../../index.html"; };
   const shown = showScorePopup({
     title: "👋 Sair do jogo?",
@@ -191,8 +339,50 @@ function confirmExit() {
 
 function wireEvents() {
   $("revealBtn").addEventListener("click", () => showAnswer(true));
-  $("nextBtn").addEventListener("click", nextCard);
+
+  // "Próximo" pula a rodada sem ninguém responder — mantém quem a iniciou
+  // (desfaz qualquer "passar a vez" que tenha acontecido nela).
+  $("nextBtn").addEventListener("click", () => {
+    if (Teams.isEnabled()) Teams.setTurn(verseStartTurn);
+    nextCard();
+  });
+
   $("restartTimerBtn").addEventListener("click", () => startTimer(settings.time));
+
+  // Pontuação (equipes)
+  correctBtn?.addEventListener("click", () => {
+    if (gameOver) return;
+
+    if (Teams.isEnabled()) {
+      Teams.addPoint(passCount + 1);
+      advanceFromVerseStart();
+    }
+
+    renderTeamUI();
+    nextCard();
+  });
+
+  // Errou: desconta os mesmos pontos que estavam em jogo (o valor cresce a
+  // cada "Passar a vez", igual ao acerto) e encerra a tentativa desta rodada.
+  wrongBtn?.addEventListener("click", () => {
+    if (gameOver) return;
+
+    if (Teams.isEnabled()) {
+      Teams.addPoint(-(passCount + 1));
+      advanceFromVerseStart();
+    }
+
+    renderTeamUI();
+    nextCard();
+  });
+
+  // Time atual não sabe: passa a vez, mesma rodada continua
+  passTurnBtn?.addEventListener("click", () => {
+    if (gameOver) return;
+    passTurn();
+  });
+
+  scoreBtn?.addEventListener("click", () => showScorePopup());
 
   $("exitBtn").addEventListener("click", confirmExit);
   $("brandLink").addEventListener("click", (e) => {
@@ -223,17 +413,77 @@ function wireEvents() {
     if ($("gameScreen").classList.contains("d-none")) return;
 
     if (k === "r") showAnswer(true);
-    if (k === "n") nextCard();
+    if (k === "n") $("nextBtn").click();
     if (k === "t") startTimer(settings.time);
   });
 }
 
+/* =========================
+   TIMER (padrão compartilhado — createCountdownTimer)
+========================= */
+function createOrUpdateTimer() {
+  stopTimer();
+
+  const seconds = Number(settings.time || 0);
+  if (seconds <= 0) {
+    timer = null;
+    $("timerText").textContent = "Sem tempo";
+    $("timerBar").style.width = "0%";
+    return;
+  }
+
+  timer = createCountdownTimer({
+    durationSec: seconds,
+    onTick: ({ remainingSec, progress01 }) => {
+      $("timerText").textContent = `${remainingSec}s`;
+      $("timerBar").style.width = `${Math.round(progress01 * 100)}%`;
+    },
+    onEnd: () => {
+      $("timerText").textContent = "Tempo!";
+      $("timerBar").style.width = "0%";
+      // quando zera, para; rodada continua
+    },
+  });
+}
+
+function startTimer(seconds) {
+  settings.time = Number(seconds || 0);
+  createOrUpdateTimer();
+  if (!timer) return;
+  timer.reset(settings.time);
+  timer.start();
+}
+
+function stopTimer() {
+  if (timer) timer.stop();
+}
+
+// Placar sob demanda (padrão do site): um botão no cabeçalho que abre o
+// popup com o ranking, em vez de um placar fixo. Só aparece durante o
+// jogo (não na tela de configuração) e só com equipes ativas.
+function updateScoreBtn() {
+  if (!scoreBtn) return;
+  const show = !$("gameScreen").classList.contains("d-none") && Teams.isEnabled();
+  scoreBtn.classList.toggle("d-none", !show);
+}
+
 async function init() {
   wireEvents();
-  renderTeamScoreboard($("teamsScoreboard"));
+  updateScoreBtn();
+  window.addEventListener("bibflix:teams:change", updateScoreBtn);
+
+  // A tela de configuração ficou só no modal do catálogo (que já barra
+  // "Jogar" sem equipes ativas — ver assets/js/app.js). Se mesmo assim
+  // alguém cair aqui sem equipes (link direto, por exemplo), volta pro
+  // catálogo em vez de mostrar um jogo sem placar.
+  if (!Teams.isEnabled()) {
+    window.location.href = "../../index.html#catalogo";
+    return;
+  }
+
   await loadData();
 
-  const { play, difficulty, time } = getParams();
+  const { difficulty, time } = getParams();
 
   if (difficulty) settings.difficulty = difficulty;
   if (time !== null && !Number.isNaN(time)) settings.time = time;
@@ -242,8 +492,9 @@ async function init() {
   $("difficultySelect").value = settings.difficulty;
   $("timeSelect").value = String(settings.time);
 
-  if (play) startFromSettings();
-  else showScreen(false);
+  // A tela de configuração ficou só no modal do catálogo (index.html);
+  // ao chegar aqui, o jogo começa direto, sempre.
+  startFromSettings();
 }
 
 init().catch((err) => {

@@ -1,9 +1,11 @@
-import { shuffleArray, createCountdownTimer } from "../../assets/js/utils.js";
+import { shuffleArray, createCountdownTimer, pointsLabel } from "../../assets/js/utils.js";
 import { Teams } from "../../assets/js/teams.js";
-import { renderTeamScoreboard } from "../../assets/js/scoreboard-ui.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 
-const teamsScoreboard = document.getElementById("teamsScoreboard");
+// Máximo de rodadas por partida (evita jogar todos os versículos de uma vez).
+const ROUND_SIZE = 10;
+
+const scoreBtn = document.getElementById("scoreBtn");
 
 /* ===== Elements (setup) ===== */
 const setupScreen = document.getElementById("setupScreen");
@@ -23,6 +25,8 @@ const referenceText = document.getElementById("referenceText");
 
 const turnBanner = document.getElementById("turnBanner");
 const turnBannerTeam = document.getElementById("turnBannerTeam");
+const pointsBox = document.getElementById("pointsBox");
+const pointsValue = document.getElementById("pointsValue");
 
 const timerText = document.getElementById("timerText");
 const timerBar = document.getElementById("timerBar");
@@ -39,6 +43,7 @@ const brandLink = document.getElementById("brandLink");
 
 const playAgainBtn = document.getElementById("playAgainBtn");
 const gameOverNotice = document.getElementById("gameOverNotice");
+const timerRow = document.getElementById("presenterTimerRow");
 
 /* ===== State ===== */
 let data = null;
@@ -52,11 +57,17 @@ let idx = 0;
 let current = null; // { text, reference }
 let timer = null;
 let gameOver = false;
+let countdownInterval = null;
 
 // Passar a vez: quantas vezes a vez já passou nesta frase, e quem já tentou
 let passCount = 0;
 let triedTeamIds = new Set();
 let verseStartTurn = 0; // time que iniciou a frase (base da rotação p/ a próxima)
+
+// Resposta revelada nesta frase — Acertou/Errou (dão ponto) só aparecem
+// depois de "Mostrar resposta", pra evitar cliques sem querer que pontuem
+// a equipe errada por engano. "Passar a vez" continua disponível antes.
+let answerRevealed = false;
 
 /* =========================
    URL PARAMS
@@ -81,9 +92,21 @@ function applyParamsToSetupUI() {
    TEAMS UI
 ========================= */
 function setTeamsControlsVisible(visible) {
-  if (correctBtn) correctBtn.style.display = visible ? "inline-block" : "none";
-  if (wrongBtn) wrongBtn.style.display = visible ? "inline-block" : "none";
+  // Acertou/Errou dão ponto — só depois de revelar a resposta.
+  const showScoring = visible && answerRevealed;
+  if (correctBtn) correctBtn.style.display = showScoring ? "inline-block" : "none";
+  if (wrongBtn) wrongBtn.style.display = showScoring ? "inline-block" : "none";
+  // Passar não dá ponto nem exige revelar — some só sem equipes.
   if (passTurnBtn) passTurnBtn.style.display = visible ? "inline-block" : "none";
+}
+
+// Placar sob demanda (padrão do site): um botão no cabeçalho que abre o
+// popup com o ranking, em vez de um placar fixo. Só aparece durante o
+// jogo (não na tela de configuração) e só com equipes ativas.
+function updateScoreBtn() {
+  if (!scoreBtn) return;
+  const show = !gameScreen.classList.contains("d-none") && Teams.isEnabled();
+  scoreBtn.classList.toggle("d-none", !show);
 }
 
 function renderTeamUI() {
@@ -92,11 +115,13 @@ function renderTeamUI() {
 
   if (!enabled) {
     turnBanner?.classList.add("d-none");
+    pointsBox?.classList.add("d-none");
     return;
   }
 
   const t = Teams.currentTeam();
   turnBanner?.classList.toggle("d-none", !t);
+  pointsBox?.classList.toggle("d-none", !t);
   if (!t) return;
 
   if (turnBannerTeam) turnBannerTeam.textContent = t.name;
@@ -104,6 +129,7 @@ function renderTeamUI() {
 
   if (correctBtn) correctBtn.textContent = `Acertou (+${passCount + 1})`;
   if (wrongBtn) wrongBtn.textContent = `Errou (-${passCount + 1})`;
+  if (pointsValue) pointsValue.textContent = pointsLabel(passCount + 1);
 
   const state = Teams.getState();
   const canPass = state.teams.length > triedTeamIds.size;
@@ -120,6 +146,7 @@ function resetPassChain() {
   passCount = 0;
   triedTeamIds = new Set();
   verseStartTurn = Teams.getState().turn;
+  answerRevealed = false;
 
   const t = Teams.currentTeam();
   if (t) triedTeamIds.add(t.id);
@@ -160,7 +187,35 @@ function passTurn() {
   if (t) triedTeamIds.add(t.id);
 
   renderTeamUI();
+  timerRow?.classList.remove("d-none");
   resetAndStartTimer();
+}
+
+function clearCountdown() {
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+    countdownInterval = null;
+  }
+}
+
+/* Contagem "3, 2, 1" antes de cada versículo novo — dá tempo da equipe se
+   preparar antes do timer voltar a contar. */
+function startPrepareCountdown(onDone) {
+  clearCountdown();
+  timerRow?.classList.add("d-none");
+
+  let n = 3;
+  verseText.textContent = `Prepare-se! ${n}`;
+
+  countdownInterval = setInterval(() => {
+    n -= 1;
+    if (n > 0) {
+      verseText.textContent = `Prepare-se! ${n}`;
+      return;
+    }
+    clearCountdown();
+    onDone();
+  }, 1000);
 }
 
 /* =========================
@@ -169,14 +224,22 @@ function passTurn() {
 document.addEventListener("DOMContentLoaded", async () => {
   await loadData();
   wireUI();
-  renderTeamScoreboard(teamsScoreboard, { clickable: false });
+  updateScoreBtn();
+  window.addEventListener("bibflix:teams:change", updateScoreBtn);
 
-  if (shouldAutoPlay()) {
-    applyParamsToSetupUI();
-    currentDifficulty = difficultySelect.value;
-    durationSec = Number(timeSelect.value || 0);
-    startGame();
+  // A tela de configuração ficou só no modal do catálogo (que já barra
+  // "Jogar" sem equipes ativas — ver assets/js/app.js). Se mesmo assim
+  // alguém cair aqui sem equipes (link direto, por exemplo), volta pro
+  // catálogo em vez de mostrar um jogo sem placar.
+  if (!Teams.isEnabled()) {
+    window.location.href = "../../index.html#catalogo";
+    return;
   }
+
+  applyParamsToSetupUI();
+  currentDifficulty = difficultySelect.value;
+  durationSec = Number(timeSelect.value || 0);
+  startGame();
 });
 
 async function loadData() {
@@ -243,6 +306,7 @@ function wireUI() {
   });
 
   playAgainBtn.addEventListener("click", restartGame);
+  scoreBtn?.addEventListener("click", () => showScorePopup());
   exitBtn.addEventListener("click", confirmExit);
   brandLink.addEventListener("click", (e) => {
     // Só confirma se o jogo já estiver em andamento — na tela de
@@ -268,6 +332,7 @@ function wireUI() {
 function startGame() {
   setupScreen.classList.add("d-none");
   gameScreen.classList.remove("d-none");
+  updateScoreBtn();
   restartGame();
 }
 
@@ -281,7 +346,9 @@ function restartGame() {
   badgeDifficulty.textContent = difficultyLabel(currentDifficulty);
 
   const list = (data?.[currentDifficulty] ?? []).filter(Boolean);
-  pool = shuffleArray(list);
+  // Cada partida sorteia até ROUND_SIZE versículos (evita jogar todos de
+  // uma vez).
+  pool = shuffleArray(list).slice(0, ROUND_SIZE);
   idx = 0;
 
   if (!pool.length) {
@@ -289,10 +356,18 @@ function restartGame() {
     return;
   }
 
-  loadVerseAtIndex(idx);
-  resetAndStartTimer();
   updateProgress();
   renderTeamUI();
+  // Esconde os botões de pontuação enquanto conta "Prepare-se!" — só
+  // voltam (com o passCount certo) quando resetPassChain roda lá dentro
+  // de loadVerseAtIndex, pra ninguém clicar antes da rodada começar.
+  setTeamsControlsVisible(false);
+
+  startPrepareCountdown(() => {
+    loadVerseAtIndex(idx);
+    timerRow?.classList.remove("d-none");
+    resetAndStartTimer();
+  });
 }
 
 function nextVerse() {
@@ -305,10 +380,14 @@ function nextVerse() {
     return;
   }
 
-  loadVerseAtIndex(idx);
-  resetAndStartTimer();
   updateProgress();
-  renderTeamUI();
+  setTeamsControlsVisible(false);
+
+  startPrepareCountdown(() => {
+    loadVerseAtIndex(idx);
+    timerRow?.classList.remove("d-none");
+    resetAndStartTimer();
+  });
 }
 
 function loadVerseAtIndex(i) {
@@ -326,12 +405,14 @@ function loadVerseAtIndex(i) {
 
 function endGame(text) {
   stopTimer();
+  clearCountdown();
   gameOver = true;
   setGameOverUI(true);
 
   verseText.textContent = text;
   timerText.textContent = "";
   timerBar.style.width = "0%";
+  timerRow?.classList.add("d-none");
 
   badgeProgress.textContent = `${pool.length}/${pool.length}`;
 
@@ -364,6 +445,13 @@ function revealAnswer() {
   referenceBox.classList.remove("d-none");
 
   showAnswerBtn.textContent = "Resposta revelada";
+
+  answerRevealed = true;
+  // Depois de revelar não precisa mais contar — esconde o timer até o
+  // próximo versículo começar.
+  stopTimer();
+  timerRow?.classList.add("d-none");
+  renderTeamUI();
 }
 
 /* =========================
@@ -475,6 +563,7 @@ function setGameOverUI(isOver) {
 ========================= */
 function exitGame() {
   stopTimer();
+  clearCountdown();
   gameOver = false;
   setGameOverUI(false);
 

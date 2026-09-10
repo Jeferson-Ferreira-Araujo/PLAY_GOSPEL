@@ -18,6 +18,7 @@ function escapeHtml(str) {
 
 function buildScorePopupBody(teams, highlightId) {
   const wrap = document.createElement("div");
+  wrap.className = "pgui-score-popup";
   const sorted = [...(teams || [])].sort((a, b) => (b.score || 0) - (a.score || 0));
   const leader = sorted[0];
 
@@ -28,12 +29,20 @@ function buildScorePopupBody(teams, highlightId) {
     banner.style.setProperty("--team-color", leader.color || "#FFC107");
     const pts = Number(leader.score) || 0;
     banner.innerHTML = `
+      <span class="pgui-ranking-leader__trophy" aria-hidden="true">🏆</span>
       <span class="pgui-ranking-leader__icon">${icon(iconName, { size: 24 })}</span>
       <span class="pgui-ranking-leader__label">Na frente</span>
       <span class="pgui-ranking-leader__name">${escapeHtml(leader.name)}</span>
       <span class="pgui-ranking-leader__points">${pts} ${pts === 1 ? "ponto" : "pontos"}</span>
     `;
     wrap.appendChild(banner);
+  }
+
+  if ((teams || []).length > 1) {
+    const columns = document.createElement("div");
+    columns.className = "pgui-score-popup__columns";
+    columns.innerHTML = `<span>Equipe</span><span>Pontos</span>`;
+    wrap.appendChild(columns);
   }
 
   const rankingEl = document.createElement("div");

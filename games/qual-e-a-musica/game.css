@@ -20,6 +20,20 @@
   display: block;
 }
 
+/* Nome do jogo centralizado no header (não colado do lado da logo) —
+   .qam-topheader (sticky) já serve de containing block. Só no desktop:
+   no mobile os itens já quebram linha (.pgui-header vem com
+   flex-wrap:wrap da lib), então o nome fica melhor no fluxo normal. */
+@media (min-width: 641px) {
+  .qam-topheader .pgui-title {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+  }
+}
+
 /* .pgui-game-layout tem min-height:100vh (assume que é a página inteira),
    mas aqui ele fica ABAIXO do .qam-topheader — sem esse ajuste, a altura
    real da página vira header + 100vh, sempre estourando o viewport em
@@ -50,14 +64,6 @@
   display: grid;
   grid-template-columns: auto minmax(160px, 1fr) auto;
   gap: var(--pgui-space-12);
-}
-
-@media (max-width: 560px) {
-  /* Numa tela bem estreita as 3 caixas não cabem numa linha só sem
-     espremer demais — empilha em vez de forçar tudo lado a lado. */
-  .qam-topbar-3col {
-    grid-template-columns: 1fr;
-  }
 }
 
 .qam-topbar-box {
@@ -116,6 +122,43 @@
   color: var(--pgui-color-danger-hover);
 }
 
+/* Continua em 1 linha só mesmo no mobile (empilhado em 3 linhas tomava
+   espaço vertical demais, sobrando pouco pra tela principal do jogo) — só
+   encolhe o conteúdo (padding/fonte) e deixa a coluna do meio livre pra ir
+   até onde sobrar (minmax(0, 1fr) em vez de 160px mínimo, senão estourava
+   a largura da tela). Fica DEPOIS das regras-base acima de propósito —
+   media query não aumenta especificidade, então uma regra sem media query
+   declarada depois ainda venceria uma com media query declarada antes. */
+@media (max-width: 560px) {
+  .qam-topbar-3col {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--pgui-space-8);
+  }
+
+  .qam-topbar-box {
+    padding: var(--pgui-space-4) var(--pgui-space-8);
+    min-width: 0; /* item de grid só encolhe de verdade com isso — senão o conteúdo com nowrap empurra a caixa e vaza por cima da vizinha */
+  }
+
+  .qam-topbar-box__label {
+    font-size: 9px;
+    white-space: normal; /* "VEZ DA EQUIPE"/"PONTOS EM JOGO" quebram em 2 linhas em vez de vazar da caixa */
+    overflow-wrap: break-word;
+  }
+
+  .qam-topbar-box__value {
+    font-size: var(--pgui-fs-small);
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  .qam-topbar-box__value--team {
+    gap: var(--pgui-space-4);
+    white-space: normal; /* nome de equipe comprido pode quebrar em 2 linhas em vez de vazar da caixa */
+    overflow-wrap: break-word;
+  }
+}
+
 /* ---- Placar: fica no popup do botão "🏆 Placar" do cabeçalho (sob
    demanda), não mais fixo numa barra lateral. Dicas: desativadas no jogo
    por enquanto (ver SHOW_HINTS_IN_GAME em game.js) — como a sidebar-right
@@ -124,10 +167,28 @@
 @media (min-width: 768px) {
   #gameScreen.pgui-game-layout {
     grid-template-columns: minmax(0, 1fr);
+    /* "main" recebe 1fr (o resto da altura) em vez de só o tamanho do
+       conteúdo — sem isso, sobrava uma faixa vazia embaixo do card em
+       telas mais altas que o conteúdo. Com o "main" flexível + o card
+       centralizado nele (ver .pgui-game-layout__main abaixo), esse espaço
+       vira respiro em cima/embaixo do card. Sem "actions": os botões
+       (Sortear, Ouvir/Acertou/Errou/Passar, Próxima música) moraram todos
+       pra dentro do card ao longo do tempo — não sobrou nada pra essa
+       linha, então ela nem existe mais aqui. */
+    grid-template-rows: auto 1fr;
     grid-template-areas:
       "topbar"
-      "main"
-      "actions";
+      "main";
+  }
+
+  #gameScreen .pgui-game-layout__main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #gameScreen .pgui-card-game {
+    width: 100%;
   }
 }
 
@@ -212,13 +273,16 @@
   100% { transform: scale(1); }
 }
 
-/* ---- Fase de escuta/resposta: 3 colunas (notas | teclado+mini player | ações) ----
-   Só essa fase vira 3 colunas — sorteio e revelação continuam em coluna
-   única, centralizados, como o resto do card. Em telas estreitas colapsa
-   pra 1 coluna (número em cima, teclado no meio, botões embaixo). */
+/* ---- Fase de escuta/resposta: 2 colunas (teclado+mini player | ações) ----
+   Só essa fase vira 2 colunas — sorteio e revelação continuam em coluna
+   única, centralizados, como o resto do card. A coluna que antes mostrava
+   só o número de notas sorteado foi embutida como uma badge compacta ao
+   lado do botão "Ouvir música" (ver .qam-replay-row), deixando o teclado
+   usar esse espaço extra. Em telas estreitas colapsa pra 1 coluna (teclado
+   em cima, ações embaixo). */
 .qam-listen-layout {
   display: grid;
-  grid-template-columns: minmax(120px, auto) minmax(0, 1fr) minmax(220px, auto);
+  grid-template-columns: minmax(0, 1fr) minmax(220px, auto);
   align-items: center;
   gap: var(--pgui-space-24);
   text-align: center;
@@ -244,18 +308,6 @@
   align-self: stretch;
 }
 
-/* A coluna da esquerda (número de notas) precisa esticar pra ocupar a
-   altura toda da linha (que é definida pela coluna mais alta — geralmente
-   a dos botões empilhados à direita) e SÓ DEPOIS centralizar o conteúdo
-   dentro dela — sem isso, o número ficava "colado" no topo da linha em vez
-   de centralizado verticalmente junto com o teclado/botões ao lado. */
-.qam-listen-left {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  align-self: stretch;
-}
-
 .qam-listen-actions {
   display: flex;
   flex-direction: column;
@@ -270,41 +322,53 @@
   font-weight: 800;
 }
 
-/* ---- Número de notas em destaque (coluna esquerda da fase de escuta) ---- */
-.qam-notes-badge {
+/* ---- Linha do botão "Ouvir música" + número de notas sorteado ----
+   O número (antes uma coluna própria, grande, à esquerda de tudo) agora
+   é uma badge compacta ao lado do botão, na mesma linha. */
+.qam-replay-row {
   display: flex;
-  flex-direction: column;
   align-items: center;
+  gap: var(--pgui-space-12);
+  flex-wrap: wrap;
 }
 
-.qam-notes-badge__icon {
-  font-size: 26px;
-  color: var(--pgui-color-primary);
-  margin-bottom: 2px;
+.qam-listen-actions .qam-replay-row .qam-replay-btn {
+  width: auto;
+  flex: 1 1 auto;
+}
+
+.qam-replay-row .qam-notes-badge {
+  flex: 0 0 auto;
+}
+
+/* ---- Número de notas sorteado: badge compacta e horizontal (número e
+   rótulo lado a lado, sem ícone) — mesma altura do botão "Ouvir música"
+   ao lado (min-height igual ao .pgui-btn-lg), pra ficarem alinhados. ---- */
+.qam-notes-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 52px;
+  padding: 0 var(--pgui-space-16);
+  border-radius: var(--pgui-radius-lg);
+  background: var(--pgui-bg-surface);
+  border: 1px solid var(--pgui-border);
 }
 
 .qam-notes-badge__number {
-  font-size: 80px;
+  font-size: 26px;
   line-height: 1;
   font-weight: 900;
   color: var(--pgui-color-primary);
-  text-shadow: 0 0 40px rgba(255, 193, 7, .5);
 }
 
 .qam-notes-badge__label {
-  margin-top: var(--pgui-space-4);
-  font-size: var(--pgui-fs-small);
+  font-size: var(--pgui-fs-caption, 12px);
   font-weight: 800;
-  letter-spacing: .08em;
+  letter-spacing: .06em;
   text-transform: uppercase;
   color: var(--pgui-text-secondary);
-}
-
-.qam-notes-badge__label::before,
-.qam-notes-badge__label::after {
-  content: '—';
-  margin: 0 6px;
-  opacity: .4;
 }
 
 /* ---- Botão "Ouvir" com legenda (ícone + título + "X vezes restantes") ---- */
@@ -446,7 +510,7 @@
 
 /* ---- Mini player (feedback visual da execução) ---- */
 .qam-mini-player {
-  width: min(480px, 100%);
+  width: min(600px, 100%);
   margin: var(--pgui-space-8) auto;
 }
 
@@ -493,8 +557,11 @@
    necessário — nunca um teclado gigante com a maioria das teclas paradas. */
 .qam-piano {
   position: relative;
-  width: min(480px, 100%);
-  height: 84px;
+  /* Mais largo que antes — a badge de notas saiu da coluna própria à
+     esquerda (agora fica compacta ao lado do botão "Ouvir música"), então
+     o teclado tem mais espaço horizontal disponível pra usar. */
+  width: min(600px, 100%);
+  height: 100px;
   margin: 0 auto var(--pgui-space-8);
   user-select: none;
 }
@@ -546,13 +613,51 @@
    com espaçamento consistente entre cada bloco (resultado → título → vídeo
    → controle de parar), sem depender de margin solto em cada peça. */
 .qam-reveal-panel {
+  margin-top: var(--pgui-space-16);
+  padding: var(--pgui-space-24);
+  text-align: center;
+}
+
+/* Vídeo à esquerda, informações + "Próxima música" à direita — lado a
+   lado em vez de empilhado. Um vídeo grande empilhado com título, selo de
+   resultado e botão embaixo ficava alto demais e estourava a primeira
+   dobra em desktop/tablet; lado a lado, a altura do bloco vira só a
+   altura do vídeo (bem mais baixa que a soma de tudo empilhado). No
+   mobile (tela estreita) continua empilhado, como antes. */
+.qam-reveal-layout {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--pgui-space-16);
-  margin-top: var(--pgui-space-16);
-  padding: var(--pgui-space-24);
-  text-align: center;
+}
+
+.qam-reveal-media,
+.qam-reveal-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pgui-space-12);
+  width: 100%;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .qam-reveal-layout {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: var(--pgui-space-32);
+    text-align: left;
+  }
+
+  .qam-reveal-media,
+  .qam-reveal-info {
+    flex: 1 1 0;
+  }
+
+  .qam-reveal-info {
+    align-items: flex-start;
+  }
 }
 
 .qam-reveal-outcome {
@@ -615,17 +720,143 @@
   display: none;
 }
 
+.qam-original-embed {
+  /* .qam-reveal-panel é flex column com align-items:center — sem "width:
+     100%" aqui, esta div encolhe pro tamanho do CONTEÚDO (não do card),
+     e a largura em % do iframe abaixo fica sem referência nenhuma pra
+     resolver, caindo no tamanho padrão do navegador (~300px) por baixo do
+     max-width pretendido. Era por isso que o vídeo sempre saía pequeno,
+     meio perdido no meio do card, independente do max-width configurado. */
+  width: 100%;
+}
+
 .qam-original-embed iframe {
   display: block;
+  margin: 0 auto; /* centraliza dentro do .qam-original-embed, que agora ocupa a largura toda */
   border-radius: var(--pgui-radius-lg);
   border: 1px solid var(--pgui-border);
   box-shadow: var(--pgui-shadow-floating);
-  max-width: 560px;
-  width: 100%;
+  /* Largura calculada também a partir da ALTURA da tela (não só um max-width
+     fixo em px): min(480px, altura-equivalente-a-34vh-em-16:9, 100%). Sem
+     isso, um vídeo largo o suficiente ficava alto demais em telas baixas
+     (tablet, notebook) e estourava a primeira dobra — com o limite em vh,
+     ele encolhe sozinho conforme a altura da tela, mantendo a proporção. */
+  width: min(480px, calc(34vh * 16 / 9), 100%);
   aspect-ratio: 16 / 9;
   height: auto;
 }
 
 .qam-reveal-stop {
-  margin-top: calc(-1 * var(--pgui-space-8)); /* puxa um pouco pra perto do vídeo, já que o gap da coluna já dá espaço */
+  margin-top: calc(-1 * var(--pgui-space-4)); /* puxa um pouco pra perto do vídeo, já que o gap da coluna já dá espaço */
+}
+
+/* ---- Telas grandes: aumenta os elementos do centro do jogo ----
+   Jogo pensado pra ser jogado em grupo, muita gente vendo de uma tela só
+   (às vezes de longe — telão/salão). Em telas largas, cresce peão, teclado
+   e números principais em vez de deixar tudo do tamanho "de celular"
+   perdido no meio de uma tela grande. Fica no FINAL do arquivo de
+   propósito: precisa vir depois das regras-base de cada classe (ex:
+   .qam-draw-reel lá em cima) pra realmente vencer no cascade — como
+   media query não aumenta especificidade, uma regra sem media query
+   declarada DEPOIS ainda venceria uma com media query declarada antes. */
+@media (min-width: 1200px) {
+  .qam-draw-reel {
+    width: min(880px, 80vw);
+  }
+
+  .qam-draw-heading {
+    font-size: 40px;
+  }
+
+  .qam-draw-caption {
+    font-size: var(--pgui-fs-body);
+  }
+
+  .qam-draw-result__number {
+    font-size: 140px;
+  }
+
+  .qam-draw-result__label {
+    font-size: 28px;
+  }
+
+  /* Teclado maior — com a badge de notas compacta (ao lado do botão
+     "Ouvir música", não mais numa coluna própria), sobra espaço de verdade
+     pra aumentar o teclado aqui. */
+  .qam-piano {
+    width: min(860px, 100%);
+    height: 160px;
+  }
+
+  .qam-mini-player {
+    width: min(860px, 100%);
+  }
+
+  .qam-listen-layout {
+    gap: var(--pgui-space-32);
+  }
+
+  .qam-listen-actions {
+    min-width: 260px;
+  }
+
+  .qam-listen-actions .pgui-btn {
+    min-height: 64px;
+    font-size: var(--pgui-fs-subtitle);
+  }
+
+  .qam-notes-badge {
+    min-height: 64px;
+  }
+
+  .qam-replay-btn__icon {
+    font-size: 26px;
+  }
+
+  /* ---- Revelação: um pouco mais de tamanho no texto, sempre respeitando
+     o limite de altura (calc(34vh * 16/9) na regra base) pra não estourar
+     a primeira dobra — o padding do card NÃO cresce aqui de propósito
+     (cresceria a altura fixa sem ajudar em nada). */
+  .qam-reveal-outcome {
+    font-size: 22px;
+    padding: var(--pgui-space-12) var(--pgui-space-28);
+  }
+
+  .qam-reveal-title {
+    font-size: 36px;
+  }
+
+  .qam-reveal-artist {
+    font-size: var(--pgui-fs-body);
+  }
+
+  .qam-original-embed iframe {
+    width: min(560px, calc(34vh * 16 / 9), 100%);
+  }
+
+  #nextSongBtn {
+    min-height: 60px;
+    padding: var(--pgui-space-16) var(--pgui-space-32);
+    font-size: var(--pgui-fs-body);
+  }
+}
+
+/* ---- Janelas bem baixas (notebook pequeno, split-screen): aperta mais
+   ainda. As regras normais (baseadas em vh) já dão conta da maioria dos
+   tablets/notebooks reais, mas numa janela MUITO baixa (abaixo de 650px de
+   altura — incomum, mas acontece) ainda sobrava um pouco pra fora da
+   primeira dobra; aqui reduz o respiro do card e o teto do vídeo mais uma
+   vez, só pra esse caso extremo. Fica no FINAL do arquivo de propósito —
+   precisa vencer inclusive a regra "telas grandes" (min-width:1200px) logo
+   acima, que também mexe no tamanho do vídeo, pro caso de uma janela larga
+   E baixa ao mesmo tempo (ex: 1280×600). */
+@media (max-height: 650px) {
+  .qam-reveal-panel {
+    margin-top: var(--pgui-space-8);
+    padding: var(--pgui-space-12);
+  }
+
+  .qam-original-embed iframe {
+    width: min(480px, calc(28vh * 16 / 9), 100%);
+  }
 }

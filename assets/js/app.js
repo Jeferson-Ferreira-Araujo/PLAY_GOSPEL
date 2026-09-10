@@ -6,22 +6,155 @@ import { initDropdowns } from "../../playgospel-ui/js/dropdown.js";
 // sem "cover") e como fallback se a imagem informada falhar ao carregar.
 const DEFAULT_COVER = "assets/img/cover-placeholder.svg";
 
+// Formato do jogo (games.json "matchType") — mostrado como selo no canto
+// da capa no catálogo. "disputa": todas as equipes competem pela mesma
+// pergunta/desafio ao mesmo tempo, quem responder primeiro pontua (ex:
+// Palavras Embaralhadas). "rodada": as equipes jogam uma de cada vez, em
+// turnos (indicador "Vez de..." dentro do jogo). Jogos sem o campo ainda
+// não foram classificados — não mostra selo nesse caso.
+const MATCH_TYPE_META = {
+  disputa: { label: "Disputa", icon: "flame" },
+  rodada: { label: "Rodada", icon: "refresh" },
+};
+
 let allGames = [];
 let currentGames = []; // lista atualmente exibida (após busca/categoria) — o carrossel navega sobre ela, não sobre allGames
 let modalInstance = null;
+let modalGame = null; // jogo cujo modal está aberto agora (p/ reavaliar o aviso de equipes ao vivo)
+let teamMembersModalInstance = null;
 
-const VIEW_KEY = "pg_view_mode";
-let preferredView = "carousel"; // escolha do usuário no toggle (persiste)
-let carouselIndex = 0;
+// Participantes sorteados por equipe, indexado pela posição no form
+// (0..3) — vive só enquanto o modal de Equipes está aberto; some se
+// fechar sem salvar. Prefiltrado com o que já tiver sido salvo antes
+// (ver buildTeamsForm) e incluído no save final (ver collectTeamsFromForm).
+let teamDraw = {};
+
+// Modal de Equipes: uma VISÃO RESUMO (quando já existem equipes — nomes,
+// participantes, excluir/zerar) e uma VISÃO ASSISTENTE de 2 passos pra
+// criar/editar (quantidade+nomes → participantes, só se pedir sorteio).
+// As ações de manutenção não aparecem durante a criação — não faz
+// sentido "excluir" ou "zerar placar" de algo que ainda nem existe.
+let currentTeamsStep = 1;
+// "yes" | "no" | null — resposta de "Quer sortear as pessoas entre as
+// equipes?" no passo 1. Só libera Próximo (yes) ou Criar equipes (no)
+// depois de escolhida; reseta toda vez que a visão assistente é aberta.
+let drawChoice = null;
+
+const TEAMS_STEP_TITLES = {
+  1: "Quantidade e equipes",
+  2: "Participantes",
+};
+
+function showTeamsSummaryView() {
+  document.getElementById("teamsSummaryView")?.classList.remove("d-none");
+  document.getElementById("teamsWizardView")?.classList.add("d-none");
+  document.getElementById("teamsSummaryFooter")?.classList.remove("d-none");
+  document.getElementById("teamsWizardFooter")?.classList.add("d-none");
+  document.getElementById("teamsDeleteConfirm")?.classList.add("d-none");
+  renderTeamsSummary();
+}
+
+function showTeamsWizardView() {
+  document.getElementById("teamsSummaryView")?.classList.add("d-none");
+  document.getElementById("teamsWizardView")?.classList.remove("d-none");
+  document.getElementById("teamsSummaryFooter")?.classList.add("d-none");
+  document.getElementById("teamsWizardFooter")?.classList.remove("d-none");
+  document.getElementById("teamsDeleteConfirm")?.classList.add("d-none");
+  drawChoice = null;
+  document.querySelectorAll("[data-ask]").forEach((btn) => btn.classList.remove("active"));
+  goToTeamsStep(1);
+}
+
+function goToTeamsStep(step) {
+  currentTeamsStep = step;
+
+  document.querySelectorAll("[data-step-panel]").forEach((panel) => {
+    panel.classList.toggle("d-none", Number(panel.dataset.stepPanel) !== step);
+  });
+
+  document.querySelectorAll("[data-step-dot]").forEach((dot) => {
+    const dotStep = Number(dot.dataset.stepDot);
+    dot.classList.toggle("active", dotStep === step);
+    dot.classList.toggle("done", dotStep < step);
+  });
+
+  const titleEl = document.getElementById("teamsStepTitle");
+  if (titleEl) titleEl.textContent = TEAMS_STEP_TITLES[step] ?? "";
+
+  const btnBack = document.getElementById("btnTeamsBack");
+  if (step === 1) {
+    // "Voltar" no passo 1 só existe se tinha um resumo pra voltar (ou
+    // seja, se já existiam equipes antes de entrar no assistente) — numa
+    // criação do zero não tem pra onde voltar.
+    btnBack?.classList.toggle("d-none", !Teams.isEnabled());
+    updateTeamsStep1Cta();
+  } else {
+    btnBack?.classList.remove("d-none");
+    document.getElementById("btnTeamsNext")?.classList.add("d-none");
+    document.getElementById("btnTeamsSave")?.classList.remove("d-none");
+    renderDrawTeamsPreview();
+  }
+}
+
+// Só libera avançar/criar depois que (a) os nomes estão válidos e (b) a
+// pergunta do sorteio foi respondida — Sim mostra "Próximo", Não mostra
+// "Criar equipes" direto, e sem responder nenhum dos dois aparece.
+function updateTeamsStep1Cta() {
+  if (currentTeamsStep !== 1) return;
+  const valid = validateTeamsForm();
+  document.getElementById("btnTeamsNext")?.classList.toggle("d-none", !(valid && drawChoice === "yes"));
+  document.getElementById("btnTeamsSave")?.classList.toggle("d-none", !(valid && drawChoice === "no"));
+}
 
 // Categorias calculadas a partir das tags reais do games.json (case-insensitive).
 const CATEGORY_RULES = [
   { key: "biblicos", label: "Bíblicos", match: (tags) => tags.some((t) => t.includes("bíblia")) },
   { key: "musica", label: "Música", match: (tags) => tags.some((t) => t.includes("música") || t.includes("louvor")) },
   { key: "desafios", label: "Desafios", match: (tags) => tags.some((t) => t.includes("desafio")) },
-  { key: "memorizacao", label: "Memorização", match: (tags) => tags.some((t) => t.includes("memorização") || t.includes("versículos")) },
+  { key: "memorizacao", label: "Conhecimento", match: (tags) => tags.some((t) => t.includes("memorização") || t.includes("versículos")) },
 ];
 let activeCategory = "all";
+
+// Versículos curtos pro rodapé — um sorteado a cada carregamento da
+// página (ver renderFooterVerse). Curadoria de versículos bem
+// conhecidos e curtos, pra caber numa linha só do rodapé.
+const FOOTER_VERSES = [
+  "O Senhor é o meu pastor; nada me faltará. — Salmos 23:1",
+  "Tudo posso naquele que me fortalece. — Filipenses 4:13",
+  "O amor é paciente, o amor é bondoso. — 1 Coríntios 13:4",
+  "Porque para Deus nada é impossível. — Lucas 1:37",
+  "Entrega o teu caminho ao Senhor; confia nele. — Salmos 37:5",
+  "A alegria do Senhor é a vossa força. — Neemias 8:10",
+  "Não temas, porque eu sou contigo. — Isaías 41:10",
+  "Deem graças ao Senhor, porque ele é bom. — Salmos 107:1",
+  "Buscai primeiro o Reino de Deus. — Mateus 6:33",
+  "O Senhor é a minha luz e a minha salvação. — Salmos 27:1",
+  "Amai-vos uns aos outros. — João 13:34",
+  "Tudo tem o seu tempo determinado. — Eclesiastes 3:1",
+  "Confia no Senhor de todo o teu coração. — Provérbios 3:5",
+  "Alegrai-vos sempre no Senhor. — Filipenses 4:4",
+  "A palavra de Deus é lâmpada para os meus pés. — Salmos 119:105",
+];
+
+function renderFooterVerse() {
+  const el = document.getElementById("footerVerse");
+  if (!el) return;
+  el.textContent = FOOTER_VERSES[Math.floor(Math.random() * FOOTER_VERSES.length)];
+}
+
+// Limite de caracteres pro nome de uma equipe — nomes muito longos
+// quebravam o layout dos cards/placar (banner, modal de fim de jogo,
+// etc.), então trunca a digitação e barra o "Criar equipes" além disso.
+const TEAM_NAME_MAX_LENGTH = 20;
+
+// Letras (com acento — "Águias", "Sião"), números e espaço só — sem
+// símbolo/emoji/pontuação, pra não ficar feio nos cards/placar. Qualquer
+// caractere fora disso é removido em tempo real (ver sanitizeTeamName).
+const TEAM_NAME_INVALID_CHARS = /[^\p{L}\p{N} ]/gu;
+
+function sanitizeTeamName(value) {
+  return String(value ?? "").replace(TEAM_NAME_INVALID_CHARS, "");
+}
 
 // Nomes em pt-BR pros ícones de equipe (Teams.teamIconNames) — só pra
 // acessibilidade/tooltip, a lista de nomes válidos continua vindo do Teams.
@@ -36,6 +169,11 @@ const TEAM_ICON_LABELS = {
   flag: "Bandeira",
   book: "Livro",
   crown: "Coroa",
+  trophy: "Troféu",
+  music: "Música",
+  "music-note": "Nota musical",
+  users: "Pessoas",
+  check: "Certo",
 };
 
 function getGameCategory(game) {
@@ -53,25 +191,15 @@ function matchesCategory(game, key) {
 
 document.addEventListener("DOMContentLoaded", async () => {
   modalInstance = new bootstrap.Modal(document.getElementById("gameModal"));
+  teamMembersModalInstance = new bootstrap.Modal(document.getElementById("teamMembersModal"));
+
+  renderFooterVerse();
 
   await loadGames();
 
-  // Jogo em destaque aleatório a cada visita
-  if (allGames.length) {
-    carouselIndex = Math.floor(Math.random() * allGames.length);
-  }
-
   currentGames = allGames;
   renderGames(allGames);
-  renderCarousel(allGames);
-  wireCarouselControls();
   renderCategoryPills();
-
-  preferredView = loadPreferredView();
-  applyView(preferredView);
-  wireViewToggle();
-
-  wireSearch();
 
   // Teams UI (modal + banner no catálogo + rótulo do botão na navbar)
   wireTeamsModal();
@@ -79,16 +207,62 @@ document.addEventListener("DOMContentLoaded", async () => {
   updateTeamsNavButton();
   window.addEventListener("bibflix:teams:change", renderTeamsBanner);
   window.addEventListener("bibflix:teams:change", updateTeamsNavButton);
+  window.addEventListener("bibflix:teams:change", updateModalTeamsGate);
+
+  // Link "Crie as equipes" dentro do aviso do modal de detalhes: fecha
+  // este modal e abre o de equipes por cima.
+  document.getElementById("modalTeamsWarningLink")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    modalInstance.hide();
+    const teamsModalEl = document.getElementById("teamsModal");
+    const teamsModal = bootstrap.Modal.getInstance(teamsModalEl) || new bootstrap.Modal(teamsModalEl);
+    teamsModal.show();
+  });
 });
 
 /* =========================
    LOAD CATALOG
 ========================= */
+// Fisher-Yates — embaralha em vez de só usar Math.random() no sort
+// (aquilo tende a distribuição enviesada).
+function shuffleArray(arr) {
+  const out = [...arr];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+// Nova ordem a cada carregamento da página, pra não ficar sempre os
+// mesmos jogos primeiro/visíveis.
+function shuffleGames(arr) {
+  return shuffleArray(arr);
+}
+
+// Distribui uma lista de nomes igualmente entre N equipes, em ordem
+// aleatória (round-robin depois de embaralhar) — se a divisão não for
+// exata, as primeiras equipes ficam com uma pessoa a mais, não é
+// problema (pedido explícito do usuário).
+function distributeNames(names, teamCount) {
+  const buckets = Array.from({ length: teamCount }, () => []);
+  shuffleArray(names).forEach((name, i) => {
+    buckets[i % teamCount].push(name);
+  });
+  return buckets;
+}
+
 async function loadGames() {
   try {
     const res = await fetch("games/games.json", { cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    allGames = await res.json();
+
+    // Embaralha os disponíveis, mas jogos "unavailable" (ver games.json)
+    // sempre vão pro fim — não misturam com o resto e não sobem pro topo
+    // sozinhos de vez em quando. .sort é estável, então cada grupo mantém
+    // a ordem embaralhada entre si.
+    allGames = shuffleGames(await res.json())
+      .sort((a, b) => Number(Boolean(a.unavailable)) - Number(Boolean(b.unavailable)));
 
     const countEl = document.getElementById("gamesCount");
     if (countEl) countEl.textContent = `${allGames.length} jogo(s) no catálogo`;
@@ -111,32 +285,52 @@ function renderGames(games) {
 
   games.forEach((game) => {
     const cardWrap = document.createElement("div");
+    const unavailable = Boolean(game.unavailable);
+    const matchType = MATCH_TYPE_META[game.matchType];
 
+    // Jogo ainda não liberado: capa em preto-e-branco + selo "Em breve"
+    // por cima — o card fica completamente inerte (sem clique, sem foco
+    // por teclado, sem abrir o modal); a rota do jogo também redireciona
+    // direto pro catálogo se alguém tentar acessar por URL (ver o
+    // <script> no topo de games/qual-e-a-musica/index.html).
     cardWrap.innerHTML = `
-      <div class="game-card" role="button" tabindex="0"
-           aria-label="Abrir detalhes do jogo ${escapeAttr(game.title)}">
-        <span class="game-card-badge">${escapeHtml(getGameCategory(game))}</span>
-        <span class="game-card-fav" title="Favoritos (em breve)" aria-hidden="true">★</span>
-        <img src="${escapeAttr(game.cover || DEFAULT_COVER)}" alt="${escapeAttr(game.title)}" onerror="this.onerror=null;this.src='${DEFAULT_COVER}';">
+      <div class="game-card${unavailable ? " is-unavailable" : ""}"${unavailable ? "" : ' role="button" tabindex="0"'}
+           aria-disabled="${unavailable}"
+           aria-label="${unavailable ? `${escapeAttr(game.title)} — indisponível no momento` : `Abrir detalhes do jogo ${escapeAttr(game.title)}`}">
+        <div class="game-card-media">
+          <img src="${escapeAttr(game.cover || DEFAULT_COVER)}" alt="${escapeAttr(game.title)}" onerror="this.onerror=null;this.src='${DEFAULT_COVER}';">
+          ${matchType ? `
+            <span class="game-card-matchtype game-card-matchtype--${escapeAttr(game.matchType)}">
+              ${icon(matchType.icon, { size: 11 })}
+              ${matchType.label}
+            </span>
+          ` : ""}
+          ${unavailable ? `
+            <div class="game-card-unavailable">
+              <span class="game-card-unavailable-badge">
+                ${icon("lock", { size: 12 })}
+                Em breve
+              </span>
+            </div>
+          ` : ""}
+        </div>
         <div class="game-card-body">
           <div class="game-card-title">${escapeHtml(game.title)}</div>
-          <div class="game-card-meta">
-            <span>👥 2+ equipes</span>
-            <span>⏱ ${escapeHtml(game.duration || "Duração variável")}</span>
-          </div>
         </div>
       </div>
     `;
 
     const card = cardWrap.firstElementChild;
 
-    card.addEventListener("click", () => openGameModal(game));
-    card.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        openGameModal(game);
-      }
-    });
+    if (!unavailable) {
+      card.addEventListener("click", () => openGameModal(game));
+      card.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openGameModal(game);
+        }
+      });
+    }
 
     grid.appendChild(card);
   });
@@ -148,202 +342,6 @@ function renderGames(games) {
   }
 }
 
-/* =========================
-   CARROSSEL 3D
-========================= */
-function renderCarousel(games) {
-  const track = document.getElementById("carouselTrack");
-  const dotsWrap = document.getElementById("carouselDots");
-  if (!track || !dotsWrap) return;
-
-  track.innerHTML = games.map((game, i) => `
-    <div class="pg-carousel-card" data-index="${i}" role="button" tabindex="0"
-         aria-label="Abrir detalhes do jogo ${escapeAttr(game.title)}">
-      <span class="pg-carousel-card-badge">${escapeHtml(getGameCategory(game))}</span>
-      <span class="pg-carousel-card-fav" title="Favoritos (em breve)" aria-hidden="true">★</span>
-      <img src="${escapeAttr(game.cover || DEFAULT_COVER)}" alt="${escapeAttr(game.title)}" draggable="false" onerror="this.onerror=null;this.src='${DEFAULT_COVER}';">
-      <div class="pg-carousel-card-body">
-        <div class="pg-carousel-card-title">${escapeHtml(game.title)}</div>
-        <div class="pg-carousel-card-desc">${escapeHtml(game.description ?? "")}</div>
-        <div class="pg-carousel-card-meta">
-          <span>👥 2+ equipes</span>
-          <span>⏱ ${escapeHtml(game.duration || "Duração variável")}</span>
-        </div>
-        <button type="button" class="pg-carousel-card-play" data-index="${i}">▶ Jogar</button>
-      </div>
-    </div>
-  `).join("");
-
-  track.querySelectorAll(".pg-carousel-card").forEach((card) => {
-    const i = Number(card.dataset.index);
-
-    card.addEventListener("click", () => {
-      if (i === carouselIndex) {
-        openGameModal(games[i]);
-      } else {
-        goToSlide(i);
-      }
-    });
-
-    card.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        card.click();
-      }
-    });
-  });
-
-  track.querySelectorAll(".pg-carousel-card-play").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const i = Number(btn.dataset.index);
-      openGameModal(games[i]);
-    });
-  });
-
-  dotsWrap.innerHTML = games.map((_, i) => `
-    <button type="button" class="pg-carousel-dot" data-index="${i}" aria-label="Ir para o jogo ${i + 1}"></button>
-  `).join("");
-
-  dotsWrap.querySelectorAll(".pg-carousel-dot").forEach((dot) => {
-    dot.addEventListener("click", () => goToSlide(Number(dot.dataset.index)));
-  });
-
-  updateCarouselPositions(games.length);
-}
-
-// Aparência de cada "camada" (centro, 1 de cada lado, 2 de cada lado).
-// Ângulos contidos (nunca perto de 90°) para não deformar os cards mais afastados.
-const CAROUSEL_LAYERS = [
-  { xFactor: 0,    rot: 0,  scale: 1,    opacity: 1,    z: 10 },
-  { xFactor: 0.66, rot: 30, scale: 0.82, opacity: 0.88, z: 8 },
-  { xFactor: 1.18, rot: 38, scale: 0.62, opacity: 0.45, z: 6 },
-];
-const CAROUSEL_MAX_OFFSET = CAROUSEL_LAYERS.length - 1; // só mostra 2 de cada lado
-
-function updateCarouselPositions(total) {
-  const track = document.getElementById("carouselTrack");
-  if (!track || !total) return;
-
-  const cards = track.querySelectorAll(".pg-carousel-card");
-  const cardWidth = cards[0]?.getBoundingClientRect().width || 250;
-
-  cards.forEach((card) => {
-    const i = Number(card.dataset.index);
-    let offset = i - carouselIndex;
-
-    // caminho mais curto (permite "circular" pelas pontas)
-    if (offset > total / 2) offset -= total;
-    if (offset < -total / 2) offset += total;
-
-    const absOffset = Math.abs(offset);
-    card.dataset.offset = offset;
-
-    if (absOffset > CAROUSEL_MAX_OFFSET) {
-      card.style.opacity = "0";
-      card.style.pointerEvents = "none";
-      card.style.zIndex = "0";
-      return;
-    }
-
-    const sign = Math.sign(offset);
-    const layer = CAROUSEL_LAYERS[absOffset];
-    const tx = sign * layer.xFactor * cardWidth;
-    const rot = -sign * layer.rot;
-
-    card.style.transform = `translateX(${tx}px) rotateY(${rot}deg) scale(${layer.scale})`;
-    card.style.opacity = String(layer.opacity);
-    card.style.zIndex = String(layer.z);
-    card.style.pointerEvents = "auto";
-    card.style.filter = absOffset === 0 ? "none" : `brightness(${1 - absOffset * 0.1})`;
-  });
-
-  document.querySelectorAll(".pg-carousel-dot").forEach((dot, i) => {
-    dot.classList.toggle("active", i === carouselIndex);
-  });
-}
-
-// Recalcula ao redimensionar (largura do card muda entre breakpoints)
-let carouselResizeTimer = null;
-window.addEventListener("resize", () => {
-  clearTimeout(carouselResizeTimer);
-  carouselResizeTimer = setTimeout(() => {
-    if (currentGames.length) updateCarouselPositions(currentGames.length);
-  }, 150);
-});
-
-function goToSlide(i) {
-  const total = currentGames.length;
-  if (!total) return;
-  carouselIndex = ((i % total) + total) % total;
-  updateCarouselPositions(total);
-}
-
-function nextSlide() {
-  goToSlide(carouselIndex + 1);
-}
-
-function prevSlide() {
-  goToSlide(carouselIndex - 1);
-}
-
-function wireCarouselControls() {
-  document.getElementById("carouselPrev")?.addEventListener("click", prevSlide);
-  document.getElementById("carouselNext")?.addEventListener("click", nextSlide);
-
-  document.addEventListener("keydown", (e) => {
-    const carouselView = document.getElementById("carouselView");
-    if (!carouselView || carouselView.classList.contains("d-none")) return;
-
-    const tag = document.activeElement?.tagName;
-    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
-
-    if (e.key === "ArrowLeft") prevSlide();
-    if (e.key === "ArrowRight") nextSlide();
-  });
-}
-
-/* =========================
-   VIEW TOGGLE (Carrossel / Grade)
-========================= */
-function loadPreferredView() {
-  try {
-    return localStorage.getItem(VIEW_KEY) === "grid" ? "grid" : "carousel";
-  } catch {
-    return "carousel";
-  }
-}
-
-function savePreferredView(view) {
-  try {
-    localStorage.setItem(VIEW_KEY, view);
-  } catch {}
-}
-
-function applyView(view) {
-  const carouselView = document.getElementById("carouselView");
-  const dots = document.getElementById("carouselDots");
-  const gridView = document.getElementById("gridView");
-
-  const isGrid = view === "grid";
-  carouselView?.classList.toggle("d-none", isGrid);
-  dots?.classList.toggle("d-none", isGrid);
-  gridView?.classList.toggle("d-none", !isGrid);
-
-  document.querySelectorAll(".pg-view-btn").forEach((btn) => {
-    btn.classList.toggle("active", btn.dataset.view === view);
-  });
-}
-
-function wireViewToggle() {
-  document.querySelectorAll(".pg-view-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      preferredView = btn.dataset.view;
-      savePreferredView(preferredView);
-      applyView(preferredView);
-    });
-  });
-}
 
 /* =========================
    PLACAR DE EQUIPES (banner no catálogo)
@@ -366,24 +364,65 @@ function renderTeamsBanner() {
   const pillsHtml = teams.map((t) => {
     const leading = !isTie && t.score === topScore;
     const iconName = Teams.teamIconNames.includes(t.icon) ? t.icon : "star";
+    const hasMembers = Array.isArray(t.members) && t.members.length > 0;
     return `
-      <span class="pg-team-pill${leading ? " leading" : ""}" style="--pill-color:${escapeAttr(t.color)}">
-        <span class="pg-team-pill-icon">${icon(iconName, { size: 13 })}</span>
-        ${escapeHtml(t.name)}
-        <span class="pg-team-pill-score">${Number(t.score) || 0}</span>
-      </span>
+      <div class="pg-team-pill${leading ? " leading" : ""}" style="--pill-color:${escapeAttr(t.color)}">
+        <div class="pg-team-pill-info">
+          <span class="pg-team-pill-icon">${icon(iconName, { size: 16 })}</span>
+          <span class="pg-team-pill-name">${escapeHtml(t.name)}</span>
+          ${hasMembers ? `
+            <button type="button" class="pg-team-pill-members-btn" data-team-pill-members="${escapeAttr(t.id)}" title="Ver participantes" aria-label="Ver participantes de ${escapeAttr(t.name)}">
+              ${icon("users", { size: 13 })}
+            </button>
+          ` : ""}
+        </div>
+        <div class="pg-team-pill-score-wrap">
+          <span class="pg-team-score-value">${Number(t.score) || 0}</span>
+          ${leading ? `<span class="pg-team-pill-leader" title="Na frente">${icon("crown", { size: 14 })}</span>` : ""}
+        </div>
+      </div>
     `;
   }).join("");
 
+  // Com o máximo de 4 equipes, os cards preenchem a linha toda — nesse
+  // caso centraliza (sem esticar) pra não sobrar espaço vazio de um lado
+  // só. Com menos equipes (2 ou 3), mantém alinhado à esquerda de
+  // propósito (pedido do usuário).
+  const isFull = teams.length >= 4;
+
   banner.innerHTML = `
-    <span class="pg-teams-banner-label">Equipes em jogo</span>
-    <div class="pg-teams-banner-teams">${pillsHtml}</div>
-    <button type="button" class="pg-teams-banner-manage" data-bs-toggle="modal" data-bs-target="#teamsModal">
-      Gerenciar equipes
+    <button type="button" class="pg-teams-banner-toggle" id="teamsBannerToggle" aria-expanded="false" aria-controls="teamsBannerTeams">
+      <span class="pg-teams-banner-label">
+        ${icon("users", { size: 18 })}
+        Equipes em jogo
+      </span>
+      <span class="pg-teams-banner-chevron">${icon("chevron-down", { size: 16 })}</span>
     </button>
+    <div class="pg-teams-banner-teams${isFull ? " is-full" : ""}" id="teamsBannerTeams">${pillsHtml}</div>
   `;
 
   banner.classList.remove("d-none");
+
+  // No mobile, o placar começa fechado (colapsado) pra não empurrar a
+  // lista de jogos pra fora da dobra — em telas maiores o CSS ignora
+  // esse estado e sempre mostra as equipes (ver @media max-width:600px).
+  const toggleBtn = banner.querySelector("#teamsBannerToggle");
+  toggleBtn?.addEventListener("click", () => {
+    const isOpen = banner.classList.toggle("is-open");
+    toggleBtn.setAttribute("aria-expanded", String(isOpen));
+  });
+
+  // Botão "ver participantes" de cada card — mesmo modal compartilhado
+  // usado dentro do modal de Equipes, populado com os dados já salvos.
+  banner.querySelectorAll("[data-team-pill-members]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const teamId = btn.dataset.teamPillMembers;
+      const team = teams.find((t) => t.id === teamId);
+      if (!team) return;
+      openTeamMembersModal({ name: team.name, color: team.color, icon: team.icon, members: team.members });
+    });
+  });
 }
 
 function updateTeamsNavButton() {
@@ -400,15 +439,7 @@ async function openGameModal(game) {
   document.getElementById("modalTitle").textContent = game.title ?? "Jogo";
   document.getElementById("modalDesc").textContent = game.description ?? "";
 
-  // capa + badge de categoria
-  const coverImg = document.getElementById("modalCoverImg");
-  coverImg.onerror = null;
-  coverImg.src = game.cover || DEFAULT_COVER;
-  coverImg.alt = game.title ?? "";
-  coverImg.onerror = () => {
-    coverImg.onerror = null;
-    coverImg.src = DEFAULT_COVER;
-  };
+  // badge de categoria (a capa não aparece no modal — só nos cards do catálogo)
   document.getElementById("modalCategoryBadge").textContent = getGameCategory(game);
 
   // meta: jogadores + duração
@@ -438,6 +469,7 @@ async function openGameModal(game) {
   const playBtn = document.getElementById("playButton");
   playBtn.onclick = (e) => {
     e.preventDefault();
+    if (playBtn.classList.contains("disabled")) return;
 
     const settings = collectModalSettings(cfg);
     saveLastSettings(game.id, settings);
@@ -446,7 +478,39 @@ async function openGameModal(game) {
     window.location.href = url;
   };
 
+  // Aviso de equipes obrigatórias — a tela de configuração de cada jogo
+  // não existe mais (ela bloqueava "Iniciar" sem equipes); esse aviso
+  // aqui no modal cumpre o mesmo papel, um passo antes.
+  modalGame = game;
+  updateModalTeamsGate();
+
   modalInstance.show();
+}
+
+function updateModalTeamsGate() {
+  const game = modalGame;
+  if (!game) return;
+
+  const unavailableWarning = document.getElementById("modalUnavailableWarning");
+  const warning = document.getElementById("modalTeamsWarning");
+  const playBtn = document.getElementById("playButton");
+
+  // Jogo indisponível trava o botão sozinho — nem chega a checar equipes
+  // (não faz sentido mostrar os dois avisos juntos).
+  if (game.unavailable) {
+    unavailableWarning?.classList.remove("d-none");
+    warning?.classList.add("d-none");
+    playBtn?.classList.add("disabled");
+    playBtn?.setAttribute("aria-disabled", "true");
+    return;
+  }
+  unavailableWarning?.classList.add("d-none");
+
+  const blocked = Boolean(game.teams?.required) && !Teams.isEnabled();
+
+  warning?.classList.toggle("d-none", !blocked);
+  playBtn?.classList.toggle("disabled", blocked);
+  playBtn?.setAttribute("aria-disabled", blocked ? "true" : "false");
 }
 
 /* carrega games/<id>/config.json (ou game.config no games.json) */
@@ -714,39 +778,18 @@ function buildGameUrl(game, settings) {
 }
 
 /* =========================
-   BUSCA + CATEGORIAS (filtro unificado)
+   CATEGORIAS (filtro)
 ========================= */
+// Sem busca por texto — todos os jogos já ficam visíveis na tela e os
+// filtros de categoria dão conta de achar o que quiser (removida a
+// busca por pedido do usuário, 2026-09-09).
 function applyFilters() {
-  const input = document.getElementById("searchInput");
-  const q = (input?.value || "").trim().toLowerCase();
-
-  let filtered = activeCategory === "all"
+  const filtered = activeCategory === "all"
     ? allGames
     : allGames.filter((g) => matchesCategory(g, activeCategory));
 
-  if (q) {
-    filtered = filtered.filter((g) => {
-      const text = [g.title, g.description, ...(g.tags ?? [])].join(" ").toLowerCase();
-      return text.includes(q);
-    });
-  }
-
   currentGames = filtered;
   renderGames(filtered);
-
-  // O carrossel também acompanha o filtro em tempo real
-  carouselIndex = 0;
-  renderCarousel(filtered);
-
-  const hasResults = filtered.length > 0;
-  document.getElementById("carouselView")?.classList.toggle("d-none", !hasResults || preferredView === "grid");
-  document.getElementById("carouselDots")?.classList.toggle("d-none", !hasResults || preferredView === "grid");
-  document.getElementById("gridView")?.classList.toggle("d-none", !hasResults || preferredView === "carousel");
-}
-
-function wireSearch() {
-  const input = document.getElementById("searchInput");
-  input.addEventListener("input", applyFilters);
 }
 
 function renderCategoryPills() {
@@ -786,21 +829,55 @@ function showEmptyState(show) {
    TEAMS MODAL (CATÁLOGO)
 ========================= */
 function renderTeamsModal() {
-  const status = document.getElementById("teamsStatus");
   const btnSave = document.getElementById("btnTeamsSave");
-  if (!status) return;
+  if (!btnSave) return;
 
-  const enabled = Teams.isEnabled();
-  status.classList.toggle("active", enabled);
+  btnSave.textContent = Teams.isEnabled() ? "Salvar alterações" : "Criar equipes";
+}
 
-  if (!enabled) {
-    status.innerHTML = `<span class="pg-status-dot"></span>Desativadas`;
-    if (btnSave) btnSave.textContent = "Criar equipes";
+// Visão "resumo" (abre quando já existem equipes — botão "Editar
+// equipes" no header): nome/ícone/cor/placar de cada equipe + quem foi
+// sorteado pra ela, se houver. Só leitura — pra mexer de verdade, o
+// botão "Editar equipes" do rodapé leva pro assistente.
+function renderTeamsSummary() {
+  const list = document.getElementById("teamsSummaryList");
+  if (!list) return;
+
+  const state = Teams.getState();
+  const teams = state.teams ?? [];
+
+  if (!teams.length) {
+    list.innerHTML = `<p class="pg-teams-draw-hint">Nenhuma equipe criada ainda.</p>`;
     return;
   }
 
-  status.innerHTML = `<span class="pg-status-dot"></span>Ativo • ${Teams.scoreLine()}`;
-  if (btnSave) btnSave.textContent = "Salvar alterações";
+  list.innerHTML = teams.map((t) => {
+    const iconName = Teams.teamIconNames.includes(t.icon) ? t.icon : "star";
+    const hasMembers = Array.isArray(t.members) && t.members.length > 0;
+    return `
+      <div class="pg-team-row-summary">
+        <span class="pg-team-row-summary-icon" style="--pill-color:${escapeAttr(t.color)}">${icon(iconName, { size: 15 })}</span>
+        <span class="pg-team-row-summary-name">${escapeHtml(t.name)}</span>
+        <span class="pg-team-row-summary-score">${Number(t.score) || 0} pts</span>
+      </div>
+      ${hasMembers ? `
+        <div class="pg-team-row-preview" data-team-summary-members="${escapeAttr(t.id)}" style="--pill-color:${escapeAttr(t.color)}" title="Ver todos os participantes">
+          <span class="pg-team-row-preview-names">
+            ${icon("users", { size: 12 })}
+            ${escapeHtml(t.members.join(", "))}
+          </span>
+        </div>
+      ` : ""}
+    `;
+  }).join("");
+
+  list.querySelectorAll("[data-team-summary-members]").forEach((row) => {
+    row.addEventListener("click", () => {
+      const team = teams.find((t) => t.id === row.dataset.teamSummaryMembers);
+      if (!team) return;
+      openTeamMembersModal({ name: team.name, color: team.color, icon: team.icon, members: team.members });
+    });
+  });
 }
 
 function buildTeamsForm(count, keepExisting = true) {
@@ -816,6 +893,21 @@ function buildTeamsForm(count, keepExisting = true) {
   const icons = Teams.defaultIcons(count);
 
   wrap.innerHTML = "";
+
+  // Recomeça o mapa de participantes sorteados a partir do que já tinha
+  // sido salvo (mesma posição) — igual à lógica de placar em
+  // collectTeamsFromForm. Qualquer sorteio pendente (ainda não aceito)
+  // que estivesse em andamento também é descartado, já que os índices
+  // podem não corresponder mais depois de trocar a quantidade.
+  teamDraw = {};
+  for (let i = 0; i < count; i++) {
+    if (Array.isArray(existing[i]?.members) && existing[i].members.length) {
+      teamDraw[i] = existing[i].members;
+    }
+  }
+  const drawLabel = document.getElementById("btnDrawPeopleLabel");
+  if (drawLabel) drawLabel.textContent = "Sortear agora";
+  resetDrawNamesList();
 
   for (let i = 0; i < count; i++) {
     const prev = existing[i];
@@ -836,26 +928,34 @@ function buildTeamsForm(count, keepExisting = true) {
     row.className = "pg-team-row";
 
     row.innerHTML = `
-      <input
-        type="color"
-        class="pg-team-color"
-        data-team-color="${i}"
-        value="${escapeAttr(colorVal)}"
-        aria-label="Cor da equipe ${i + 1}"
-      />
+      <div class="pg-team-color-wrap" title="Clique pra escolher a cor da equipe">
+        <input
+          type="color"
+          class="pg-team-color"
+          data-team-color="${i}"
+          value="${escapeAttr(colorVal)}"
+          aria-label="Cor da equipe ${i + 1}"
+        />
+        <span class="pg-team-color-edit" aria-hidden="true">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+        </span>
+      </div>
       <div class="pgui-dropdown pg-team-icon-dropdown" data-pgui-dropdown data-team-icon-dropdown="${i}">
         <button
           type="button"
           class="pg-team-icon-trigger"
+          data-team-icon-trigger="${i}"
+          style="--icon-color:${escapeAttr(colorVal)}"
           data-pgui-dropdown-trigger
           aria-haspopup="listbox"
           aria-expanded="false"
-          aria-label="Ícone da equipe ${i + 1}"
-        ><span data-team-icon-preview="${i}">${icon(iconVal, { size: 16 })}</span></button>
+          aria-label="Ícone da equipe ${i + 1} — clique pra trocar"
+          title="Clique pra escolher o ícone da equipe"
+        ><span data-team-icon-preview="${i}">${icon(iconVal, { size: 20 })}</span></button>
         <div class="pgui-dropdown__menu pg-team-icon-menu" role="listbox">
           ${Teams.teamIconNames.map((name) => `
-            <button type="button" class="pgui-dropdown__item pg-team-icon-option" role="option" data-icon-name="${name}" title="${escapeAttr(TEAM_ICON_LABELS[name] || name)}" aria-label="${escapeAttr(TEAM_ICON_LABELS[name] || name)}">
-              ${icon(name, { size: 16 })}
+            <button type="button" class="pgui-dropdown__item pg-team-icon-option${name === iconVal ? " active" : ""}" role="option" data-icon-name="${name}" title="${escapeAttr(TEAM_ICON_LABELS[name] || name)}" aria-label="${escapeAttr(TEAM_ICON_LABELS[name] || name)}">
+              ${icon(name, { size: 18 })}
             </button>
           `).join("")}
         </div>
@@ -867,6 +967,7 @@ function buildTeamsForm(count, keepExisting = true) {
         data-team-name="${i}"
         placeholder="Ex: ${names[i]}"
         value="${escapeAttr(nameVal)}"
+        maxlength="${TEAM_NAME_MAX_LENGTH}"
         aria-label="Nome da equipe ${i + 1}"
       />
     `;
@@ -914,20 +1015,38 @@ function validateTeamsForm() {
   }
 
   const allFilled = names.every(n => n.length > 0);
-  btnSave.disabled = !allFilled;
+  // O input já tem maxlength, mas valida de novo aqui — o maxlength não
+  // barra colar um texto maior, só limita a digitação normal.
+  const allWithinLimit = names.every(n => n.length <= TEAM_NAME_MAX_LENGTH);
+  // A sanitização ao vivo (ver o listener "input" em wireTeamsModal) já
+  // remove símbolo/emoji digitado ou colado — isso aqui é só uma trava
+  // extra pro caso de o valor vir de outro jeito (ex: nome salvo antes
+  // dessa regra existir).
+  const allValidChars = names.every(n => sanitizeTeamName(n) === n);
+  const valid = allFilled && allWithinLimit && allValidChars;
+  btnSave.disabled = !valid;
 
   if (!allFilled) {
     showTeamsError("Preencha o nome de todas as equipes (não pode ficar vazio).");
+  } else if (!allWithinLimit) {
+    showTeamsError(`O nome da equipe pode ter no máximo ${TEAM_NAME_MAX_LENGTH} caracteres.`);
+  } else if (!allValidChars) {
+    showTeamsError("O nome da equipe só pode ter letras, números e espaços.");
   } else {
     clearTeamsError();
   }
 
-  return allFilled;
+  return valid;
 }
 
 function collectTeamsFromForm() {
   const countSel = document.getElementById("teamsCount");
   const count = Number(countSel?.value || 2);
+
+  // Mantém o placar de quem já existia (mesma posição do form) — só
+  // equipe nova (índice além do que já tinha) começa do zero. Sem isso,
+  // editar nome/cor/ícone e salvar zerava a pontuação de todo mundo.
+  const existing = Teams.getState()?.teams ?? [];
 
   const teams = [];
   for (let i = 0; i < count; i++) {
@@ -938,10 +1057,144 @@ function collectTeamsFromForm() {
     const name = (nameEl?.value ?? "").trim();
     const color = (colorEl?.value ?? "").trim();
     const iconName = (iconEl?.value ?? "").trim();
+    const score = Number(existing[i]?.score ?? 0);
+    // Participantes sorteados (opcional) — mantém o que já tinha sido
+    // aceito antes se essa equipe não passou por um novo sorteio agora.
+    const members = Array.isArray(teamDraw[i]) ? teamDraw[i] : (existing[i]?.members ?? []);
 
-    teams.push({ id: `t${i}`, name, color, icon: iconName, score: 0 });
+    teams.push({ id: `t${i}`, name, color, icon: iconName, score, members });
   }
   return teams;
+}
+
+/* =========================
+   SORTEIO DE PARTICIPANTES ENTRE EQUIPES
+========================= */
+// Campos separados (um por pessoa) em vez de um textarea com "um nome
+// por linha" — a pessoa às vezes esquecia de quebrar linha certinho (ou
+// usava vírgula) e o sorteio saía errado juntando/cortando nomes. Um
+// input por pessoa não tem como dar esse tipo de erro de digitação.
+const DRAW_NAMES_INITIAL_ROWS = 4;
+
+function createDrawNameRow(value = "") {
+  const row = document.createElement("div");
+  row.className = "pg-teams-draw-name-row";
+  row.innerHTML = `
+    <input type="text" class="pg-teams-draw-name-input" data-draw-name-input placeholder="Nome da pessoa" value="${escapeAttr(value)}">
+    <button type="button" class="pg-teams-draw-name-remove" data-draw-name-remove aria-label="Remover esse campo" title="Remover">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="M6 6 18 18"/></svg>
+    </button>
+  `;
+  return row;
+}
+
+function resetDrawNamesList(count = DRAW_NAMES_INITIAL_ROWS) {
+  const list = document.getElementById("drawNamesList");
+  if (!list) return;
+  list.innerHTML = "";
+  for (let i = 0; i < count; i++) {
+    list.appendChild(createDrawNameRow());
+  }
+}
+
+function collectDrawNames() {
+  return [...document.querySelectorAll("[data-draw-name-input]")]
+    .map((input) => input.value.trim())
+    .filter((n) => n.length > 0);
+}
+
+// Monta, no passo 3, uma versão só-leitura de cada equipe (ícone + nome,
+// como está no passo 2) seguida do resultado do sorteio — assim dá pra
+// ver quem ficou em cada equipe sem precisar de um bloco de cartões
+// separado, mesmo essa etapa estando numa tela própria agora.
+function renderDrawTeamsPreview() {
+  const wrap = document.getElementById("drawTeamsPreview");
+  if (!wrap) return;
+
+  const count = Number(document.getElementById("teamsCount")?.value || 2);
+  wrap.innerHTML = "";
+
+  for (let i = 0; i < count; i++) {
+    const nameEl = document.querySelector(`[data-team-name="${i}"]`);
+    const colorEl = document.querySelector(`[data-team-color="${i}"]`);
+    const iconEl = document.querySelector(`[data-team-icon="${i}"]`);
+    const name = (nameEl?.value ?? "").trim() || `Equipe ${i + 1}`;
+    const colorVal = colorEl?.value ?? "#F4C430";
+    const iconVal = Teams.teamIconNames.includes(iconEl?.value) ? iconEl.value : "star";
+
+    const summary = document.createElement("div");
+    summary.className = "pg-team-row-summary";
+    summary.innerHTML = `
+      <span class="pg-team-row-summary-icon" style="--pill-color:${escapeAttr(colorVal)}">${icon(iconVal, { size: 15 })}</span>
+      <span class="pg-team-row-summary-name">${escapeHtml(name)}</span>
+    `;
+    wrap.appendChild(summary);
+
+    const preview = document.createElement("div");
+    preview.className = "pg-team-row-preview d-none";
+    preview.dataset.teamRowPreview = String(i);
+    wrap.appendChild(preview);
+
+    if (teamDraw[i]?.length) {
+      updateTeamRowPreview(i, teamDraw[i], colorVal);
+    }
+  }
+}
+
+// Preenche (ou esconde, se ninguém foi sorteado) a linha logo abaixo do
+// nome da equipe (no resumo do passo 3) com quem ficou nela.
+function updateTeamRowPreview(i, members, color) {
+  const preview = document.querySelector(`[data-team-row-preview="${i}"]`);
+  if (!preview) return;
+
+  if (!members?.length) {
+    preview.classList.add("d-none");
+    preview.innerHTML = "";
+    return;
+  }
+
+  const colorVal = color ?? document.querySelector(`[data-team-color="${i}"]`)?.value ?? "#F4C430";
+  preview.style.setProperty("--pill-color", colorVal);
+  preview.title = "Ver todos os participantes";
+  preview.innerHTML = `
+    <span class="pg-team-row-preview-names">
+      ${icon("users", { size: 12 })}
+      ${escapeHtml(members.join(", "))}
+    </span>
+  `;
+  preview.classList.remove("d-none");
+}
+
+// Cada clique em "Sortear agora" já vale como resultado final — sem
+// "usar esse sorteio" separado. Grava direto em teamDraw (entra no save
+// quando "Criar equipes" for clicado) e atualiza a prévia embaixo de
+// cada equipe; clicar de novo (mesmo com gente nova adicionada) só
+// reembaralha e substitui o resultado anterior.
+function commitDrawResult(buckets) {
+  buckets.forEach((members, i) => {
+    teamDraw[i] = members;
+    updateTeamRowPreview(i, members);
+  });
+  const drawLabel = document.getElementById("btnDrawPeopleLabel");
+  if (drawLabel) drawLabel.textContent = "Sortear novamente";
+}
+
+function openTeamMembersModal({ name, color, icon: iconName, members }) {
+  const titleEl = document.getElementById("teamMembersModalTitle");
+  const listEl = document.getElementById("teamMembersModalList");
+  if (!titleEl || !listEl || !teamMembersModalInstance) return;
+
+  const safeIcon = Teams.teamIconNames.includes(iconName) ? iconName : "star";
+  titleEl.innerHTML = `
+    <span class="pg-team-members-modal-icon" style="--pill-color:${escapeAttr(color || "#F4C430")}">${icon(safeIcon, { size: 16 })}</span>
+    ${escapeHtml(name || "Equipe")}
+  `;
+
+  listEl.innerHTML = (members?.length ? members : [])
+    .map((m) => `<li>${escapeHtml(m)}</li>`)
+    .join("") || `<li class="pg-team-members-empty">Nenhum participante sorteado pra essa equipe ainda.</li>`;
+
+  teamMembersModalInstance.show();
 }
 
 function autoFillNames() {
@@ -954,7 +1207,7 @@ function autoFillNames() {
     if (!input) continue;
     if (!(input.value || "").trim()) input.value = names[i];
   }
-  validateTeamsForm();
+  updateTeamsStep1Cta();
 }
 
 function clearAllNames() {
@@ -964,8 +1217,14 @@ function clearAllNames() {
   for (let i = 0; i < count; i++) {
     const input = document.querySelector(`[data-team-name="${i}"]`);
     if (input) input.value = "";
+
+    // Limpar o nome da equipe também tira quem tinha sido sorteado pra
+    // ela — antes só o nome era limpo e a lista de participantes ficava
+    // esquecida, associada a um nome que nem existe mais.
+    delete teamDraw[i];
+    updateTeamRowPreview(i, []);
   }
-  validateTeamsForm();
+  updateTeamsStep1Cta();
 }
 
 
@@ -980,16 +1239,20 @@ function wireTeamsModal() {
   const btnDisable = document.getElementById("btnTeamsDisable");
   const btnClearNames = document.getElementById("btnTeamsClearNames");
 
-  const footerActions = document.getElementById("teamsFooterActions");
+  const summaryFooter = document.getElementById("teamsSummaryFooter");
   const deleteConfirm = document.getElementById("teamsDeleteConfirm");
   const btnDeleteCancel = document.getElementById("btnTeamsDeleteCancel");
   const btnDeleteConfirm = document.getElementById("btnTeamsDeleteConfirm");
+  const btnEdit = document.getElementById("btnTeamsEdit");
+
+  const btnBack = document.getElementById("btnTeamsBack");
+  const btnNext = document.getElementById("btnTeamsNext");
 
   if (!countSel || !teamsModal || !btnSave || !btnReset || !btnDisable) return;
 
   function hideDeleteConfirm() {
     deleteConfirm?.classList.add("d-none");
-    footerActions?.classList.remove("d-none");
+    summaryFooter?.classList.remove("d-none");
   }
 
   function syncCountButtons() {
@@ -1012,23 +1275,84 @@ function wireTeamsModal() {
     syncCountButtons();
   }
 
-  // monta form inicial
+  // monta form + decide qual visão mostrar (resumo se já tem equipes,
+  // assistente se for criar do zero)
   buildTeamsForm(Number(countSel.value || 2), true);
   renderTeamsModal();
+  if (Teams.isEnabled()) {
+    showTeamsSummaryView();
+  } else {
+    showTeamsWizardView();
+  }
 
   // clicar numa opção de quantidade => recria campos
   countToggle?.querySelectorAll(".pg-count-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       setCount(btn.dataset.count);
       buildTeamsForm(Number(countSel.value || 2), false);
+      updateTeamsStep1Cta();
     });
+  });
+
+  // ---- Pergunta "Quer sortear as pessoas entre as equipes?" ----
+  document.querySelectorAll("[data-ask]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      drawChoice = btn.dataset.ask;
+      document.querySelectorAll("[data-ask]").forEach((b) => b.classList.toggle("active", b === btn));
+      updateTeamsStep1Cta();
+    });
+  });
+
+  // ---- Navegação entre os 2 passos do assistente ----
+  btnBack?.addEventListener("click", () => {
+    if (currentTeamsStep === 2) {
+      goToTeamsStep(1);
+      return;
+    }
+    // Voltar no passo 1 só aparece quando tinha um resumo pra voltar.
+    showTeamsSummaryView();
+  });
+
+  btnNext?.addEventListener("click", () => {
+    if (!validateTeamsForm() || drawChoice !== "yes") return;
+    goToTeamsStep(2);
+  });
+
+  // "Editar equipes" na visão resumo => entra no assistente
+  btnEdit?.addEventListener("click", () => {
+    buildTeamsForm(Number(countSel.value || 2), true);
+    showTeamsWizardView();
   });
 
   // valida enquanto digita
   teamsModal.addEventListener("input", (e) => {
     const t = e.target;
-    if (t && (t.matches("[data-team-name]") || t.matches("[data-team-color]"))) {
-      validateTeamsForm();
+    if (!t) return;
+
+    // Remove símbolo/emoji na hora (também cobre colar texto, que dispara
+    // "input" igual) mantendo o cursor no lugar em vez de pular pro fim.
+    if (t.matches("[data-team-name]")) {
+      const original = t.value;
+      const sanitized = sanitizeTeamName(original);
+      if (sanitized !== original) {
+        const caret = t.selectionStart ?? original.length;
+        const removedBeforeCaret = original.slice(0, caret).length - sanitizeTeamName(original.slice(0, caret)).length;
+        t.value = sanitized;
+        const newCaret = Math.max(0, caret - removedBeforeCaret);
+        t.setSelectionRange(newCaret, newCaret);
+      }
+    }
+
+    if (t.matches("[data-team-name]") || t.matches("[data-team-color]")) {
+      updateTeamsStep1Cta();
+    }
+
+    // Ícone acompanha a cor da equipe em tempo real — reforça que os dois
+    // pertencem à mesma equipe (não são dois controles soltos).
+    if (t.matches("[data-team-color]")) {
+      const i = t.dataset.teamColor;
+      const trigger = document.querySelector(`[data-team-icon-trigger="${i}"]`);
+      if (trigger) trigger.style.setProperty("--icon-color", t.value);
     }
   });
 
@@ -1045,12 +1369,93 @@ function wireTeamsModal() {
     if (hidden) hidden.value = iconName;
 
     const preview = document.querySelector(`[data-team-icon-preview="${i}"]`);
-    if (preview) preview.innerHTML = icon(iconName, { size: 16 });
+    if (preview) preview.innerHTML = icon(iconName, { size: 20 });
+
+    dropdown.querySelectorAll(".pg-team-icon-option").forEach((opt) => {
+      opt.classList.toggle("active", opt === option);
+    });
   });
 
   // auto
   btnAutoNames?.addEventListener("click", autoFillNames);
   btnClearNames?.addEventListener("click", clearAllNames);
+
+  // ---- Passo 2: sorteio de participantes entre as equipes ----
+  const drawNamesList = document.getElementById("drawNamesList");
+  const btnDrawAddName = document.getElementById("btnDrawAddName");
+  const btnDrawPeople = document.getElementById("btnDrawPeople");
+
+  btnDrawAddName?.addEventListener("click", () => {
+    drawNamesList?.appendChild(createDrawNameRow());
+    drawNamesList?.lastElementChild?.querySelector("input")?.focus();
+  });
+
+  // Remover um campo específico (delegado, já que os campos são
+  // adicionados dinamicamente) — sempre deixa pelo menos 1 campo, pra
+  // não sumir com o painel inteiro.
+  drawNamesList?.addEventListener("click", (e) => {
+    const removeBtn = e.target.closest("[data-draw-name-remove]");
+    if (!removeBtn) return;
+    if (drawNamesList.children.length <= 1) {
+      const input = removeBtn.closest(".pg-teams-draw-name-row")?.querySelector("input");
+      if (input) input.value = "";
+      return;
+    }
+    removeBtn.closest(".pg-teams-draw-name-row")?.remove();
+  });
+
+  btnDrawPeople?.addEventListener("click", () => {
+    const drawErr = document.getElementById("drawError");
+    const names = collectDrawNames();
+    const count = Number(countSel.value || 2);
+
+    if (names.length === 0) {
+      if (drawErr) {
+        drawErr.textContent = "Preencha o nome de pelo menos uma pessoa.";
+        drawErr.classList.remove("d-none");
+      }
+      return;
+    }
+
+    // Precisa de pelo menos 1 nome por equipe — com 4 equipes e só 3
+    // nomes, uma delas ficaria sem ninguém. Bloqueia o sorteio até a
+    // quantidade de nomes bater (ou a pessoa reduzir o nº de equipes).
+    if (names.length < count) {
+      if (drawErr) {
+        const faltam = count - names.length;
+        drawErr.textContent = `Você escolheu ${count} equipes, mas digitou só ${names.length} ${names.length === 1 ? "nome" : "nomes"} — faltam pelo menos ${faltam} ${faltam === 1 ? "nome" : "nomes"} (ou reduza a quantidade de equipes).`;
+        drawErr.classList.remove("d-none");
+      }
+      return;
+    }
+    drawErr?.classList.add("d-none");
+
+    // Sorteia e já grava como resultado final — sem etapa de "aceitar"
+    // separada. Clicar de novo (mesmo com gente nova adicionada à
+    // lista) reembaralha tudo e substitui o resultado anterior; o que
+    // estiver valendo no momento de "Criar equipes" é o que é salvo.
+    commitDrawResult(distributeNames(names, count));
+  });
+
+  // Clicar na linha "quem ficou aqui" abre o modal com a lista completa
+  // (útil quando tem muita gente e o texto trunca).
+  teamsModal.addEventListener("click", (e) => {
+    const preview = e.target.closest("[data-team-row-preview]");
+    if (!preview) return;
+    const i = preview.dataset.teamRowPreview;
+    const members = teamDraw[i] ?? [];
+    if (!members.length) return;
+
+    const nameEl = document.querySelector(`[data-team-name="${i}"]`);
+    const colorEl = document.querySelector(`[data-team-color="${i}"]`);
+    const iconEl = document.querySelector(`[data-team-icon="${i}"]`);
+    openTeamMembersModal({
+      name: (nameEl?.value ?? "").trim() || `Equipe ${Number(i) + 1}`,
+      color: colorEl?.value,
+      icon: iconEl?.value,
+      members,
+    });
+  });
 
   // criar/salvar equipes
   btnSave.addEventListener("click", () => {
@@ -1065,15 +1470,16 @@ function wireTeamsModal() {
     bsModal.hide();
   });
 
-  // zerar placar
+  // zerar placar — continua na visão resumo, só atualiza os números
   btnReset.addEventListener("click", () => {
     Teams.resetScores();
     renderTeamsModal();
+    renderTeamsSummary();
   });
 
   // excluir equipes: pede confirmação inline (em vez de alert nativo)
   btnDisable.addEventListener("click", () => {
-    footerActions?.classList.add("d-none");
+    summaryFooter?.classList.add("d-none");
     deleteConfirm?.classList.remove("d-none");
   });
 
@@ -1082,8 +1488,12 @@ function wireTeamsModal() {
   btnDeleteConfirm?.addEventListener("click", () => {
     Teams.disable();
     renderTeamsModal();
-    buildTeamsForm(Number(countSel.value || 2), false);
+    setCount(2);
+    buildTeamsForm(2, false);
     hideDeleteConfirm();
+    // Não sobrou equipe nenhuma — só o assistente de criação faz
+    // sentido agora, não tem mais resumo pra mostrar.
+    showTeamsWizardView();
   });
 
   // re-render ao abrir
@@ -1095,6 +1505,12 @@ function wireTeamsModal() {
     buildTeamsForm(Number(countSel.value || 2), true);
     renderTeamsModal();
     hideDeleteConfirm();
+    // Já tem equipe? Mostra o resumo. Senão, direto pro assistente de criação.
+    if (Teams.isEnabled()) {
+      showTeamsSummaryView();
+    } else {
+      showTeamsWizardView();
+    }
   });
 
   // re-render ao mudar via evento

@@ -24,7 +24,10 @@
     </div>
     <div class="pgui-header__actions">
       <button id="scoreBtn" class="pgui-btn pgui-btn-outline pgui-btn-sm d-none">🏆 Placar</button>
-      <button id="exitBtn" class="pgui-btn pgui-btn-outline pgui-btn-sm">Sair</button>
+      <button id="exitBtn" class="pgui-btn pgui-btn-outline pgui-btn-sm" title="Voltar ao catálogo">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
+        Voltar
+      </button>
     </div>
   </header>
 
@@ -106,7 +109,7 @@
       <div class="pgui-panel__title">Letras desta rodada</div>
       <div class="ab-letters-preview" id="lettersPreview"></div>
       <hr class="pgui-divider">
-      <p class="pgui-small">19 letras no total (sem H, K, Q, W, X, Y, Z) — a rodada acaba quando elas se esgotam.</p>
+      <p class="pgui-small">10 letras por partida, sorteadas do alfabeto (sem H, K, Q, W, X, Y, Z) — a rodada acaba quando elas se esgotam.</p>
     </div>
   </main>
 
@@ -120,6 +123,7 @@
           <span class="pgui-team-badge__dot"></span>
           Vez de: <span id="turnBannerTeam">—</span>
         </div>
+        <span class="pgui-badge pgui-badge-neutral" id="pointsValue">Vale 1 ponto</span>
       </div>
     </div>
 
@@ -139,6 +143,7 @@
     <div class="pgui-game-layout__actions">
       <div class="pgui-actions">
         <button id="correctBtn" class="pgui-btn pgui-btn-success">✅ Acertou</button>
+        <button id="wrongBtn" class="pgui-btn pgui-btn-danger">❌ Errou</button>
         <button id="passBtn" class="pgui-btn pgui-btn-warning">⏭️ Passou</button>
         <button id="restartBtn" class="pgui-btn pgui-btn-outline">🔁 Reiniciar</button>
         <button id="endBtn" class="pgui-btn pgui-btn-outline">⏹️ Encerrar</button>

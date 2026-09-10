@@ -1,40 +1,57 @@
 .panel{
-  width: min(1000px, 96vw);
+  /* width em % (não vw): vw é relativo à viewport inteira e ignora o
+     padding do .presenter-center, então podia passar alguns px do espaço
+     disponível e abrir uma rolagem horizontal no meio da tela. */
+  max-width: 1000px;
+  width: 100%;
   border-radius: 18px;
   border: 1px solid rgba(255,255,255,.14);
   background: rgba(0,0,0,.35);
   box-shadow: 0 10px 30px rgba(0,0,0,.35);
-  padding: 18px 18px 14px;
+  padding: 16px 18px 12px;
 }
 
 .panel-title{
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 16px;
+  font-size: 14px;
   color: #ffc107;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .hints{
   margin: 0;
   padding-left: 22px;
   display: grid;
-  gap: 12px;
+  gap: 8px;
 }
 
+/* Fonte menor que antes (era clamp(26px,4.8vw,72px)) — com 3 dicas + resposta
+   visíveis ao mesmo tempo, o texto grande demais estourava a altura da tela
+   e cortava a resposta, obrigando a rolar pra ver (ver .presenter-center no
+   game-base.css: só ele rola, então o conteúdo em si precisa caber melhor). */
 .hints li{
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  line-height: 1.08;
-  font-size: clamp(26px, 4.8vw, 72px);
+  line-height: 1.1;
+  font-size: clamp(18px, 3vw, 42px);
   user-select: none;
 }
 
+/* Marcador "N." já visível antes da dica ser revelada (ver
+   buildHintPlaceholders no game.js) — mostra quantas dicas a rodada vai
+   ter sem entregar o conteúdo, só uma reticência apagada no lugar. */
+.hints li.hint-pending {
+  color: rgba(255, 255, 255, .25);
+  font-weight: 700;
+  letter-spacing: 0.3em;
+}
+
 .answer{
-  margin-top: 14px;
-  padding: 12px 14px;
+  margin-top: 10px;
+  padding: 10px 14px;
   border-radius: 14px;
   border: 1px solid rgba(255,255,255,.14);
   background: rgba(0,0,0,.35);
@@ -44,6 +61,60 @@
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: clamp(28px, 5.2vw, 78px);
-  line-height: 1.05;
+  font-size: clamp(20px, 3.4vw, 48px);
+  line-height: 1.1;
+}
+
+/* Formato "disputa": um botão de pontuação por equipe ativa — só aparece
+   depois de "Mostrar resposta" (ver game.js), pra confirmar a resposta
+   antes de dar o ponto pra equipe certa. Layout (.team-score-row) vem do
+   game-base.css; aqui só o estilo do botão em si. */
+.qs-team-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 10px 22px;
+  border-radius: 14px;
+  border: none;
+  background: var(--team-color, var(--gold));
+  color: #0b1220;
+  font-weight: 800;
+  font-size: 1.05rem;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .25);
+  transition: transform .15s ease, filter .15s ease;
+}
+
+.qs-team-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.qs-team-btn:active {
+  transform: translateY(0);
+}
+
+.qs-team-btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.qs-team-btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, .18);
+}
+
+@media (max-width: 420px) {
+  .qs-team-btn {
+    width: 100%;
+    justify-content: center;
+  }
 }

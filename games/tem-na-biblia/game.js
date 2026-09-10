@@ -6,6 +6,10 @@ import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from '../../ass
 /* Alfabeto do jogo: todas as letras menos as difíceis (H, K, Q, W, X, Y, Z). */
 const LETTERS_ALL = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'I', 'J', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'V'];
 
+// Máximo de rodadas (letras) por partida (evita jogar o alfabeto inteiro de
+// uma vez).
+const ROUND_SIZE = 10;
+
 const CATEGORY_LABELS = {
   biblia: 'Tem na Bíblia com...',
   nomes: 'Nomes',
@@ -37,6 +41,7 @@ const timerTime = document.getElementById('timerTime');
 const timerBar = document.getElementById('timerBar');
 
 const correctBtn = document.getElementById('correctBtn');
+const wrongBtn = document.getElementById('wrongBtn');
 const passBtn = document.getElementById('passBtn');
 const restartBtn = document.getElementById('restartBtn');
 const endBtn = document.getElementById('endBtn');
@@ -106,7 +111,7 @@ function renderTurnBanner() {
 
 /* ===== Letras ===== */
 function initLetterPool() {
-  letterPool = shuffleArray(LETTERS_ALL);
+  letterPool = shuffleArray(LETTERS_ALL).slice(0, ROUND_SIZE);
   usedLetters = [];
 }
 
@@ -124,12 +129,13 @@ function showLetter() {
 }
 
 function updateBadgeProgress() {
-  badgeProgress.textContent = `Letra ${usedLetters.length}/${LETTERS_ALL.length}`;
+  const total = usedLetters.length + letterPool.length;
+  badgeProgress.textContent = `Letra ${usedLetters.length}/${total}`;
 }
 
 /* ===== Cronômetro por resposta =====
    Tempo esgotado sem resposta conta como "Passou" (sem botão de errar).
-   Mesmo estilo/API dos jogos mais recentes (Palavras Misturadas, Emojis):
+   Mesmo estilo/API dos jogos mais recentes (Palavras Embaralhadas, Emojis):
    texto + barra linear via createCountdownTimer, em vez do anel circular. */
 function initTimer() {
   answerTimerCtl = createCountdownTimer({
@@ -177,21 +183,23 @@ function startGame() {
 }
 
 /* =========================
-   AUTO START VIA URL
-   ?play=1&category=...&time=... — mesmo contrato usado pelos outros jogos
-   (assets/js/app.js, buildGameUrl). Só funciona se equipes já estiverem
-   prontas; caso contrário a tela de setup fica como estava.
+   AUTO START — a tela de configuração ficou só no modal do catálogo
+   (que já barra "Jogar" sem equipes ativas — ver assets/js/app.js).
+   Se mesmo assim alguém cair aqui sem equipes (link direto, por
+   exemplo), volta pro catálogo em vez de mostrar uma tela quebrada.
 ========================= */
 function checkAutoStartFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('play') !== '1') return;
+  if (!Teams.isEnabled()) {
+    window.location.href = '../../index.html#catalogo';
+    return;
+  }
 
+  const params = new URLSearchParams(window.location.search);
   const cat = params.get('category');
   const time = params.get('time');
   if (cat) selectCategory(cat);
   if (time) selectTime(Number(time));
 
-  if (startBtn.disabled) return;
   startGame();
 }
 
@@ -217,12 +225,11 @@ function onCorrect() {
   processing = false;
 }
 
-/** Passa a vez com a mesma letra — só sorteia letra nova quando o turno
- * voltaria a cair numa equipe que já tentou essa letra sem acertar. */
-function onPass() {
-  if (!roundActive || processing) return;
-  processing = true;
-
+/** Passa a vez ou registra erro com a mesma letra — só sorteia letra nova
+ * quando o turno voltaria a cair numa equipe que já tentou essa letra sem
+ * acertar. Compartilhado por "Passou" (não tentou) e "Errou" (tentou e
+ * falou palavra errada). */
+function advanceTurnSameLetter() {
   Teams.nextTurn();
   const newTeamId = Teams.currentTeam()?.id;
 
@@ -243,6 +250,22 @@ function onPass() {
   processing = false;
 }
 
+function onPass() {
+  if (!roundActive || processing) return;
+  processing = true;
+  advanceTurnSameLetter();
+}
+
+/** Time atual falou uma palavra errada: desconta o ponto que estava em
+ * jogo e passa a vez (mesma letra), igual ao "Passou". */
+function onWrong() {
+  if (!roundActive || processing) return;
+  processing = true;
+
+  Teams.addPoint(-1);
+  advanceTurnSameLetter();
+}
+
 /** Fim natural da rodada (letras esgotadas): popup em destaque com o
  * placar final, "bem bonito" em vez do card discreto de antes. */
 function endRoundNatural() {
@@ -250,6 +273,7 @@ function endRoundNatural() {
   answerTimerCtl.stop();
 
   correctBtn.classList.add('d-none');
+  wrongBtn.classList.add('d-none');
   passBtn.classList.add('d-none');
 
   showScorePopup({
@@ -263,6 +287,7 @@ function endRoundNatural() {
  * (no popup de fim de rodada). */
 function resetRoundState() {
   correctBtn.classList.remove('d-none');
+  wrongBtn.classList.remove('d-none');
   passBtn.classList.remove('d-none');
 
   Teams.setTurn(0);
@@ -302,6 +327,7 @@ function wireUI() {
   });
 
   correctBtn.addEventListener('click', onCorrect);
+  wrongBtn.addEventListener('click', onWrong);
   passBtn.addEventListener('click', onPass);
 
   restartBtn.addEventListener('click', async () => {

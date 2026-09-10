@@ -1,6 +1,20 @@
 {
   "settings": [
     {
+      "key": "time",
+      "label": "Tempo (segundos)",
+      "type": "select",
+      "default": 30,
+      "options": [
+        { "value": 0, "label": "Sem tempo" },
+        { "value": 15, "label": "15s" },
+        { "value": 30, "label": "30s" },
+        { "value": 45, "label": "45s" },
+        { "value": 60, "label": "60s" },
+        { "value": 90, "label": "90s" }
+      ]
+    },
+    {
       "key": "custom",
       "type": "word-list",
       "label": "Palavras extras (opcional)",
@@ -10,11 +24,12 @@
     }
   ],
   "howTo": [
-    "Clique em Nova palavra para sortear a próxima.",
-    "Use em grupo: alguém escolhe uma música e o grupo tenta adivinhar a palavra."
+    "Uma palavra aparece na tela.",
+    "A equipe da vez tem o tempo do timer para cantar uma música com essa palavra.",
+    "Acertou marca ponto e passa a palavra; Errou desconta o mesmo valor. Passar a vez chama a próxima equipe (o valor do ponto dobra)."
   ],
   "tips": [
-    "Atalho: Espaço = próxima palavra",
+    "Atalho: Espaço = nova palavra",
     "Se acabar a lista, clique em Jogar novamente."
   ]
 }

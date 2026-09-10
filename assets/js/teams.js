@@ -2,6 +2,11 @@
 const KEY = "bibflix_teams_v1";
 const SESSION_KEY = "bibflix_session_v1";
 
+// Equipes ficam guardadas em localStorage, mas por sessão de aba: se o
+// navegador for fechado e reaberto (sessionStorage não sobrevive a isso),
+// zeramos tudo de propósito. Intencional — fechou e abriu de novo pode ser
+// outro dia com outras pessoas, então o esperado é começar do zero, não
+// herdar equipes/placar antigos.
 function ensureSession() {
   let sid = sessionStorage.getItem(SESSION_KEY);
   if (!sid) {
@@ -71,6 +76,7 @@ function defaultColors(n) {
 const TEAM_ICON_NAMES = [
   "paw", "flame", "cloud", "tree", "harp",
   "star", "heart", "flag", "book", "crown",
+  "trophy", "music", "music-note", "users", "check",
 ];
 
 function defaultIcons(n) {
@@ -115,7 +121,11 @@ export const Teams = {
       name: String(t.name ?? "").trim(),
       color: String(t.color ?? "").trim() || defaultColors(teams.length)[i],
       icon: String(t.icon ?? "").trim() || defaultIcons(teams.length)[i],
-      score: Number(t.score ?? 0)
+      score: Number(t.score ?? 0),
+      // Participantes sorteados entre as equipes — opcional (ver
+      // btnDrawPeople/btnDrawAccept em app.js). Sempre um array, mesmo
+      // vazio, pra quem lê `team.members` não precisar checar undefined.
+      members: Array.isArray(t.members) ? t.members.map((m) => String(m).trim()).filter(Boolean) : []
     }));
 
     const st = {

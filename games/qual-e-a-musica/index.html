@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Qual é a Música? • PlayGospel</title>
 
+  <!-- Jogo marcado como "unavailable" no catálogo (games.json) — ainda não
+       foi liberado. Bloqueia acesso direto pela rota também, não só o
+       clique no card; redireciona antes de qualquer coisa renderizar. -->
+  <script>
+    location.replace("../../index.html");
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -31,7 +38,10 @@
     </div>
     <div class="pgui-header__actions">
       <button id="scoreBtn" class="pgui-btn pgui-btn-outline pgui-btn-sm d-none">🏆 Placar</button>
-      <button id="exitBtn" class="pgui-btn pgui-btn-outline pgui-btn-sm">Sair</button>
+      <button id="exitBtn" class="pgui-btn pgui-btn-outline pgui-btn-sm" title="Voltar ao catálogo">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
+        Voltar
+      </button>
     </div>
   </header>
 
@@ -136,15 +146,13 @@
           <div class="qam-draw-result__caption">Prepare-se!</div>
         </div>
 
-        <!-- Fase de escuta/resposta: quantidade de notas em destaque à
-             esquerda, teclado + mini player (inalterados) no centro, e os
-             botões de ação grandes à direita — 3 colunas só nessa fase;
-             o resto da tela (sorteio, revelação) continua em coluna única. -->
+        <!-- Fase de escuta/resposta: teclado + mini player (maiores agora que
+             sobra mais espaço) no centro, e as ações à direita — 2 colunas só
+             nessa fase; o resto da tela (sorteio, revelação) continua em
+             coluna única. O número de notas sorteado (antes numa coluna
+             própria à esquerda) agora fica compacto ao lado do botão "Ouvir
+             música", liberando a esquerda pro teclado crescer. -->
         <div class="qam-listen-layout">
-          <div class="qam-listen-left">
-            <div class="qam-notes-badge d-none" id="stageText"></div>
-          </div>
-
           <div class="qam-listen-center">
             <!-- Teclado visual (vista de cima, sem mão): mostra quais teclas
                  estão soando enquanto o trecho toca — ver assets/js/piano-keyboard.js -->
@@ -160,13 +168,17 @@
           </div>
 
           <div class="qam-listen-actions">
-            <button id="replayBtn" class="pgui-btn pgui-btn-secondary pgui-btn-lg qam-replay-btn d-none">
-              <span class="qam-replay-btn__icon" aria-hidden="true">🔊</span>
-              <span class="qam-replay-btn__text">
-                <span class="qam-replay-btn__label" id="replayLabel">Ouvir música</span>
-                <span class="qam-replay-btn__sub" id="replaySubLabel"></span>
-              </span>
-            </button>
+            <div class="qam-replay-row">
+              <button id="replayBtn" class="pgui-btn pgui-btn-secondary pgui-btn-lg qam-replay-btn d-none">
+                <span class="qam-replay-btn__icon" aria-hidden="true">🔊</span>
+                <span class="qam-replay-btn__text">
+                  <span class="qam-replay-btn__label" id="replayLabel">Ouvir música</span>
+                  <span class="qam-replay-btn__sub" id="replaySubLabel"></span>
+                </span>
+              </button>
+
+              <div class="qam-notes-badge d-none" id="stageText"></div>
+            </div>
 
             <button id="correctBtn" class="pgui-btn pgui-btn-success pgui-btn-lg d-none">✅ Acertou</button>
             <button id="wrongBtn" class="pgui-btn pgui-btn-danger pgui-btn-lg d-none">❌ Errou</button>
@@ -174,21 +186,33 @@
           </div>
         </div>
 
+        <!-- Revelação: vídeo à esquerda, informações da música + ação de
+             próxima rodada à direita — lado a lado em vez de empilhado,
+             pra caber inteiro na primeira dobra em desktop/tablet (um
+             vídeo grande empilhado com todo o resto ficava alto demais). -->
         <div class="pgui-card qam-reveal-panel d-none" id="revealPanel">
-          <div class="qam-reveal-outcome" id="revealOutcome">—</div>
+          <div class="qam-reveal-layout">
+            <div class="qam-reveal-media">
+              <!-- Toca automaticamente ao revelar (acertou OU errou) — a
+                   equipe sempre vê/ouve a música de verdade no final. O
+                   botão abaixo só controla parar/tocar de novo. -->
+              <div id="originalEmbed" class="qam-original-embed"></div>
+              <button type="button" class="pgui-btn pgui-btn-outline pgui-btn-sm qam-reveal-stop" id="btnPlayOriginal">▶ Ouvir música original</button>
+            </div>
 
-          <div class="qam-reveal-song">
-            <div class="qam-reveal-title" id="revealTitle">—</div>
-            <div class="qam-reveal-artist" id="revealArtist">—</div>
+            <div class="qam-reveal-info">
+              <div class="qam-reveal-outcome" id="revealOutcome">—</div>
+
+              <div class="qam-reveal-song">
+                <div class="qam-reveal-title" id="revealTitle">—</div>
+                <div class="qam-reveal-artist" id="revealArtist">—</div>
+              </div>
+
+              <div class="qam-reveal-hints" id="revealHints"></div>
+
+              <button id="nextSongBtn" class="pgui-btn pgui-btn-primary pgui-btn-lg d-none">▶ Próxima música</button>
+            </div>
           </div>
-
-          <div class="qam-reveal-hints" id="revealHints"></div>
-
-          <!-- Toca automaticamente ao revelar (acertou OU errou) — a
-               equipe sempre vê/ouve a música de verdade no final. O botão
-               abaixo só controla parar/tocar de novo. -->
-          <div id="originalEmbed" class="qam-original-embed"></div>
-          <button type="button" class="pgui-btn pgui-btn-outline pgui-btn-sm qam-reveal-stop" id="btnPlayOriginal">▶ Ouvir música original</button>
         </div>
       </div>
     </div>
@@ -202,11 +226,6 @@
       </div>
     </div>
 
-    <div class="pgui-game-layout__actions">
-      <div class="pgui-actions">
-        <button id="nextSongBtn" class="pgui-btn pgui-btn-primary d-none">▶ Próxima música</button>
-      </div>
-    </div>
   </main>
 
   <script type="module" src="game.js"></script>

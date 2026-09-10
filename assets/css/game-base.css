@@ -32,15 +32,6 @@ body {
   height: 100dvh;
 }
 
-.brand-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--gold);
-  display: inline-block;
-  flex: 0 0 auto;
-}
-
 /* ==============================
    TOPBAR (marca + placar + ações)
    Visível na tela de setup e na de apresentação.
@@ -65,20 +56,50 @@ body {
 .game-topbar-brand {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   color: var(--text-main);
   text-decoration: none;
   font-weight: 600;
   white-space: nowrap;
 }
 
-.game-topbar-brand:hover {
+.game-topbar-brand:hover .game-topbar-game {
   color: var(--gold);
 }
 
+.game-topbar-logo {
+  height: 36px;
+  flex: 0 0 auto;
+}
+
+@media (min-width: 641px) {
+  .game-topbar-logo {
+    height: 62px;
+  }
+}
+
+/* Centralizado no header, independente da largura da logo à esquerda ou
+   dos botões à direita — sai do fluxo normal (fica só a logo dentro de
+   .game-topbar-brand) e centraliza em relação à barra toda.
+   .game-topbar (position:sticky) já serve de containing block. Continua
+   dentro do link da marca no HTML, então clicar no nome ainda volta ao
+   catálogo. Só no desktop — no mobile a barra empilha em coluna (ver
+   media query max-width:640px) e o nome volta a ficar ao lado da logo. */
 .game-topbar-game {
-  color: var(--text-muted);
-  font-weight: 400;
+  color: var(--text-main);
+  font-weight: 700;
+  font-size: 1.05rem;
+  transition: color .15s ease;
+}
+
+@media (min-width: 641px) {
+  .game-topbar-game {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+  }
 }
 
 .game-topbar-actions {
@@ -151,29 +172,6 @@ body {
   font-weight: 800;
 }
 
-/* Banner "vez de responder", usado nos jogos com equipes e turno.
-   Mais visível que só o destaque no chip do placar. */
-.turn-banner {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 20px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, .08);
-  border: 2px solid var(--team-color, var(--gold));
-  font-weight: 700;
-  font-size: clamp(16px, 2.4vw, 26px);
-}
-
-.turn-banner-label {
-  color: var(--text-muted);
-}
-
-.turn-banner-team {
-  color: var(--team-color, var(--gold));
-  font-weight: 900;
-}
-
 /* ==============================
    PRESENTER (tela de apresentação)
 ================================= */
@@ -193,29 +191,139 @@ body {
 .presenter-top {
   flex: 0 0 auto;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px 0;
 }
 
-.presenter-badges {
+/* ==============================
+   BLOCO DE RODADA (rodada, dificuldade/categoria, tempo, pontos...) —
+   padrão adotado do "Qual é a Música?" (.qam-topbar-box): caixas com
+   rótulo em cima e valor embaixo, em vez de badges pequenas soltas.
+   Cada jogo usa as caixas que fizerem sentido pra ele (ver cada index.html).
+   Todas na mesma linha (quebra naturalmente em telas estreitas).
+================================= */
+.round-topbar {
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
+  align-items: flex-start;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
+}
+
+.round-box {
+  flex: 0 0 auto;
+  min-width: 0;
+  padding: 10px 20px;
+  background: var(--bg-secondary);
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 18px;
+  text-align: left;
+}
+
+.round-box-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 3px;
+  white-space: nowrap;
+}
+
+/* Ícone que identifica o tipo de caixa (rodada, categoria, vez, pontos...) —
+   mesmo traço/proporção dos ícones do playgospel-ui (24x24, stroke 2). */
+.round-box-icon {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  color: var(--text-muted);
+}
+
+.round-box-value {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Caixa "vez da equipe": mesma caixa das outras (fica na mesma linha,
+   junto com dificuldade/rodada/tempo etc — quebra pra próxima linha
+   naturalmente se não couber), mas com preenchimento sólido na cor da
+   equipe da vez, pra saltar aos olhos à distância (era só uma borda fina
+   antes, fácil de não notar). Rótulo e valor ficam lado a lado numa linha
+   só, com texto escuro (mesmo padrão de contraste do .team-chip-score). */
+.round-box--team {
+  flex: 1 1 200px;
+  background: var(--team-color, var(--gold));
+  border-color: var(--team-color, var(--gold));
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.round-box--team .round-box-label {
+  margin-bottom: 0;
+  color: rgba(11, 18, 32, .65);
+}
+
+.round-box--team .round-box-value {
+  color: #0B1220;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1.05rem;
+}
+
+.round-box--team .round-box-icon {
+  color: #0B1220;
+}
+
+/* Texto de dica/estado ao lado do bloco de rodada (ex: #hintText, #statusText) —
+   filho direto de .presenter-top, pra não pegar outros ".text-secondary.small"
+   da página (que devem continuar discretos). */
+.presenter-top > .text-secondary {
+  font-size: 1.05rem;
+}
+
+/* Cartão do timer — na mesma linha e com a mesma cara das outras caixas de
+   rodada (fundo, borda, cantos, rótulo com ícone), só que com espaço pra
+   barra de progresso embaixo do número. */
+.timer-card {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 20px;
+  background: var(--bg-secondary);
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 18px;
 }
 
 .timer-wrap {
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
+  gap: 6px;
+  width: 180px;
+  max-width: 100%;
+}
+
+.timer-wrap .progress {
+  width: 100%;
 }
 
 .timer-text {
   font-weight: 800;
   color: var(--gold);
+  font-size: 1.3rem;
+  line-height: 1;
 }
 
 .presenter-center {
@@ -224,11 +332,23 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  /* "safe" faz o navegador cair pro alinhamento inicial quando o conteúdo
+     não cabe, em vez de continuar centralizando — sem isso, um texto alto
+     (ex: versículo longo em tela baixa) fica cortado tanto em cima quanto
+     embaixo mesmo com scroll no topo (0), porque o flexbox centraliza o
+     conteúdo antes de considerar o overflow. */
+  justify-content: safe center;
   gap: 24px;
   padding: 24px 16px;
   text-align: center;
   overflow-y: auto;
+  /* overflow-x explícito: só ter overflow-y:auto já faz o navegador tratar
+     overflow-x como "auto" também (regra do CSS quando um eixo não é
+     "visible") — e um filho como .panel (width: min(1000px, 96vw), calculado
+     em cima da viewport, não do espaço já com padding deste container) pode
+     passar alguns px do disponível e abrir uma barra de rolagem horizontal
+     bem no meio da tela. hidden aqui garante que isso nunca aconteça. */
+  overflow-x: hidden;
 }
 
 /* Texto grande e centralizado, feito para ser lido à distância.
@@ -237,8 +357,12 @@ body {
   font-weight: 900;
   line-height: 1.12;
   letter-spacing: 0.02em;
+  /* width em % (não vw) respeita o espaço já com padding do
+     .presenter-center — vw é relativo à viewport inteira, então podia passar
+     alguns px do espaço disponível e abrir a rolagem horizontal descrita
+     acima do .presenter-center. */
   max-width: 1200px;
-  width: min(1200px, 94vw);
+  width: 100%;
   font-size: clamp(28px, 7vw, 100px);
   user-select: none;
 }
@@ -248,13 +372,31 @@ body {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 12px;
-  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+  gap: 14px;
+  padding: 20px 16px calc(20px + env(safe-area-inset-bottom));
 }
 
 .presenter-bottom .btn {
-  min-width: 150px;
-  min-height: 44px;
+  min-width: 170px;
+  min-height: 56px;
+  padding: 12px 26px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  border-radius: 12px;
+}
+
+/* Formato "disputa" (Palavras Embaralhadas, Emojis, Quem Sou Eu): um botão de
+   pontuação por equipe ativa — todas as equipes veem a mesma pergunta/palavra,
+   e quem acertar primeiro ganha o ponto. Layout compartilhado; o estilo de
+   cada botão (cor, ícone) continua no game.css de cada jogo, porque a classe
+   do botão varia (.pm-team-btn, .ae-team-btn, .qs-team-btn etc). */
+.team-score-row {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  padding: 0 16px 4px;
 }
 
 /* ==============================
@@ -280,12 +422,45 @@ body {
   }
 
   .presenter-top {
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
   }
 
+  .round-topbar {
+    justify-content: center;
+    width: 100%;
+  }
+
+  /* No mobile a caixa "vez de..." cresce pra ocupar a linha toda sozinha
+     quando quebra (nome de equipe + preenchimento sólido merecem destaque
+     total, não dividir metade da largura com a caixa vizinha). */
+  .round-box--team {
+    flex-basis: 100%;
+  }
+
+  .round-box {
+    padding: 6px 14px;
+  }
+
+  .round-box-value {
+    font-size: .9rem;
+  }
+
+  .presenter-top > .text-secondary {
+    font-size: .92rem;
+  }
+
+  .timer-card {
+    padding: 8px 14px;
+  }
+
   .timer-wrap {
-    align-items: center;
+    width: 140px;
+  }
+
+  .timer-text {
+    font-size: 1.1rem;
   }
 
   .presenter-center {

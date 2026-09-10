@@ -23,6 +23,20 @@
   display: block;
 }
 
+/* Nome do jogo centralizado no header (não colado do lado da logo) —
+   .ab-topheader (sticky) já serve de containing block. Só no desktop:
+   no mobile os itens já quebram linha (.pgui-header vem com
+   flex-wrap:wrap da lib), então o nome fica melhor no fluxo normal. */
+@media (min-width: 641px) {
+  .ab-topheader .pgui-title {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+  }
+}
+
 /* .pgui-game-layout tem min-height:100vh (assume que é a página inteira),
    mas aqui ele fica ABAIXO do .ab-topheader — sem esse ajuste, a altura
    real da página vira header + 100vh, sempre estourando o viewport em

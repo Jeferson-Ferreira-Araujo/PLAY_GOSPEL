@@ -302,16 +302,17 @@ function startGame() {
 }
 
 /* =========================
-   AUTO START VIA URL
-   ?play=1 — mesmo contrato usado pelos outros jogos (assets/js/app.js,
-   buildGameUrl). Só funciona se equipes e músicas já estiverem prontas;
-   caso contrário a tela de setup fica como estava (ela já explica o que
-   falta), sem inventar uma segunda tela de instruções.
+   AUTO START — a tela de configuração ficou só no modal do catálogo (que
+   já barra "Jogar" sem equipes ativas — ver assets/js/app.js). Se mesmo
+   assim alguém cair aqui sem equipes ou sem músicas cadastradas (link
+   direto, por exemplo), volta pro catálogo em vez de mostrar uma tela
+   quebrada.
 ========================= */
 function checkAutoStartFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('play') !== '1') return;
-  if (startBtn.disabled) return;
+  if (startBtn.disabled) {
+    window.location.href = '../../index.html#catalogo';
+    return;
+  }
   startGame();
 }
 
@@ -585,8 +586,14 @@ function showDrawResult() {
 }
 
 /** Prepara a tentativa atual (recém-sorteada ou após um "Passar" — nesse
- * caso roundN/attemptValue já vêm incrementados de resolveOutcome). */
+ * caso roundN/attemptValue já vêm incrementados de resolveOutcome).
+ * Guarda defensiva: isso é chamado a partir de um setTimeout (fim da
+ * revelação do sorteio) — se por qualquer motivo esse timeout disparar
+ * depois da equipe já ter respondido (revelação da música já na tela),
+ * nunca deve reabrir o teclado/"Ouvir música" por cima da resposta. */
 function beginAttempt() {
+  if (!revealPanel.classList.contains('d-none')) return;
+
   drawHeading.classList.add('d-none');
   drawIdleCaption.classList.add('d-none');
   drawSpinCaption.classList.add('d-none');
@@ -594,7 +601,6 @@ function beginAttempt() {
 
   stageText.classList.remove('d-none');
   stageText.innerHTML = `
-    <div class="qam-notes-badge__icon" aria-hidden="true">🎵</div>
     <div class="qam-notes-badge__number">${roundN}</div>
     <div class="qam-notes-badge__label">${roundN === 1 ? 'nota' : 'notas'}</div>
   `;

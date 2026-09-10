@@ -12,3 +12,57 @@
 .btn-outline-light {
   border-width: 1px;
 }
+
+/* Formato "disputa": um botão de pontuação por equipe ativa — só aparece
+   depois de "Revelar" (ver game.js), pra confirmar a resposta antes de
+   dar o ponto pra equipe certa. Layout (.team-score-row) vem do
+   game-base.css; aqui só o estilo do botão em si. */
+.qd-team-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 10px 22px;
+  border-radius: 14px;
+  border: none;
+  background: var(--team-color, var(--gold));
+  color: #0b1220;
+  font-weight: 800;
+  font-size: 1.05rem;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .25);
+  transition: transform .15s ease, filter .15s ease;
+}
+
+.qd-team-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.qd-team-btn:active {
+  transform: translateY(0);
+}
+
+.qd-team-btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.qd-team-btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, .18);
+}
+
+@media (max-width: 420px) {
+  .qd-team-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
