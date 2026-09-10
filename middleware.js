@@ -61,7 +61,13 @@ export default function middleware(request) {
   const user = sepIndex === -1 ? decoded : decoded.slice(0, sepIndex);
   const pass = sepIndex === -1 ? '' : decoded.slice(sepIndex + 1);
 
-  if (user !== expectedUser || pass !== expectedPass) return unauthorized('credenciais-nao-batem');
+  if (user !== expectedUser || pass !== expectedPass) {
+    // Só tamanhos (não conteúdo) pra achar espaço/quebra de linha extra
+    // colado sem querer no valor da variável de ambiente.
+    return unauthorized(
+      `credenciais-nao-batem:recebido(u=${user.length},p=${pass.length}):esperado(u=${expectedUser.length},p=${expectedPass.length})`
+    );
+  }
 
   // Credenciais corretas — deixa a requisição seguir normalmente pro
   // arquivo estático pedido (equivalente ao next() de @vercel/functions,
