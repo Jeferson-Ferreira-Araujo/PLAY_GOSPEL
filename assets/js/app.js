@@ -304,12 +304,49 @@ function wireWelcomeModal() {
   modal.show();
 }
 
+/* =========================
+   MODAL "APOIE ESSE PROJETO" — botão de copiar a chave PIX
+========================= */
+function wireSupportModal() {
+  const btn = document.getElementById("btnCopyPix");
+  const keyEl = document.getElementById("supportPixKey");
+  if (!btn || !keyEl) return;
+
+  const label = btn.querySelector("span");
+  const original = label?.textContent || "Copiar";
+  let resetTimer = null;
+
+  btn.addEventListener("click", async () => {
+    const key = keyEl.textContent.trim();
+    try {
+      await navigator.clipboard.writeText(key);
+    } catch {
+      // navegadores sem permissão de clipboard (ou http) — fallback
+      const range = document.createRange();
+      range.selectNodeContents(keyEl);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      try { document.execCommand("copy"); } catch { /* nada a fazer */ }
+      sel.removeAllRanges();
+    }
+    btn.classList.add("is-copied");
+    if (label) label.textContent = "Copiado!";
+    clearTimeout(resetTimer);
+    resetTimer = setTimeout(() => {
+      btn.classList.remove("is-copied");
+      if (label) label.textContent = original;
+    }, 2000);
+  });
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   modalInstance = new bootstrap.Modal(document.getElementById("gameModal"));
   teamMembersModalInstance = new bootstrap.Modal(document.getElementById("teamMembersModal"));
 
   renderFooterVerse();
   wireWelcomeModal();
+  wireSupportModal();
 
   await loadGames();
 

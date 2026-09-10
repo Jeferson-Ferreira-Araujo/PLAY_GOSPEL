@@ -643,33 +643,84 @@
 }
 
 /* ==============================
-   MODAL "SOBRE ESSE PROJETO"
+   MODAL "APOIE ESSE PROJETO"
 ================================= */
 
-.pg-about-text {
+/* Coração dourado no item do menu — pra chamar atenção sem gritar. */
+.pg-header-nav-link--support svg {
+  color: var(--gold);
+}
+
+.pg-support-text {
   color: var(--text-main);
   font-size: .92rem;
   line-height: 1.55;
 }
 
-.pg-about-social {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 6px;
-  padding: 9px 16px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, .06);
-  color: var(--text-main);
-  font-size: .85rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: background .15s ease, color .15s ease;
+.pg-support-pix {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(244, 196, 48, .08);
+  border: 1px solid rgba(244, 196, 48, .28);
 }
 
-.pg-about-social:hover {
+.pg-support-pix-label {
+  display: block;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.pg-support-pix-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pg-support-pix-row code {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: inherit;
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--text-main);
+  word-break: break-all;
+}
+
+.pg-support-pix-copy {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: none;
   background: var(--gold);
   color: var(--bg-main);
+  font-weight: 700;
+  font-size: .82rem;
+  cursor: pointer;
+  transition: background .15s ease;
+}
+
+.pg-support-pix-copy:hover {
+  background: var(--gold-hover);
+}
+
+.pg-support-pix-copy.is-copied {
+  background: #7CFF6B;
+}
+
+.pg-support-pix-note {
+  display: block;
+  margin-top: 8px;
+  font-size: .75rem;
+  color: var(--text-muted);
 }
 
 /* ==============================
