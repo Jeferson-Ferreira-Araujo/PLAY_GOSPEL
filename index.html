@@ -117,6 +117,64 @@
     </div>
   </div>
 
+  <!-- MODAL DE BOAS-VINDAS — aparece só na primeira visita (ver
+       bibflix_visitor_v1 no localStorage, assets/js/app.js). Nome e igreja
+       são sempre opcionais; fechar de qualquer jeito (X, botão, Esc,
+       clique fora) marca como já visto e nunca mais aparece. -->
+  <div class="modal fade" id="welcomeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content pg-modal pg-welcome-content">
+        <button type="button" class="pg-gm-close" data-bs-dismiss="modal" aria-label="Fechar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12"/><path d="M18 6 6 18"/></svg>
+        </button>
+
+        <div class="modal-body pg-welcome-body">
+          <img src="assets/img/playgospel-logo.png" alt="PlayGospel" class="pg-welcome-logo" />
+
+          <h2 class="pg-welcome-title">Graça e <span class="pg-welcome-title-accent">paz!</span></h2>
+          <p class="pg-welcome-subtitle">Que bom ter você por aqui!</p>
+
+          <p class="pg-welcome-desc">
+            O PlayGospel foi criado para transformar momentos em grupo em experiências mais leves, divertidas e cheias de propósito, através de jogos com temas bíblicos para aprender, lembrar e compartilhar juntos.
+          </p>
+          <p class="pg-welcome-desc">Antes de começar, queremos conhecer você um pouquinho melhor.</p>
+
+          <div class="pg-welcome-field">
+            <label class="pg-welcome-label" for="welcomeName">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>
+              Como podemos chamar você? <span class="pg-welcome-optional">(opcional)</span>
+            </label>
+            <input type="text" id="welcomeName" class="pgui-input" placeholder="Seu nome" maxlength="60" autocomplete="name" />
+          </div>
+
+          <div class="pg-welcome-field">
+            <label class="pg-welcome-label" for="welcomeChurch">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 8v13h16V8Z"/><path d="M12 3v5"/><path d="M9.5 5.5h5"/><path d="M9 21v-6h6v6"/></svg>
+              Você faz parte de alguma igreja? <span class="pg-welcome-optional">(opcional)</span>
+            </label>
+            <input type="text" id="welcomeChurch" class="pgui-input" placeholder="Nome da igreja" maxlength="80" autocomplete="off" />
+          </div>
+
+          <button type="button" class="pgui-btn pgui-btn-primary pg-welcome-cta" id="btnWelcomeEnter">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+            Entrar no PlayGospel
+          </button>
+
+          <p class="pg-welcome-privacy">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+            Seus dados ficam apenas neste navegador. Você pode jogar normalmente sem preencher nenhum campo.
+          </p>
+
+          <p class="pg-welcome-contact">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+            Sugestões ou reclamações? Fala direto comigo no
+            <a href="https://www.instagram.com/jefersontecinfo" target="_blank" rel="noopener noreferrer">Instagram</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL DE DETALHES DO JOGO -->
   <div class="modal fade" id="gameModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered pg-gm-dialog">

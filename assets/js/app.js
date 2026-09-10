@@ -17,6 +17,12 @@ const MATCH_TYPE_META = {
   rodada: { label: "Rodada", icon: "refresh" },
 };
 
+// Modal de boas-vindas (nome/igreja) — some depois da primeira vez que o
+// visitante fecha (de qualquer jeito: X, Enter, Esc, clique fora). Fica em
+// localStorage puro (permanente, não por sessão de aba como o Teams) —
+// nunca mais aparece pra quem já viu, mesmo fechando e voltando outro dia.
+const WELCOME_KEY = "bibflix_visitor_v1";
+
 let allGames = [];
 let currentGames = []; // lista atualmente exibida (após busca/categoria) — o carrossel navega sobre ela, não sobre allGames
 let modalInstance = null;
@@ -189,11 +195,60 @@ function matchesCategory(game, key) {
   return rule ? rule.match(tags) : true;
 }
 
+/* =========================
+   MODAL DE BOAS-VINDAS
+========================= */
+function wireWelcomeModal() {
+  const el = document.getElementById("welcomeModal");
+  if (!el) return;
+
+  let saved = null;
+  try {
+    saved = JSON.parse(localStorage.getItem(WELCOME_KEY) || "null");
+  } catch {
+    saved = null;
+  }
+
+  // Já visto antes (em qualquer visita passada) — nunca mais mostra.
+  if (saved && saved.seen) return;
+
+  const nameInput = document.getElementById("welcomeName");
+  const churchInput = document.getElementById("welcomeChurch");
+  const btnEnter = document.getElementById("btnWelcomeEnter");
+
+  // Prefilling defensivo: se por algum motivo já existir um rascunho salvo
+  // sem "seen" (não deveria acontecer no fluxo normal), não pede de novo.
+  if (saved?.name && nameInput) nameInput.value = saved.name;
+  if (saved?.church && churchInput) churchInput.value = saved.church;
+
+  const modal = bootstrap.Modal.getOrCreateInstance(el);
+
+  // Fechar de qualquer jeito (X, Esc, clique fora, ou o botão "Entrar")
+  // marca como visto e grava o que estiver preenchido (campos são sempre
+  // opcionais) — só precisa gravar uma vez, aqui, não em cada botão.
+  el.addEventListener("hidden.bs.modal", () => {
+    localStorage.setItem(
+      WELCOME_KEY,
+      JSON.stringify({
+        seen: true,
+        name: nameInput?.value.trim() || "",
+        church: churchInput?.value.trim() || "",
+        seenAt: new Date().toISOString(),
+      })
+    );
+  }, { once: true });
+
+  btnEnter?.addEventListener("click", () => modal.hide());
+
+  modal.show();
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   modalInstance = new bootstrap.Modal(document.getElementById("gameModal"));
   teamMembersModalInstance = new bootstrap.Modal(document.getElementById("teamMembersModal"));
 
   renderFooterVerse();
+  wireWelcomeModal();
 
   await loadGames();
 

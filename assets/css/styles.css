@@ -1881,3 +1881,133 @@
     font-size: .85rem;
   }
 }
+
+/* ==============================
+   MODAL DE BOAS-VINDAS (primeira visita)
+================================= */
+
+.pg-welcome-content {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.pg-welcome-body {
+  padding: 32px 28px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pg-welcome-logo {
+  height: 34px;
+  width: auto;
+  margin-bottom: 18px;
+}
+
+.pg-welcome-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.pg-welcome-title-accent {
+  color: var(--gold);
+}
+
+.pg-welcome-subtitle {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 2px 0 14px;
+}
+
+.pg-welcome-desc {
+  font-size: .9rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+  margin: 0 0 12px;
+}
+
+.pg-welcome-field {
+  margin-top: 6px;
+  margin-bottom: 14px;
+}
+
+.pg-welcome-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.pg-welcome-label svg {
+  flex: 0 0 auto;
+  color: var(--gold);
+}
+
+.pg-welcome-optional {
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.pg-welcome-cta {
+  width: 100%;
+  justify-content: center;
+  margin-top: 8px;
+  padding: 14px;
+  font-size: 1.02rem;
+}
+
+.pg-welcome-privacy {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 16px 0 0;
+  font-size: .78rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.pg-welcome-privacy svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+.pg-welcome-contact {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 8px 0 0;
+  font-size: .78rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.pg-welcome-contact svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+.pg-welcome-contact a {
+  color: var(--gold);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.pg-welcome-contact a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .pg-welcome-body {
+    padding: 26px 20px 22px;
+  }
+
+  .pg-welcome-title {
+    font-size: 1.6rem;
+  }
+}
