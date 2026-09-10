@@ -97,9 +97,29 @@ function goToTeamsStep(step) {
   } else {
     btnBack?.classList.remove("d-none");
     document.getElementById("btnTeamsNext")?.classList.add("d-none");
-    document.getElementById("btnTeamsSave")?.classList.remove("d-none");
     renderDrawTeamsPreview();
+    updateTeamsStep2Cta();
   }
+}
+
+// Só libera "Criar equipes"/"Salvar alterações" no passo 2 depois que
+// TODAS as equipes têm participantes sorteados (ou já tinham de uma
+// edição anterior — ver teamDraw em buildTeamsForm) — sem isso dava pra
+// entrar no passo 2 (respondendo "Sim" pro sorteio) e salvar sem nunca
+// ter clicado em "Sortear agora", deixando as equipes sem ninguém apesar
+// de ter pedido o sorteio.
+function updateTeamsStep2Cta() {
+  if (currentTeamsStep !== 2) return;
+  const countSel = document.getElementById("teamsCount");
+  const count = Number(countSel?.value || 2);
+  let complete = true;
+  for (let i = 0; i < count; i++) {
+    if (!teamDraw[i]?.length) {
+      complete = false;
+      break;
+    }
+  }
+  document.getElementById("btnTeamsSave")?.classList.toggle("d-none", !complete);
 }
 
 // Só libera avançar/criar depois que (a) os nomes estão válidos e (b) a
@@ -1235,6 +1255,7 @@ function commitDrawResult(buckets) {
   });
   const drawLabel = document.getElementById("btnDrawPeopleLabel");
   if (drawLabel) drawLabel.textContent = "Sortear novamente";
+  updateTeamsStep2Cta();
 }
 
 function openTeamMembersModal({ name, color, icon: iconName, members }) {
