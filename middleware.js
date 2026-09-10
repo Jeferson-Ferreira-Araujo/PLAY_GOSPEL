@@ -16,15 +16,16 @@ export const config = {
   matcher: ['/admin', '/admin/:path*'],
 };
 
-// DIAGNÓSTICO TEMPORÁRIO (remover depois de confirmar o login): o motivo
-// vai num header, nunca no body nem no valor das variáveis — só diz qual
-// caminho o código tomou, não expõe usuário/senha.
-function unauthorized(reason) {
+function unauthorized() {
   return new Response('Autenticação necessária.', {
     status: 401,
     headers: {
       'WWW-Authenticate': 'Basic realm="PlayGospel Admin"',
-      'x-admin-auth-debug': reason,
+      // Sem isso, um 401 de antes (ex: senha ainda errada) pode ficar
+      // guardado no cache do navegador e continuar sendo servido pro
+      // CSS/JS mesmo depois de logar certo — layout quebrado mesmo com
+      // login correto.
+      'Cache-Control': 'no-store',
     },
   });
 }
@@ -44,30 +45,24 @@ export default function middleware(request) {
   const expectedPass = process.env.ADMIN_PASS;
 
   // Sem as variáveis configuradas na Vercel, nega tudo — nunca deixa aberto.
-  if (!expectedUser || !expectedPass) return unauthorized('sem-env-vars');
+  if (!expectedUser || !expectedPass) return unauthorized();
 
   const authHeader = request.headers.get('authorization') || '';
   const [scheme, encoded] = authHeader.split(' ');
-  if (scheme !== 'Basic' || !encoded) return unauthorized('sem-header-auth');
+  if (scheme !== 'Basic' || !encoded) return unauthorized();
 
   let decoded = '';
   try {
     decoded = atob(encoded);
   } catch {
-    return unauthorized('base64-invalido');
+    return unauthorized();
   }
 
   const sepIndex = decoded.indexOf(':');
   const user = sepIndex === -1 ? decoded : decoded.slice(0, sepIndex);
   const pass = sepIndex === -1 ? '' : decoded.slice(sepIndex + 1);
 
-  if (user !== expectedUser || pass !== expectedPass) {
-    // Só tamanhos (não conteúdo) pra achar espaço/quebra de linha extra
-    // colado sem querer no valor da variável de ambiente.
-    return unauthorized(
-      `credenciais-nao-batem:recebido(u=${user.length},p=${pass.length}):esperado(u=${expectedUser.length},p=${expectedPass.length})`
-    );
-  }
+  if (user !== expectedUser || pass !== expectedPass) return unauthorized();
 
   // Credenciais corretas — deixa a requisição seguir normalmente pro
   // arquivo estático pedido (equivalente ao next() de @vercel/functions,
