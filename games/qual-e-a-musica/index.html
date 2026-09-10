@@ -26,7 +26,11 @@
   <!-- GSAP: anima o "peão" do sorteio de notas (só a animação — o resultado
        continua sendo definido no JS do jogo, o GSAP só controla o visual). -->
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-</head>
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+  </head>
 
 <body>
   <header class="pgui-header qam-topheader">
