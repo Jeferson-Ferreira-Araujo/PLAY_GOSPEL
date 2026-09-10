@@ -183,6 +183,9 @@
 
 .pg-logo {
   height: 42px;
+  /* width:auto: o <img> tem width="420" no HTML (reserva de espaço), e sem
+     isso ele forçava 420px de largura ignorando a proporção real. */
+  width: auto;
 }
 
 @media (min-width: 769px) {
@@ -252,8 +255,14 @@
 
 .game-card img {
   width: 100%;
+  /* height:auto é obrigatório aqui: o <img> tem width/height="500" no HTML
+     (bom pra reservar espaço antes de carregar), e sem isso o atributo
+     height virava altura fixa de 500px e o aspect-ratio era ignorado —
+     cards esticavam. Com height:auto o aspect-ratio volta a mandar. */
+  height: auto;
   aspect-ratio: 1 / 1;
   object-fit: cover;
+  display: block;
 }
 
 /* Card mais quadrado: corpo enxuto (só o nome, sem linha de meta) e
