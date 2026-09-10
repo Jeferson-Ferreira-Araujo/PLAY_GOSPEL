@@ -1664,6 +1664,25 @@
   padding: 22px 32px;
 }
 
+/* Fixo na tela só no desktop — sempre visível, sem precisar rolar até o
+   fim, pra dar mais destaque ao versículo e ao crédito/Instagram. No
+   mobile continua no fluxo normal (fixo tomaria espaço precioso de tela
+   pequena). .pg-catalogo ganha padding-bottom extra pra nada ficar
+   escondido atrás do rodapé fixo. */
+@media (min-width: 641px) {
+  .pg-footer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 15;
+  }
+
+  .pg-catalogo {
+    padding-bottom: 100px;
+  }
+}
+
 .pg-footer-inner {
   display: flex;
   align-items: center;
