@@ -16,10 +16,16 @@ export const config = {
   matcher: ['/admin', '/admin/:path*'],
 };
 
-function unauthorized() {
+// DIAGNÓSTICO TEMPORÁRIO (remover depois de confirmar o login): o motivo
+// vai num header, nunca no body nem no valor das variáveis — só diz qual
+// caminho o código tomou, não expõe usuário/senha.
+function unauthorized(reason) {
   return new Response('Autenticação necessária.', {
     status: 401,
-    headers: { 'WWW-Authenticate': 'Basic realm="PlayGospel Admin"' },
+    headers: {
+      'WWW-Authenticate': 'Basic realm="PlayGospel Admin"',
+      'x-admin-auth-debug': reason,
+    },
   });
 }
 
@@ -38,24 +44,24 @@ export default function middleware(request) {
   const expectedPass = process.env.ADMIN_PASS;
 
   // Sem as variáveis configuradas na Vercel, nega tudo — nunca deixa aberto.
-  if (!expectedUser || !expectedPass) return unauthorized();
+  if (!expectedUser || !expectedPass) return unauthorized('sem-env-vars');
 
   const authHeader = request.headers.get('authorization') || '';
   const [scheme, encoded] = authHeader.split(' ');
-  if (scheme !== 'Basic' || !encoded) return unauthorized();
+  if (scheme !== 'Basic' || !encoded) return unauthorized('sem-header-auth');
 
   let decoded = '';
   try {
     decoded = atob(encoded);
   } catch {
-    return unauthorized();
+    return unauthorized('base64-invalido');
   }
 
   const sepIndex = decoded.indexOf(':');
   const user = sepIndex === -1 ? decoded : decoded.slice(0, sepIndex);
   const pass = sepIndex === -1 ? '' : decoded.slice(sepIndex + 1);
 
-  if (user !== expectedUser || pass !== expectedPass) return unauthorized();
+  if (user !== expectedUser || pass !== expectedPass) return unauthorized('credenciais-nao-batem');
 
   // Credenciais corretas — deixa a requisição seguir normalmente pro
   // arquivo estático pedido (equivalente ao next() de @vercel/functions,
