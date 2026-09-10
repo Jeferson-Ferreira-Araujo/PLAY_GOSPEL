@@ -414,7 +414,7 @@ function renderGames(games) {
            aria-disabled="${unavailable}"
            aria-label="${unavailable ? `${escapeAttr(game.title)} — indisponível no momento` : `Abrir detalhes do jogo ${escapeAttr(game.title)}`}">
         <div class="game-card-media">
-          <img src="${escapeAttr(game.cover || DEFAULT_COVER)}" alt="${escapeAttr(game.title)}" onerror="this.onerror=null;this.src='${DEFAULT_COVER}';">
+          <img src="${escapeAttr(game.cover || DEFAULT_COVER)}" alt="${escapeAttr(game.title)}" width="500" height="500" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='${DEFAULT_COVER}';">
           ${matchType ? `
             <span class="game-card-matchtype game-card-matchtype--${escapeAttr(game.matchType)}">
               ${icon(matchType.icon, { size: 11 })}
