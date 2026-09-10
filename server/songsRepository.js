@@ -5,11 +5,11 @@
 // (mesma assinatura de funções) — o server.js e o front-end não
 // precisam saber onde os dados realmente moram.
 
-const fs = require('fs/promises');
-const path = require('path');
-const crypto = require('crypto');
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import crypto from 'node:crypto';
 
-const DATA_FILE = path.join(__dirname, '..', 'admin', 'data', 'songs.json');
+const DATA_FILE = path.join(import.meta.dirname, '..', 'admin', 'data', 'songs.json');
 
 // Escritas em fila para evitar duas gravações concorrentes corromperem o JSON.
 let writeQueue = Promise.resolve();
@@ -81,4 +81,4 @@ async function remove(id) {
   return true;
 }
 
-module.exports = { list, get, create, update, remove };
+export default { list, get, create, update, remove };

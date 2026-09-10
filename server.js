@@ -6,13 +6,12 @@
 //
 // Uso: node server.js  (porta padrão 5177, ajustável via PORT)
 
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-const { URL } = require('url');
-const songsRepository = require('./server/songsRepository');
+import http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
+import songsRepository from './server/songsRepository.js';
 
-const ROOT = __dirname;
+const ROOT = import.meta.dirname;
 const PORT = process.env.PORT || 5177;
 
 const MIME_TYPES = {
