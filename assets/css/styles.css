@@ -1937,6 +1937,23 @@
     padding: 14px 16px;
   }
 
+  /* Logo + "Criar equipes" + 2 ícones sociais não cabem numa linha só em
+     telas estreitas (~375px) — encolhe os ícones e aperta os espaços pra
+     tudo voltar pra mesma linha, sem quebrar as ações pra baixo. */
+  .pg-header-actions {
+    gap: 6px;
+  }
+
+  .pg-header-social {
+    width: 32px;
+    height: 32px;
+  }
+
+  .pg-header-social svg {
+    width: 16px;
+    height: 16px;
+  }
+
   /* Sem espaço pra logo + nav + busca/botão numa linha só — a nav de
      "Início / Como jogar / Criar equipes" desce pra própria linha,
      centralizada, abaixo de logo e ações. Gap menor + flex-wrap pra não
@@ -1979,6 +1996,35 @@
 
   .pg-team-pill-name {
     font-size: .85rem;
+  }
+}
+
+/* Telas de celular estreitas: aperta ainda mais o header pra logo +
+   "Criar equipes" + os 2 ícones sociais caberem na mesma linha. */
+@media (max-width: 430px) {
+  .pg-header {
+    padding: 12px;
+    /* column-gap menor: era 16px entre a logo e as ações e sozinho já
+       empurrava as ações pra linha de baixo em telas ~360px. */
+    column-gap: 8px;
+  }
+
+  #teamsNavBtn {
+    padding: 6px 9px;
+  }
+
+  .pg-header-actions {
+    gap: 4px;
+  }
+
+  .pg-header-social {
+    width: 28px;
+    height: 28px;
+  }
+
+  .pg-header-social svg {
+    width: 15px;
+    height: 15px;
   }
 }
 
