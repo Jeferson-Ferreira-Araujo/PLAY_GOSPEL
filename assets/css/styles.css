@@ -445,10 +445,8 @@
   background: rgba(255, 255, 255, .03);
   border: 1.5px solid var(--pill-color, var(--gold));
   min-width: 0;
-  /* Container de tamanho — o badge "N integrantes" (ver
-     .pg-team-pill-members-label abaixo) esconde a palavra sozinho
-     quando o PILL fica estreito de verdade (4 equipes numa linha só no
-     desktop, por exemplo), em vez de depender só da largura da tela. */
+  /* Container de tamanho — a rede de segurança pra nomes longos (ver
+     @container mais abaixo) reage à largura real do PILL, não da tela. */
   container-type: inline-size;
 }
 
@@ -1768,18 +1766,17 @@
   font-style: italic;
 }
 
-/* Botão "ver participantes" dentro do pill de equipe do catálogo — badge
-   com ícone + contagem + seta, na cor da própria equipe (não cinza
-   neutro) pra não passar despercebido ao lado do nome. A palavra
-   "integrante(s)" some sozinha quando o PILL fica estreito (ver
-   @container abaixo) — tanto faz o motivo (tela pequena ou muitas
-   equipes dividindo a mesma linha no desktop), sobra só o número. */
+/* Botão "ver participantes" dentro do pill de equipe do catálogo —
+   sempre compacto (ícone de pessoas + contagem + seta, sem a palavra
+   "integrantes" por extenso — cabia mal com 3-4 equipes na mesma linha
+   e o ícone+seta já deixam claro que é clicável). O texto completo fica
+   no title/aria-label, pra quem usa leitor de tela ou passa o mouse. */
 .pg-team-pill-members-btn {
   display: inline-flex;
   align-items: center;
   flex: 0 0 auto;
-  gap: 5px;
-  padding: 5px 10px;
+  gap: 4px;
+  padding: 5px 8px;
   border-radius: 999px;
   border: 1.5px solid var(--pill-color, var(--gold));
   background: rgba(255,255,255,.06);
@@ -1800,33 +1797,11 @@
   font-weight: 800;
 }
 
-/* Baseado na largura do próprio pill (container-type:inline-size nele,
-   ver .pg-team-pill), não na largura da tela — um pill pode ficar
-   estreito tanto por causa do celular quanto por dividir a linha com
-   3 outras equipes no desktop; os dois casos precisam do mesmo ajuste. */
-@container (max-width: 260px) {
-  .pg-team-pill-members-label {
-    display: none;
-  }
-
-  .pg-team-pill-members-btn {
-    padding: 5px 8px;
-  }
-
-  /* Volta a encolher (com um piso bem menor, só pra não sumir de vez) —
-     esconder a palavra "integrantes" sozinho às vezes não abre espaço
-     suficiente; sem o nome também cedendo um pouco, ele podia ainda
-     empurrar o badge de integrantes por cima do placar. */
-  .pg-team-pill-name {
-    flex-shrink: 1;
-    min-width: 24px;
-  }
-}
-
-/* Ainda mais apertado: encolhe a caixa de pontos e esconde a coroa (o
-   destaque de "na frente" já fica implícito em quem tem mais pontos)
-   pra sobrar espaço pro nome + badge de integrantes. */
-@container (max-width: 230px) {
+/* Rede de segurança pra nomes bem longos com 3-4 equipes na mesma linha
+   (container-type:inline-size em .pg-team-pill) — encolhe a caixa de
+   pontos e esconde a coroa (o destaque de "na frente" já fica implícito
+   em quem tem mais pontos) antes de deixar o nome ser espremido. */
+@container (max-width: 190px) {
   .pg-team-pill-leader {
     display: none;
   }
@@ -1840,6 +1815,8 @@
   }
 
   .pg-team-pill-name {
+    flex-shrink: 1;
+    min-width: 24px;
     max-width: 70px;
   }
 }

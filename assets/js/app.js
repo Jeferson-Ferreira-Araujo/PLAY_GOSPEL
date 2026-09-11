@@ -640,10 +640,9 @@ function renderTeamsBanner() {
           <span class="pg-team-pill-icon">${icon(iconName, { size: 16 })}</span>
           <span class="pg-team-pill-name">${escapeHtml(t.name)}</span>
           ${hasMembers ? `
-            <button type="button" class="pg-team-pill-members-btn" data-team-pill-members="${escapeAttr(t.id)}" title="Ver participantes" aria-label="Ver participantes de ${escapeAttr(t.name)}">
+            <button type="button" class="pg-team-pill-members-btn" data-team-pill-members="${escapeAttr(t.id)}" title="Ver participantes de ${escapeAttr(t.name)} (${t.members.length})" aria-label="Ver participantes de ${escapeAttr(t.name)}">
               ${icon("users", { size: 13 })}
               <span class="pg-team-pill-members-count">${t.members.length}</span>
-              <span class="pg-team-pill-members-label">${t.members.length === 1 ? "integrante" : "integrantes"}</span>
               ${icon("chevron-right", { size: 12 })}
             </button>
           ` : ""}
