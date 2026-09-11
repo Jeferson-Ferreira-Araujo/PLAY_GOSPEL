@@ -1942,6 +1942,34 @@
   }
 }
 
+/* Tablet em pé: não é estreito o bastante pra colapsar (isso só existe
+   no celular, ver @media max-width:600px mais abaixo), mas título +
+   pills lado a lado (layout padrão do desktop) não cabem direito nessa
+   largura — as pills acabavam quebrando uma por linha. Título centralizado
+   em cima, pills numa grade de 2 colunas (2 equipes = 1 linha; 3 = duas
+   linhas, a segunda com 1; 4 = duas linhas com 2 cada). */
+@media (min-width: 601px) and (max-width: 900px) {
+  .pg-teams-banner {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .pg-teams-banner-toggle {
+    justify-content: center;
+  }
+
+  /* Não colapsa nessa largura — a seta só faz sentido no mobile. */
+  .pg-teams-banner-chevron {
+    display: none;
+  }
+
+  .pg-teams-banner-teams {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+}
+
 @media (max-width: 480px) {
   .navbar .container-fluid > .d-flex {
     flex-wrap: wrap;
