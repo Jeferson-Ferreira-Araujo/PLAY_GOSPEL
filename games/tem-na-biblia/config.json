@@ -25,15 +25,13 @@
   ],
   "howTo": [
     "Escolha a categoria e o tempo por resposta.",
-    "Uma letra aparece na tela — a equipe da vez fala uma palavra do tema que comece com ela.",
-    "Acertou? Marca ponto, sorteia uma letra nova e passa a vez.",
-    "Não lembrou? Passou passa a vez com a mesma letra — só troca quando der a volta em todas as equipes sem ninguém acertar.",
+    "Uma letra aparece — a equipe da vez fala uma palavra do tema que comece com ela.",
+    "Acertou marca ponto e sorteia letra nova; não lembrou passa a vez.",
     "A rodada acaba quando as letras se esgotam."
   ],
   "drawHowTo": [
-    "Uma letra aparece na tela — a equipe da vez fala uma palavra do tema que comece com ela.",
-    "Acertou? Marca ponto, sorteia uma letra nova e passa a vez.",
-    "Não lembrou? Passou passa a vez com a mesma letra — só troca quando der a volta em todas as equipes sem ninguém acertar.",
+    "Uma letra aparece — a equipe da vez fala uma palavra do tema que comece com ela.",
+    "Acertou marca ponto e sorteia letra nova; não lembrou passa a vez.",
     "A rodada acaba quando as letras se esgotam."
   ],
   "tips": [

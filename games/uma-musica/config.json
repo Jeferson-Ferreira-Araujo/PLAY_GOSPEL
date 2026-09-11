@@ -25,8 +25,8 @@
   ],
   "howTo": [
     "Uma palavra aparece na tela.",
-    "A equipe da vez tem o tempo do timer para cantar uma música com essa palavra.",
-    "Acertou marca ponto e passa a palavra; Errou desconta o mesmo valor. Passar a vez chama a próxima equipe (o valor do ponto dobra)."
+    "A equipe da vez canta uma música com essa palavra, dentro do tempo.",
+    "Acertou marca ponto, errou desconta — passar dobra a pontuação da próxima equipe."
   ],
   "tips": [
     "Atalho: Espaço = nova palavra",

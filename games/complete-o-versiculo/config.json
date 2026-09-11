@@ -7,10 +7,9 @@
       "default": 30, "options": [0, 20, 30, 45, 60, 90] }
   ],
   "howTo": [
-    "Um versículo (KJV) será exibido com palavras faltando.",
-    "Escolha a dificuldade e o tempo antes de começar.",
-    "Quando o tempo acabar, você pode revelar a resposta e avançar para o próximo.",
-    "Sem repetição até terminar a lista."
+    "Escolha a dificuldade e o tempo.",
+    "Um versículo aparece com palavras faltando — complete antes do tempo acabar.",
+    "Revele a resposta e avance para o próximo."
   ],
   "drawHowTo": [
     "Um versículo (KJV) será exibido com palavras faltando.",

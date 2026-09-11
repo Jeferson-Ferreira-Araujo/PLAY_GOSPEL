@@ -26,9 +26,8 @@
   ],
   "howTo": [
     "Escolha a categoria e o tempo.",
-    "Uma contagem de 3 segundos prepara as equipes.",
-    "Uma sequência de emojis aparece — adivinhe o que ela representa antes do tempo acabar.",
-    "Depois de 10 rodadas a partida encerra e mostra a pontuação."
+    "Uma sequência de emojis aparece — quem acertar o que ela representa primeiro, marca ponto.",
+    "Depois de 10 rodadas, a partida encerra e mostra o placar."
   ],
   "drawHowTo": [
     "Uma contagem de 3 segundos prepara as equipes.",
