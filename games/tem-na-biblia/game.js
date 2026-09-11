@@ -346,13 +346,8 @@ function wireUI() {
 
   endBtn.addEventListener('click', exitToCatalog);
   exitBtn.addEventListener('click', exitToCatalog);
-  brandLink.addEventListener('click', (e) => {
-    // Só confirma se o jogo já estiver em andamento — na tela de
-    // configuração não há nada a perder, deixa navegar direto.
-    if (gameScreen.classList.contains('d-none')) return;
-    e.preventDefault();
-    exitToCatalog();
-  });
+  // Clicar na logo sempre volta direto pro catálogo, sem confirmação —
+  // só o botão "Sair" explícito pergunta antes (ver exitBtn acima).
 
   window.addEventListener('bibflix:teams:change', renderTurnBanner);
   window.addEventListener('bibflix:teams:change', renderTeamsPanel);

@@ -385,13 +385,8 @@ function wireEvents() {
   scoreBtn?.addEventListener("click", () => showScorePopup());
 
   $("exitBtn").addEventListener("click", confirmExit);
-  $("brandLink").addEventListener("click", (e) => {
-    // Só confirma se o jogo já estiver em andamento — na tela de
-    // configuração não há nada a perder, deixa navegar direto.
-    if ($("gameScreen").classList.contains("d-none")) return;
-    e.preventDefault();
-    confirmExit();
-  });
+  // Clicar na logo sempre volta direto pro catálogo, sem confirmação —
+  // só o botão "Sair" explícito pergunta antes (ver exitBtn acima).
 
   $("playAgainBtn").addEventListener("click", () => {
     $("revealBtn").disabled = false;
