@@ -516,10 +516,14 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  /* Sem isso, o overflow:hidden zera o tamanho mínimo automático do flex
-     item — o nome sumia por completo pra abrir espaço pro badge de
-     integrantes em vez de só truncar. */
-  min-width: 4em;
+  /* flex-shrink:0 (não min-width) — um mínimo fixo deixava espaço vazio
+     depois de nomes curtos (a caixa ficava mais larga que o texto,
+     afastando o badge de integrantes do nome). Sem encolher, o nome
+     sempre ocupa só o espaço do próprio texto, então o badge fica
+     colado nele — e max-width segura nomes bem longos com reticências,
+     sem deixar o pill inteiro crescer demais. */
+  flex-shrink: 0;
+  max-width: 140px;
 }
 
 /* Selo da coroa fica depois do placar (não colado no nome) — menos
