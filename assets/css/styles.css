@@ -1648,19 +1648,6 @@
   color: var(--text-muted);
 }
 
-/* Aviso de que o jogo passa a mostrar a pessoa da vez (não só a equipe)
-   — só faz sentido aqui, no passo 2, que só existe pra quem escolheu
-   sortear participantes. */
-.pg-teams-draw-note {
-  margin: 10px 0 14px;
-  padding: 8px 12px;
-  border-radius: 10px;
-  background: rgba(244, 196, 48, .08);
-  border: 1px solid rgba(244, 196, 48, .25);
-  font-size: .8rem;
-  color: var(--text-main);
-}
-
 /* Lista de equipes só-leitura no topo do passo 3 (nome+ícone de cada
    uma, ver renderDrawTeamsPreview em app.js) — pra saber pra quem tá
    sorteando sem precisar voltar ao passo 2. */

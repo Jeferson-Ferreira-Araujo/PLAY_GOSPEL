@@ -191,6 +191,18 @@ function clearCountdown() {
   }
 }
 
+// Anuncia a equipe (e, se sorteada, a pessoa) da vez junto com a
+// contagem — o aviso de que o jogo mostra "de quem é a vez" deixou de
+// ser um texto solto no modal de Equipes pra virar esse momento real,
+// bem no início de cada rodada.
+function prepareLabel(n) {
+  const t = Teams.currentTeam();
+  if (!t) return `Prepare-se! ${n}`;
+  const player = Teams.currentPlayer();
+  const who = player ? `${t.name} (${player})` : t.name;
+  return `Prepare-se, ${who}! ${n}`;
+}
+
 /* Contagem "3, 2, 1" antes de cada palavra/vez nova — dá tempo da equipe
    se preparar antes do timer voltar a contar. */
 function startPrepareCountdown(onDone) {
@@ -199,12 +211,12 @@ function startPrepareCountdown(onDone) {
   timerRow?.classList.add("d-none");
 
   let n = 3;
-  wordText.textContent = `Prepare-se! ${n}`;
+  wordText.textContent = prepareLabel(n);
 
   countdownInterval = setInterval(() => {
     n -= 1;
     if (n > 0) {
-      wordText.textContent = `Prepare-se! ${n}`;
+      wordText.textContent = prepareLabel(n);
       return;
     }
     clearCountdown();
