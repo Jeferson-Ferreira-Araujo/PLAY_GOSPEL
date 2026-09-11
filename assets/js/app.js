@@ -15,8 +15,8 @@ const DEFAULT_COVER = "assets/img/cover-placeholder.svg";
 // turnos (indicador "Vez de..." dentro do jogo). Jogos sem o campo ainda
 // não foram classificados — não mostra selo nesse caso.
 const MATCH_TYPE_META = {
-  disputa: { label: "Disputa", icon: "flame" },
-  rodada: { label: "Rodada", icon: "refresh" },
+  disputa: { label: "Disputa", icon: "flame", sub: "Todas as equipes respondem juntas" },
+  rodada: { label: "Rodada", icon: "refresh", sub: "Uma equipe por vez, em turnos" },
 };
 
 // Modal de boas-vindas (nome/igreja) — some depois da primeira vez que o
@@ -913,28 +913,24 @@ async function randomizeSettingsForGame(game, cfg) {
 async function openGameModal(game) {
   // base info
   document.getElementById("modalTitle").textContent = game.title ?? "Jogo";
-  document.getElementById("modalDesc").textContent = game.description ?? "";
 
   // badge de categoria (a capa não aparece no modal — só nos cards do catálogo)
   document.getElementById("modalCategoryBadge").textContent = getGameCategory(game);
 
-  // meta: jogadores + duração
-  document.getElementById("modalMetaBoxes").innerHTML = `
+  // meta: formato do jogo (rodada = uma equipe por vez / disputa = todas
+  // juntas) — sem isso, ninguém sabia como a dinâmica funciona antes de
+  // clicar em Jogar. Jogos sem matchType classificado não mostram nada
+  // aqui (melhor vazio do que um selo errado).
+  const format = MATCH_TYPE_META[game.matchType];
+  document.getElementById("modalMetaBoxes").innerHTML = format ? `
     <div class="pg-gm-meta-box">
-      <span class="pg-gm-meta-icon" aria-hidden="true">${icon("users", { size: 16 })}</span>
+      <span class="pg-gm-meta-icon" aria-hidden="true">${icon(format.icon, { size: 16 })}</span>
       <div>
-        <div class="pg-gm-meta-title">2+ jogadores</div>
-        <div class="pg-gm-meta-sub">Por equipes</div>
+        <div class="pg-gm-meta-title">${escapeHtml(format.label)}</div>
+        <div class="pg-gm-meta-sub">${escapeHtml(format.sub)}</div>
       </div>
     </div>
-    <div class="pg-gm-meta-box">
-      <span class="pg-gm-meta-icon" aria-hidden="true">${icon("clock", { size: 16 })}</span>
-      <div>
-        <div class="pg-gm-meta-title">${escapeHtml(game.duration || "Duração variável")}</div>
-        <div class="pg-gm-meta-sub">Duração média</div>
-      </div>
-    </div>
-  `;
+  ` : "";
 
   // carrega config.json e renderiza as seções (só as que existirem de fato)
   const cfg = await loadGameConfig(game);

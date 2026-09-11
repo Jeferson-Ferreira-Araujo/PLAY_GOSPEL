@@ -909,23 +909,16 @@
   margin: 0;
 }
 
-.pg-gm-desc {
-  color: var(--text-muted);
-  margin: 6px 0 0;
-  font-size: .8rem;
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* ---- Meta (jogadores / duração) ---- */
+/* ---- Meta (formato: rodada/disputa) ---- */
 
 .pg-gm-meta {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr;
   gap: 8px;
+}
+
+.pg-gm-meta:empty {
+  display: none;
 }
 
 .pg-gm-meta-box {
@@ -951,18 +944,18 @@
 }
 
 .pg-gm-meta-title {
-  font-size: .74rem;
+  font-size: .85rem;
   font-weight: 700;
   color: var(--text-main);
   line-height: 1.2;
 }
 
 .pg-gm-meta-sub {
-  font-size: .6rem;
+  font-size: .72rem;
   color: var(--text-muted);
 }
 
-/* ---- Colunas: esquerda (meta/configurações) · direita (como funciona) ---- */
+/* ---- Colunas: esquerda (formato/configurações) · direita (como jogar) ---- */
 
 .pg-gm-columns {
   display: grid;
@@ -1184,10 +1177,6 @@
 
   .pg-gm-title {
     font-size: 1.3rem;
-  }
-
-  .pg-gm-desc {
-    -webkit-line-clamp: 2;
   }
 
   .pg-gm-field-help {
