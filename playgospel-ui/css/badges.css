@@ -52,6 +52,18 @@
   flex: 0 0 auto;
 }
 
+/* Nome da pessoa da vez (só quando a equipe tem participantes sorteados,
+   ver Teams.currentPlayer em assets/js/teams.js). */
+.pgui-team-badge__player {
+  font-weight: 600;
+  opacity: .8;
+}
+
+.pgui-team-badge__player::before {
+  content: " · ";
+  opacity: .6;
+}
+
 /* ---- Avatar ---- */
 .pgui-avatar {
   display: inline-flex;

@@ -1,6 +1,7 @@
 import { createCountdownTimer, shuffleArray, pointsLabel } from "../../assets/js/utils.js";
 import { Teams } from "../../assets/js/teams.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
+import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
 
 // Máximo de rodadas por partida (evita jogar todos os versículos de uma vez).
 const ROUND_SIZE = 10;
@@ -11,6 +12,7 @@ const scoreBtn = $("scoreBtn");
 
 const turnBanner = $("turnBanner");
 const turnBannerTeam = $("turnBannerTeam");
+const turnBannerPlayer = $("turnBannerPlayer");
 
 const pointsBox = $("pointsBox");
 const pointsValue = $("pointsValue");
@@ -137,6 +139,12 @@ function renderTeamUI() {
 
   if (turnBannerTeam) turnBannerTeam.textContent = t.name;
   turnBanner?.style.setProperty("--team-color", t.color || "#F4C430");
+
+  const player = Teams.currentPlayer();
+  if (turnBannerPlayer) {
+    turnBannerPlayer.textContent = player || "";
+    turnBannerPlayer.classList.toggle("d-none", !player);
+  }
 
   if (correctBtn) correctBtn.textContent = `Acertou (+${passCount + 1})`;
   if (wrongBtn) wrongBtn.textContent = `Errou (-${passCount + 1})`;
@@ -489,6 +497,7 @@ async function init() {
 
   // A tela de configuração ficou só no modal do catálogo (index.html);
   // ao chegar aqui, o jogo começa direto, sempre.
+  await maybeShowDrawIntro();
   startFromSettings();
 }
 

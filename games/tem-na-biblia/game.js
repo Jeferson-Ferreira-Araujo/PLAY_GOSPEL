@@ -33,6 +33,7 @@ const startBtn = document.getElementById('startBtn');
 
 const turnBanner = document.getElementById('turnBanner');
 const turnBannerTeam = document.getElementById('turnBannerTeam');
+const turnBannerPlayer = document.getElementById('turnBannerPlayer');
 const badgeCategory = document.getElementById('badgeCategory');
 const badgeProgress = document.getElementById('badgeProgress');
 
@@ -107,6 +108,13 @@ function renderTurnBanner() {
   if (!t) return;
   turnBannerTeam.textContent = t.name;
   turnBanner.style.setProperty('--team-color', t.color || '#F4C430');
+
+  const player = Teams.currentPlayer();
+  if (turnBannerPlayer) {
+    turnBannerPlayer.textContent = player || '';
+    turnBannerPlayer.classList.toggle('d-none', !player);
+  }
+
   updateStickyOffsets();
 }
 

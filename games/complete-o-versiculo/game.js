@@ -26,6 +26,7 @@ const referenceText = document.getElementById("referenceText");
 
 const turnBanner = document.getElementById("turnBanner");
 const turnBannerTeam = document.getElementById("turnBannerTeam");
+const turnBannerPlayer = document.getElementById("turnBannerPlayer");
 const pointsBox = document.getElementById("pointsBox");
 const pointsValue = document.getElementById("pointsValue");
 
@@ -127,6 +128,12 @@ function renderTeamUI() {
 
   if (turnBannerTeam) turnBannerTeam.textContent = t.name;
   turnBanner?.style.setProperty("--team-color", t.color || "#F4C430");
+
+  const player = Teams.currentPlayer();
+  if (turnBannerPlayer) {
+    turnBannerPlayer.textContent = player || "";
+    turnBannerPlayer.classList.toggle("d-none", !player);
+  }
 
   if (correctBtn) correctBtn.textContent = `Acertou (+${passCount + 1})`;
   if (wrongBtn) wrongBtn.textContent = `Errou (-${passCount + 1})`;

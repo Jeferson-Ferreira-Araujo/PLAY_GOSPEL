@@ -9,6 +9,7 @@ const ROUND_SIZE = 10;
 const scoreBtn = document.getElementById("scoreBtn");
 const turnBanner = document.getElementById("turnBanner");
 const turnBannerTeam = document.getElementById("turnBannerTeam");
+const turnBannerPlayer = document.getElementById("turnBannerPlayer");
 const pointsBox = document.getElementById("pointsBox");
 
 /* ===== Elements (setup) ===== */
@@ -101,6 +102,14 @@ function renderTurnBanner() {
 
   if (turnBannerTeam) turnBannerTeam.textContent = t.name;
   turnBanner?.style.setProperty("--team-color", t.color || "#F4C430");
+
+  // Nome de quem joga essa rodada — só aparece se a equipe tiver
+  // participantes sorteados (ver Teams.currentPlayer em teams.js).
+  const player = Teams.currentPlayer();
+  if (turnBannerPlayer) {
+    turnBannerPlayer.textContent = player || "";
+    turnBannerPlayer.classList.toggle("d-none", !player);
+  }
 }
 
 async function loadData() {

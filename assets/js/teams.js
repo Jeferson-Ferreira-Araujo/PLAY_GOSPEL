@@ -47,6 +47,17 @@ function clampTurn(st) {
   else st.turn = ((st.turn % st.teams.length) + st.teams.length) % st.teams.length;
 }
 
+// Avança o ponteiro de integrante da equipe que está SAINDO da vez (índice
+// antes da troca) — assim, da próxima vez que a rodada voltar pra ela,
+// outra pessoa aparece. Times sem participantes sorteados (members vazio)
+// não fazem nada aqui.
+function advanceMemberTurn(st, leavingIndex) {
+  const leaving = st.teams[leavingIndex];
+  if (leaving && Array.isArray(leaving.members) && leaving.members.length > 1) {
+    leaving.memberTurn = (Number(leaving.memberTurn) || 0) + 1;
+  }
+}
+
 function suggestNames(n) {
   const presets = [
     "Leões", "Águias", "Valentes", "Guerreiros", "Sal", "Luz",
@@ -169,11 +180,29 @@ export const Teams = {
     return st.teams[st.turn];
   },
 
+  // Nome da pessoa da vez dentro da equipe da vez — só existe pra quem
+  // usou o sorteio de participantes (team.members preenchido); sem isso,
+  // retorna null e quem chama deve continuar mostrando só a equipe, como
+  // sempre foi. Cada equipe tem seu próprio ponteiro (team.memberTurn),
+  // avançado só quando ELA sai de vez em vez (ver advanceMemberTurn) —
+  // assim, cada vez que a rodada volta pra mesma equipe, é a vez de
+  // outra pessoa dela, sem depender de quantas vezes as outras equipes
+  // jogaram nesse meio tempo.
+  currentPlayer() {
+    const t = this.currentTeam();
+    if (!t || !Array.isArray(t.members) || !t.members.length) return null;
+    const n = t.members.length;
+    const idx = (((Number(t.memberTurn) || 0) % n) + n) % n;
+    return t.members[idx];
+  },
+
   nextTurn() {
     const st = load();
     clampTurn(st);
     if (!st.enabled || !st.teams.length) return st;
+    const leavingIndex = st.turn;
     st.turn = (st.turn + 1) % st.teams.length;
+    advanceMemberTurn(st, leavingIndex);
     save(st);
     return st;
   },
@@ -181,8 +210,11 @@ export const Teams = {
   setTurn(index) {
     const st = load();
     if (!st.enabled || !st.teams.length) return st;
+    clampTurn(st);
+    const leavingIndex = st.turn;
     st.turn = index;
     clampTurn(st);
+    if (st.turn !== leavingIndex) advanceMemberTurn(st, leavingIndex);
     save(st);
     return st;
   },

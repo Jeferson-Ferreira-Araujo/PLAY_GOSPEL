@@ -285,6 +285,25 @@ body {
   color: #0B1220;
 }
 
+/* Nome da pessoa da vez (só aparece quando a equipe tem participantes
+   sorteados, ver Teams.currentPlayer em assets/js/teams.js) — value e
+   player empilham verticalmente, label continua ao lado. */
+.round-box-team-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.round-box-player {
+  font-size: .72rem;
+  font-weight: 700;
+  color: rgba(11, 18, 32, .65);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Texto de dica/estado ao lado do bloco de rodada (ex: #hintText, #statusText) —
    filho direto de .presenter-top, pra não pegar outros ".text-secondary.small"
    da página (que devem continuar discretos). */
