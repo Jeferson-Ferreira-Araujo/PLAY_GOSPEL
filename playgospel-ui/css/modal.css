@@ -83,6 +83,22 @@
   flex-wrap: wrap;
 }
 
+/* No mobile, empilha em vez de lado a lado — e inverte a ordem (o botão
+   de ação primária, sempre o último no HTML, sobe pro topo; o
+   secundário/ghost, sempre o primeiro, desce pro final) pra manter a
+   ação mais importante mais perto do polegar. */
+@media (max-width: 600px) {
+  .pgui-modal__footer,
+  .pgui-modal__actions {
+    flex-direction: column-reverse;
+  }
+
+  .pgui-modal__footer > *,
+  .pgui-modal__actions > * {
+    width: 100%;
+  }
+}
+
 /* Passo a passo "como jogar" (usado no modal de instrução de cada etapa
    de uma disputa sorteada — ver assets/js/game-intro.js). */
 .pgui-howto-list {

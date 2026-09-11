@@ -11,6 +11,10 @@
    ===================================================== */
 
 .pgui-btn {
+  /* .pgui-btn também é usado em <a> (ex: "Voltar ao catálogo" nos popups
+     de fim de jogo) — sem isso, herdava o sublinhado nativo de link nas
+     páginas de jogo, que não carregam reset.css. */
+  text-decoration: none;
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -32,6 +36,8 @@
   transition: background var(--pgui-transition-fast), border-color var(--pgui-transition-fast),
               color var(--pgui-transition-fast), transform var(--pgui-transition-fast);
 }
+
+.pgui-btn:hover { text-decoration: none; }
 
 .pgui-btn:hover   { transform: translateY(-1px); }
 .pgui-btn:active  { transform: translateY(0); }
