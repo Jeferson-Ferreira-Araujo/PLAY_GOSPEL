@@ -704,13 +704,17 @@ function updateTeamsNavButton() {
    SORTEAR JOGOS — disputa de 3 jogos aleatórios jogados em sequência,
    com o mesmo placar de equipes valendo pros 3 (ver assets/js/game-draw.js
    pro estado e score-popup.js pro avanço entre etapas dentro do jogo).
+
+   O modal #drawModal tem 3 fases controladas por aqui (ver
+   resetDrawModalPhases): 1) explicação + "Sortear agora"; 2) os 3 blocos
+   animando (ver runDraw/animateDrawBlocks); 3) pronto + "Vamos jogar!".
 ========================= */
 function wireDrawGames() {
-  document.getElementById("btnDrawGames")?.addEventListener("click", () => { drawGames(); });
+  document.getElementById("btnDrawGames")?.addEventListener("click", () => { openDrawIntro(); });
+  document.getElementById("btnDrawConfirm")?.addEventListener("click", () => { runDraw(); });
 
-  // Botão do modal "Jogos sorteados!" — só aqui o primeiro jogo é revelado
-  // (a navegação em si já mostra qual é, de propósito: nada denuncia os
-  // 3 jogos antes da hora).
+  // Só aqui o primeiro jogo é revelado de fato (a navegação em si já
+  // mostra qual é) — nada antes disso denuncia os 3 jogos sorteados.
   document.getElementById("btnStartDraw")?.addEventListener("click", () => {
     const first = GameDraw.currentGame();
     if (first) window.location.href = GameDraw.buildUrl(first);
@@ -720,7 +724,8 @@ function wireDrawGames() {
 // Depois do 3º jogo, "Sortear novos jogos" (ver buildTournamentFinalFooter
 // em score-popup.js) volta pro catálogo com ?sortear=1 — aqui a gente
 // detecta isso e dispara um sorteio novo automaticamente (equipes já
-// estão ativas nesse ponto, então cai direto no modal "Jogos sorteados!").
+// estão ativas nesse ponto — pula direto pra animação, sem repetir a
+// explicação de como funciona).
 function maybeAutoRedraw() {
   const params = new URLSearchParams(window.location.search);
   if (params.get("sortear") !== "1") return;
@@ -729,10 +734,17 @@ function maybeAutoRedraw() {
   url.searchParams.delete("sortear");
   window.history.replaceState({}, "", url.toString());
 
-  drawGames();
+  if (!Teams.isEnabled()) return; // segurança — não deveria acontecer
+
+  resetDrawModalPhases();
+  const modalEl = document.getElementById("drawModal");
+  (bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl)).show();
+  runDraw();
 }
 
-async function drawGames() {
+// Clique no botão "Sortear jogos" do catálogo — checa equipes (igual
+// antes) e, se tudo certo, abre o modal já na fase de explicação.
+async function openDrawIntro() {
   if (!Teams.isEnabled()) {
     const wantsToCreate = await confirmDialog({
       title: "Crie as equipes primeiro",
@@ -747,21 +759,66 @@ async function drawGames() {
     return;
   }
 
+  resetDrawModalPhases();
+  const modalEl = document.getElementById("drawModal");
+  (bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl)).show();
+}
+
+// Volta o modal pra fase 1 (explicação) — chamado toda vez que ele abre,
+// pra não sobrar estado de uma disputa sorteada anterior (blocos
+// "assentados", nota "prontos" visível etc.).
+function resetDrawModalPhases() {
+  document.getElementById("drawModalTitle").textContent = "🎲 Sortear jogos";
+  document.getElementById("drawPhaseIntro")?.classList.remove("d-none");
+  document.getElementById("drawPhaseBlocks")?.classList.add("d-none");
+  document.getElementById("drawReadyNote")?.classList.add("d-none");
+
+  const confirmBtn = document.getElementById("btnDrawConfirm");
+  confirmBtn?.classList.remove("d-none");
+  if (confirmBtn) confirmBtn.disabled = false;
+  document.getElementById("btnStartDraw")?.classList.add("d-none");
+
+  document.querySelectorAll(".pg-draw-block").forEach((block) => {
+    block.classList.remove("is-settled");
+    const label = block.querySelector(".pg-draw-block-label");
+    if (label) label.textContent = "🎲";
+  });
+}
+
+// Fase 2→3: sorteia de verdade (jogos + configurações) enquanto os 3
+// blocos animam na tela, depois libera a fase "pronto".
+async function runDraw() {
+  const confirmBtn = document.getElementById("btnDrawConfirm");
+  if (confirmBtn) confirmBtn.disabled = true;
+
+  document.getElementById("drawPhaseIntro")?.classList.add("d-none");
+  document.getElementById("drawPhaseBlocks")?.classList.remove("d-none");
+  document.getElementById("drawModalTitle").textContent = "🎲 Sorteando...";
+
   // Jogos "em breve" (unavailable) ficam fora do sorteio, óbvio.
   const pool = allGames.filter((g) => !g.unavailable);
   if (pool.length < 3) return; // catálogo pequeno demais — não deveria acontecer
 
   const chosen = shuffleArray(pool).slice(0, 3);
-  const built = [];
-  for (const game of chosen) {
-    const cfg = await loadGameConfig(game);
-    built.push({
-      id: game.id,
-      title: game.title,
-      route: game.route,
-      settings: await randomizeSettingsForGame(game, cfg),
-    });
-  }
+
+  // Monta o sorteio de verdade em paralelo com a animação (não trava a
+  // UI esperando os fetch de config.json de cada jogo).
+  const builtPromise = (async () => {
+    const built = [];
+    for (const game of chosen) {
+      const cfg = await loadGameConfig(game);
+      built.push({
+        id: game.id,
+        title: game.title,
+        route: game.route,
+        settings: await randomizeSettingsForGame(game, cfg),
+      });
+    }
+    return built;
+  })();
+
+  await animateDrawBlocks(pool.map((g) => g.title));
+  const built = await builtPromise;
 
   // Placar de cada equipe no momento do sorteio — o popup final compara
   // com o placar de lá pra cá, pra apurar o vencedor só da disputa (não
@@ -769,8 +826,40 @@ async function drawGames() {
   const baseline = Teams.getState().teams.map((t) => ({ id: t.id, score: t.score }));
   GameDraw.start(built, baseline);
 
-  const modalEl = document.getElementById("drawReadyModal");
-  (bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl)).show();
+  document.getElementById("drawModalTitle").textContent = "✅ Jogos sorteados!";
+  document.getElementById("drawReadyNote")?.classList.remove("d-none");
+  confirmBtn?.classList.add("d-none");
+  document.getElementById("btnStartDraw")?.classList.remove("d-none");
+}
+
+// Efeito visual de "sorteando": cada um dos 3 blocos cicla rapidamente
+// por nomes de jogos do catálogo (não necessariamente os sorteados de
+// verdade — é só pra dar a sensação de aleatoriedade) e "assenta" num
+// cadeado em tempos escalonados, tipo caça-níquel. O jogo de verdade só
+// é revelado ao entrar nele — o bloco nunca mostra o nome real.
+function animateDrawBlocks(candidateTitles) {
+  const blocks = [...document.querySelectorAll(".pg-draw-block")];
+  if (!blocks.length) return Promise.resolve();
+
+  return new Promise((resolve) => {
+    const durations = [900, 1250, 1650]; // cascata: cada bloco assenta em um tempo diferente
+    let settledCount = 0;
+
+    blocks.forEach((block, i) => {
+      const label = block.querySelector(".pg-draw-block-label");
+      const spin = setInterval(() => {
+        label.textContent = pickRandom(candidateTitles) || "🎲";
+      }, 90);
+
+      setTimeout(() => {
+        clearInterval(spin);
+        label.textContent = "🔒";
+        block.classList.add("is-settled");
+        settledCount += 1;
+        if (settledCount === blocks.length) resolve();
+      }, durations[i] ?? 1650);
+    });
+  });
 }
 
 function pickRandom(arr) {

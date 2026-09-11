@@ -144,7 +144,27 @@
 
 .pg-section-head {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 16px;
   margin-bottom: 28px;
+}
+
+/* Os filtros dividem a linha com o botão de sorteio — flex:1 1 auto pra
+   ocupar o espaço livre, min-width:0 pra poder encolher (e o próprio
+   .pg-category-pills, mais abaixo, cuida de rolar/quebrar por conta
+   própria conforme a largura da tela). Se não sobrar espaço pra tudo na
+   mesma linha, o botão (flex:0 0 auto) quebra pra linha de baixo sozinho
+   — os filtros nunca ficam espremidos por causa dele. */
+.pg-section-head .pg-category-pills {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.pg-draw-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .pg-catalogo {
@@ -520,71 +540,84 @@
 }
 
 /* ==============================
-   SORTEAR JOGOS (barra de destaque)
+   SORTEAR JOGOS (blocos animados no modal — ver #drawModal no index.html
+   e runDraw/animateDrawBlocks em app.js)
 ================================= */
 
-.pg-draw-bar {
+.pg-draw-blocks {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px 20px;
-  margin: 0 32px 24px;
-  padding: 16px 22px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(244, 196, 48, .14), rgba(244, 196, 48, .04));
-  border: 1px solid rgba(244, 196, 48, .3);
+  gap: 12px;
+  margin: 4px 0 16px;
 }
 
-.pg-draw-bar-text {
+.pg-draw-block {
+  flex: 1 1 0;
+  aspect-ratio: 3 / 4;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 14px;
-  min-width: 0;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 14px;
+  background: var(--bg-secondary);
+  border: 1px solid rgba(255, 255, 255, .08);
+  transition: border-color .2s ease, background .2s ease, transform .2s ease;
 }
 
-.pg-draw-bar-icon {
-  flex: 0 0 auto;
-  font-size: 1.6rem;
-  line-height: 1;
-}
-
-.pg-draw-bar-title {
+.pg-draw-block-num {
+  font-size: .72rem;
   font-weight: 700;
-  font-size: .98rem;
-  color: var(--text-main);
-}
-
-.pg-draw-bar-sub {
-  font-size: .85rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
   color: var(--text-muted);
 }
 
-.pg-draw-bar #btnDrawGames {
-  flex: 0 0 auto;
-  white-space: nowrap;
+.pg-draw-block-label {
+  font-size: 1.6rem;
+  line-height: 1.2;
+  text-align: center;
+  min-height: 1.4em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  /* Enquanto cicla nomes de jogos (fase de animação), o texto pode ser
+     mais longo que o bloco — quebra em até 2 linhas em vez de estourar. */
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  font-size: .78rem;
+  font-weight: 700;
 }
 
-@media (max-width: 880px) {
-  .pg-draw-bar {
-    margin: 0 16px 20px;
-    padding: 14px 16px;
-  }
+/* "Assentou" — animação parou, o bloco vira um cadeado (nunca o nome
+   real do jogo) com destaque dourado, indicando que aquela posição já
+   foi sorteada. */
+.pg-draw-block.is-settled {
+  border-color: rgba(244, 196, 48, .5);
+  background: linear-gradient(135deg, rgba(244, 196, 48, .16), rgba(244, 196, 48, .04));
+  animation: pg-draw-settle .35s ease;
 }
 
-@media (max-width: 600px) {
-  .pg-draw-bar {
-    flex-direction: column;
-    align-items: stretch;
-    text-align: center;
+.pg-draw-block.is-settled .pg-draw-block-label {
+  font-size: 1.6rem;
+  -webkit-line-clamp: 1;
+}
+
+@keyframes pg-draw-settle {
+  0% { transform: scale(1.1); }
+  60% { transform: scale(.97); }
+  100% { transform: scale(1); }
+}
+
+@media (max-width: 480px) {
+  .pg-draw-blocks {
+    gap: 8px;
   }
 
-  .pg-draw-bar-text {
-    justify-content: center;
-  }
-
-  .pg-draw-bar #btnDrawGames {
-    width: 100%;
+  .pg-draw-block {
+    padding: 8px 6px;
   }
 }
 

@@ -98,26 +98,20 @@
            logo abaixo do header, acima da lista de jogos. -->
       <div id="teamsBanner" class="pg-teams-banner d-none"></div>
 
-      <!-- SORTEAR JOGOS: sorteia 3 jogos aleatórios pra jogar em sequência,
-           com o mesmo placar valendo pros 3 — só libera com equipes já
-           criadas (ver wireDrawGames/drawGames em app.js). -->
-      <div class="pg-draw-bar" id="drawBar">
-        <div class="pg-draw-bar-text">
-          <span class="pg-draw-bar-icon" aria-hidden="true">🎲</span>
-          <div>
-            <div class="pg-draw-bar-title">Não sabe qual jogo escolher?</div>
-            <div class="pg-draw-bar-sub">Sorteie 3 jogos pra jogar em sequência, com o placar valendo pros 3.</div>
-          </div>
-        </div>
-        <button type="button" class="btn pg-btn-primary" id="btnDrawGames">🎲 Sortear jogos</button>
-      </div>
-
       <!-- CATALOGO -->
       <main id="catalogo" class="pg-catalogo">
 
         <div class="pg-section-head">
           <!-- CATEGORIAS (pills com contagem real) -->
           <div class="pg-category-pills" id="categoryPills"></div>
+
+          <!-- SORTEAR JOGOS: sorteia 3 jogos aleatórios pra jogar em
+               sequência, com o mesmo placar valendo pros 3 — só libera com
+               equipes já criadas. Detalhes de como funciona só aparecem
+               no modal, ao clicar (ver wireDrawGames em app.js). -->
+          <button type="button" class="btn pg-btn-primary btn-sm pg-draw-btn" id="btnDrawGames">
+            🎲 Sortear jogos
+          </button>
         </div>
 
         <!-- GRADE (todos os jogos) — no desktop, grade normal (quebra linha);
@@ -244,31 +238,68 @@
     </div>
   </div>
 
-  <!-- MODAL "JOGOS SORTEADOS" — depois de girar o sorteio (ver drawGames()
-       em app.js). De propósito NÃO revela quais jogos foram sorteados:
-       isso só aparece ao entrar em cada um, na hora. -->
-  <div class="modal fade" id="drawReadyModal" tabindex="-1" aria-hidden="true">
+  <!-- MODAL "SORTEAR JOGOS" — 3 fases controladas via JS (ver
+       wireDrawGames/openDrawIntro/runDraw em app.js), todas dentro do
+       mesmo modal pra não precisar abrir/fechar entre elas:
+       1) explicação de como funciona + botão "Sortear agora";
+       2) animação dos 3 blocos "sorteando" (nomes não são revelados de
+          propósito — cada bloco só mostra um cadeado no final);
+       3) pronto + botão "Vamos jogar!" (só aí o 1º jogo é revelado, ao
+          navegar pra ele). -->
+  <div class="modal fade" id="drawModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content pg-modal">
         <div class="modal-header pg-modal-header">
-          <h5 class="modal-title mb-0">🎲 Jogos sorteados!</h5>
+          <h5 class="modal-title mb-0" id="drawModalTitle">🎲 Sortear jogos</h5>
           <button type="button" class="btn-close pg-btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
         </div>
 
         <div class="modal-body">
-          <p class="pg-support-text">
-            Já sorteamos os 3 jogos da disputa — mas isso é surpresa! Cada
-            um vale até 10 rodadas, e no final de cada um aparece o placar
-            com um botão pro próximo.
-          </p>
-          <p class="pg-support-text">
-            Se precisar sair no meio, sem problema: os pontos já
-            conquistados continuam valendo.
+          <!-- FASE 1: explicação -->
+          <div id="drawPhaseIntro">
+            <p class="pg-support-text">
+              Sorteamos 3 jogos aleatórios pra vocês jogarem em sequência,
+              com o mesmo placar valendo pros 3.
+            </p>
+            <p class="pg-support-text">
+              Os jogos sorteados ficam em segredo até vocês entrarem em
+              cada um — a graça é a surpresa! Cada um vale até 10 rodadas,
+              e no final de cada um aparece o placar com um botão pro
+              próximo.
+            </p>
+            <p class="pg-support-text">
+              Quer sair no meio? Sem problema: os pontos já conquistados
+              continuam valendo.
+            </p>
+          </div>
+
+          <!-- FASE 2/3: os 3 blocos — cada um cicla nomes aleatórios
+               rapidamente (efeito de sorteio) e "assenta" num cadeado,
+               sem nunca revelar o jogo de verdade. -->
+          <div id="drawPhaseBlocks" class="pg-draw-blocks d-none">
+            <div class="pg-draw-block">
+              <span class="pg-draw-block-num">Jogo 1</span>
+              <span class="pg-draw-block-label">🎲</span>
+            </div>
+            <div class="pg-draw-block">
+              <span class="pg-draw-block-num">Jogo 2</span>
+              <span class="pg-draw-block-label">🎲</span>
+            </div>
+            <div class="pg-draw-block">
+              <span class="pg-draw-block-num">Jogo 3</span>
+              <span class="pg-draw-block-label">🎲</span>
+            </div>
+          </div>
+
+          <p class="pg-support-text d-none" id="drawReadyNote">
+            Prontos! Mas isso continua sendo surpresa 😉 — cada jogo só se
+            revela na hora de jogar.
           </p>
         </div>
 
         <div class="modal-footer pg-modal-footer">
-          <button type="button" class="btn pg-btn-primary" id="btnStartDraw" data-bs-dismiss="modal">Vamos jogar!</button>
+          <button type="button" class="btn pg-btn-primary" id="btnDrawConfirm">🎲 Sortear agora</button>
+          <button type="button" class="btn pg-btn-primary d-none" id="btnStartDraw" data-bs-dismiss="modal">Vamos jogar!</button>
         </div>
       </div>
     </div>
