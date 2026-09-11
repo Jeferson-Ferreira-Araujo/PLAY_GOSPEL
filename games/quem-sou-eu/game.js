@@ -2,6 +2,7 @@ import { shuffleArray } from "../../assets/js/utils.js";
 import { Teams } from "../../assets/js/teams.js";
 import { icon } from "../../playgospel-ui/js/core.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
+import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
 
 // Máximo de rodadas por partida (evita jogar todos os personagens de uma vez).
 const ROUND_SIZE = 10;
@@ -135,11 +136,12 @@ async function loadData() {
    mesmo assim alguém cair aqui sem equipes (link direto, por exemplo),
    volta pro catálogo em vez de mostrar um jogo sem placar.
 ========================= */
-function checkAutoStartFromURL() {
+async function checkAutoStartFromURL() {
   if (!Teams.isEnabled()) {
     window.location.href = "../../index.html#catalogo";
     return;
   }
+  await maybeShowDrawIntro();
   startGame();
 }
 

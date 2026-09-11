@@ -2,6 +2,7 @@ import { Teams } from '../../assets/js/teams.js';
 import { shuffleArray, createCountdownTimer } from '../../assets/js/utils.js';
 import { renderRanking, confirmDialog } from '../../playgospel-ui/js/playgospel-ui.js';
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from '../../assets/js/score-popup.js';
+import { maybeShowDrawIntro } from '../../assets/js/game-intro.js';
 
 /* Alfabeto do jogo: todas as letras menos as difíceis (H, K, Q, W, X, Y, Z). */
 const LETTERS_ALL = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'I', 'J', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'V'];
@@ -188,7 +189,7 @@ function startGame() {
    Se mesmo assim alguém cair aqui sem equipes (link direto, por
    exemplo), volta pro catálogo em vez de mostrar uma tela quebrada.
 ========================= */
-function checkAutoStartFromURL() {
+async function checkAutoStartFromURL() {
   if (!Teams.isEnabled()) {
     window.location.href = '../../index.html#catalogo';
     return;
@@ -200,6 +201,7 @@ function checkAutoStartFromURL() {
   if (cat) selectCategory(cat);
   if (time) selectTime(Number(time));
 
+  await maybeShowDrawIntro();
   startGame();
 }
 

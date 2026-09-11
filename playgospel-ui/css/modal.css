@@ -77,6 +77,24 @@
   flex-wrap: wrap;
 }
 
+/* Passo a passo "como jogar" (usado no modal de instrução de cada etapa
+   de uma disputa sorteada — ver assets/js/game-intro.js). */
+.pgui-howto-list {
+  margin: 0;
+  padding-left: 1.3em;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pgui-space-12);
+  color: var(--pgui-text-primary);
+  font-size: var(--pgui-fs-body);
+  line-height: 1.5;
+}
+
+.pgui-howto-list li::marker {
+  color: var(--pgui-color-primary);
+  font-weight: 700;
+}
+
 @media (max-width: 480px) {
   .pgui-modal { padding: var(--pgui-space-16); }
 }

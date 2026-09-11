@@ -1,6 +1,7 @@
 import { createCountdownTimer, shuffleArray } from "../../assets/js/utils.js";
 import { Teams } from "../../assets/js/teams.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
+import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
 import { icon } from "../../playgospel-ui/js/core.js";
 
 /* ===== ELEMENTS ===== */
@@ -186,7 +187,7 @@ async function loadWords() {
 }
 
 /* ========================= URL ========================= */
-function applyParamsFromURL() {
+async function applyParamsFromURL() {
   // A tela de configuração ficou só no modal do catálogo (que já barra
   // "Jogar" sem equipes ativas — ver assets/js/app.js). Se mesmo assim
   // alguém cair aqui sem equipes (link direto, por exemplo), volta pro
@@ -213,6 +214,7 @@ function applyParamsFromURL() {
 
   currentCategory = data.categories.find(c => c.id === catId);
 
+  await maybeShowDrawIntro();
   startGame();
 }
 

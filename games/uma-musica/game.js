@@ -1,6 +1,7 @@
 import { shuffleArray, createCountdownTimer, pointsLabel } from "../../assets/js/utils.js";
 import { Teams } from "../../assets/js/teams.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
+import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
 
 // Máximo de rodadas por partida (evita jogar todas as palavras de uma vez).
 const ROUND_SIZE = 10;
@@ -220,7 +221,7 @@ async function loadWords() {
    ?custom=...
    ?time=...
 ========================= */
-function checkAutoStartFromURL() {
+async function checkAutoStartFromURL() {
   // A tela de configuração ficou só no modal do catálogo (que já barra
   // "Jogar" sem equipes ativas — ver assets/js/app.js). Se mesmo assim
   // alguém cair aqui sem equipes (link direto, por exemplo), volta pro
@@ -241,6 +242,7 @@ function checkAutoStartFromURL() {
   const time = params.get("time");
   if (time !== null && timeSelect) timeSelect.value = time;
 
+  await maybeShowDrawIntro();
   startGame();
 }
 

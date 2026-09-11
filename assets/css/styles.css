@@ -702,8 +702,18 @@
   border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
+/* Bootstrap deixa o botão de fechar com opacity:.5 por padrão — em cima
+   do fundo escuro do modal (já invertido pra branco aqui embaixo) isso
+   fica parecendo borrado/sem contraste até passar o mouse. Sobe a
+   opacidade de base pra ficar nítido desde o início. */
 .pg-btn-close {
   filter: invert(1);
+  opacity: .85;
+}
+
+.pg-btn-close:hover,
+.pg-btn-close:focus {
+  opacity: 1;
 }
 
 .pg-modal-footer {

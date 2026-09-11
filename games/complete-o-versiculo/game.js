@@ -1,6 +1,7 @@
 import { shuffleArray, createCountdownTimer, pointsLabel } from "../../assets/js/utils.js";
 import { Teams } from "../../assets/js/teams.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
+import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
 
 // Máximo de rodadas por partida (evita jogar todos os versículos de uma vez).
 const ROUND_SIZE = 10;
@@ -239,6 +240,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   applyParamsToSetupUI();
   currentDifficulty = difficultySelect.value;
   durationSec = Number(timeSelect.value || 0);
+  await maybeShowDrawIntro();
   startGame();
 });
 

@@ -703,15 +703,14 @@ function updateTeamsNavButton() {
 /* =========================
    SORTEAR JOGOS — disputa de 3 jogos aleatórios jogados em sequência,
    com o mesmo placar de equipes valendo pros 3 (ver assets/js/game-draw.js
-   pro estado e score-popup.js pro avanço entre etapas dentro do jogo).
+   pro estado, assets/js/game-intro.js pro modal "como jogar" de cada
+   etapa, e score-popup.js pro avanço entre etapas dentro do jogo).
 
-   O modal #drawModal tem 3 fases controladas por aqui (ver
-   resetDrawModalPhases): 1) explicação + "Sortear agora"; 2) os 3 blocos
-   animando (ver runDraw/animateDrawBlocks); 3) pronto + "Vamos jogar!".
+   O modal #drawModal abre já animando os 3 blocos (ver runDraw); o único
+   passo que espera confirmação do usuário é o botão final "Vamos jogar!".
 ========================= */
 function wireDrawGames() {
-  document.getElementById("btnDrawGames")?.addEventListener("click", () => { openDrawIntro(); });
-  document.getElementById("btnDrawConfirm")?.addEventListener("click", () => { runDraw(); });
+  document.getElementById("btnDrawGames")?.addEventListener("click", () => { startDrawFlow(); });
 
   // Só aqui o primeiro jogo é revelado de fato (a navegação em si já
   // mostra qual é) — nada antes disso denuncia os 3 jogos sorteados.
@@ -724,8 +723,7 @@ function wireDrawGames() {
 // Depois do 3º jogo, "Sortear novos jogos" (ver buildTournamentFinalFooter
 // em score-popup.js) volta pro catálogo com ?sortear=1 — aqui a gente
 // detecta isso e dispara um sorteio novo automaticamente (equipes já
-// estão ativas nesse ponto — pula direto pra animação, sem repetir a
-// explicação de como funciona).
+// estão ativas nesse ponto).
 function maybeAutoRedraw() {
   const params = new URLSearchParams(window.location.search);
   if (params.get("sortear") !== "1") return;
@@ -734,17 +732,13 @@ function maybeAutoRedraw() {
   url.searchParams.delete("sortear");
   window.history.replaceState({}, "", url.toString());
 
-  if (!Teams.isEnabled()) return; // segurança — não deveria acontecer
-
-  resetDrawModalPhases();
-  const modalEl = document.getElementById("drawModal");
-  (bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl)).show();
-  runDraw();
+  startDrawFlow();
 }
 
-// Clique no botão "Sortear jogos" do catálogo — checa equipes (igual
-// antes) e, se tudo certo, abre o modal já na fase de explicação.
-async function openDrawIntro() {
+// Clique no botão "Sortear jogos" do catálogo (ou redesenho automático,
+// ver maybeAutoRedraw) — checa equipes e, se tudo certo, abre o modal já
+// sorteando.
+async function startDrawFlow() {
   if (!Teams.isEnabled()) {
     const wantsToCreate = await confirmDialog({
       title: "Crie as equipes primeiro",
@@ -759,23 +753,18 @@ async function openDrawIntro() {
     return;
   }
 
-  resetDrawModalPhases();
+  resetDrawModal();
   const modalEl = document.getElementById("drawModal");
   (bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl)).show();
+  runDraw();
 }
 
-// Volta o modal pra fase 1 (explicação) — chamado toda vez que ele abre,
-// pra não sobrar estado de uma disputa sorteada anterior (blocos
+// Volta o modal pro estado inicial — chamado toda vez que ele abre, pra
+// não sobrar estado de uma disputa sorteada anterior (blocos
 // "assentados", nota "prontos" visível etc.).
-function resetDrawModalPhases() {
-  document.getElementById("drawModalTitle").textContent = "🎲 Sortear jogos";
-  document.getElementById("drawPhaseIntro")?.classList.remove("d-none");
-  document.getElementById("drawPhaseBlocks")?.classList.add("d-none");
+function resetDrawModal() {
+  document.getElementById("drawModalTitle").textContent = "🎲 Sorteando...";
   document.getElementById("drawReadyNote")?.classList.add("d-none");
-
-  const confirmBtn = document.getElementById("btnDrawConfirm");
-  confirmBtn?.classList.remove("d-none");
-  if (confirmBtn) confirmBtn.disabled = false;
   document.getElementById("btnStartDraw")?.classList.add("d-none");
 
   document.querySelectorAll(".pg-draw-block").forEach((block) => {
@@ -785,16 +774,9 @@ function resetDrawModalPhases() {
   });
 }
 
-// Fase 2→3: sorteia de verdade (jogos + configurações) enquanto os 3
-// blocos animam na tela, depois libera a fase "pronto".
+// Sorteia de verdade (jogos + configurações) enquanto os 3 blocos animam
+// na tela, depois libera o botão "Vamos jogar!".
 async function runDraw() {
-  const confirmBtn = document.getElementById("btnDrawConfirm");
-  if (confirmBtn) confirmBtn.disabled = true;
-
-  document.getElementById("drawPhaseIntro")?.classList.add("d-none");
-  document.getElementById("drawPhaseBlocks")?.classList.remove("d-none");
-  document.getElementById("drawModalTitle").textContent = "🎲 Sorteando...";
-
   // Jogos "em breve" (unavailable) ficam fora do sorteio, óbvio.
   const pool = allGames.filter((g) => !g.unavailable);
   if (pool.length < 3) return; // catálogo pequeno demais — não deveria acontecer
@@ -802,7 +784,10 @@ async function runDraw() {
   const chosen = shuffleArray(pool).slice(0, 3);
 
   // Monta o sorteio de verdade em paralelo com a animação (não trava a
-  // UI esperando os fetch de config.json de cada jogo).
+  // UI esperando os fetch de config.json de cada jogo). O "howTo" de
+  // cada config.json vai junto no jogo sorteado — é o que
+  // assets/js/game-intro.js usa pra montar o modal "como jogar" de cada
+  // etapa, sem precisar buscar o config.json de novo lá na página do jogo.
   const builtPromise = (async () => {
     const built = [];
     for (const game of chosen) {
@@ -812,6 +797,7 @@ async function runDraw() {
         title: game.title,
         route: game.route,
         settings: await randomizeSettingsForGame(game, cfg),
+        howTo: Array.isArray(cfg?.howTo) ? cfg.howTo : [],
       });
     }
     return built;
@@ -828,7 +814,6 @@ async function runDraw() {
 
   document.getElementById("drawModalTitle").textContent = "✅ Jogos sorteados!";
   document.getElementById("drawReadyNote")?.classList.remove("d-none");
-  confirmBtn?.classList.add("d-none");
   document.getElementById("btnStartDraw")?.classList.remove("d-none");
 }
 

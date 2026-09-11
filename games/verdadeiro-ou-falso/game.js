@@ -1,6 +1,7 @@
 import { shuffleArray, createCountdownTimer } from "../../assets/js/utils.js";
 import { Teams } from "../../assets/js/teams.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
+import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
 
 // Máximo de rodadas por partida (evita jogar todas as afirmações de uma vez).
 const ROUND_SIZE = 10;
@@ -111,7 +112,7 @@ async function loadData() {
    AUTO START VIA URL
    ?play=1&difficulty=hard&time=20
 ========================= */
-function checkAutoStartFromURL() {
+async function checkAutoStartFromURL() {
   // A tela de configuração ficou só no modal do catálogo (que já barra
   // "Jogar" sem equipes ativas — ver assets/js/app.js). Se mesmo assim
   // alguém cair aqui sem equipes (link direto, por exemplo), volta pro
@@ -132,6 +133,7 @@ function checkAutoStartFromURL() {
   currentDifficulty = difficultySelect?.value || currentDifficulty;
   durationSec = Number(timeSelect?.value || durationSec);
 
+  await maybeShowDrawIntro();
   startGame();
 }
 
