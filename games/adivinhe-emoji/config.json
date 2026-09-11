@@ -30,6 +30,11 @@
     "Uma sequência de emojis aparece — adivinhe o que ela representa antes do tempo acabar.",
     "Depois de 10 rodadas a partida encerra e mostra a pontuação."
   ],
+  "drawHowTo": [
+    "Uma contagem de 3 segundos prepara as equipes.",
+    "Uma sequência de emojis aparece — quem acertar o que ela representa primeiro, leva o ponto.",
+    "Depois de 10 rodadas a partida encerra e mostra a pontuação."
+  ],
   "tips": [
     "Funciona muito bem em telão.",
     "Todas as equipes veem os mesmos emojis ao mesmo tempo (formato disputa).",

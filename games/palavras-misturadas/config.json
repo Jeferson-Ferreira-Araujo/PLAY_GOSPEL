@@ -29,6 +29,11 @@
     "Descubra antes do tempo acabar.",
     "Quando as palavras terminarem, o jogo encerra."
   ],
+  "drawHowTo": [
+    "Uma ou mais palavras aparecerão embaralhadas.",
+    "Quem responder em voz alta primeiro, leva o ponto.",
+    "Troca o jogador da equipe e outra palavra será exibida na tela."
+  ],
   "tips": [
     "Funciona muito bem em telão.",
     "Frases com espaços também embaralham.",

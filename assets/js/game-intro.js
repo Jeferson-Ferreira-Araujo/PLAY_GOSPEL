@@ -20,7 +20,7 @@ import { icon } from "../../playgospel-ui/js/core.js";
 // de turno — dado que não existe em lugar nenhum ainda, só o rótulo.
 const MATCH_TYPE_INFO = {
   rodada: { icon: "refresh", label: "Rodada", text: "as equipes jogam uma de cada vez, em turnos." },
-  disputa: { icon: "flame", label: "Disputa", text: "todas as equipes jogam ao mesmo tempo, disputando a mesma rodada." },
+  disputa: { icon: "flame", label: "Disputa", text: "as equipes respondem juntas ao mesmo tempo — quem acertar primeiro leva o ponto." },
 };
 
 function escapeHtml(str) {
@@ -51,7 +51,6 @@ function buildBody(entry) {
   const wrap = document.createElement("div");
 
   const howTo = Array.isArray(entry?.howTo) ? entry.howTo : [];
-  const tips = Array.isArray(entry?.tips) ? entry.tips : [];
   const format = MATCH_TYPE_INFO[entry?.matchType];
 
   let html = `<div class="pgui-intro-section-label">Como jogar</div>`;
@@ -75,15 +74,6 @@ function buildBody(entry) {
     html += `<p class="pgui-body">Bora jogar!</p>`;
   }
 
-  if (tips.length) {
-    html += `
-      <div class="pgui-intro-tip">
-        <span aria-hidden="true">💡</span>
-        <span><b>Dica:</b> ${escapeHtml(tips[0])}</span>
-      </div>
-    `;
-  }
-
   wrap.innerHTML = html;
   return wrap;
 }
@@ -98,8 +88,8 @@ function buildFooter(onConfirm) {
 
 /**
  * Se a página atual for a etapa da vez de uma disputa sorteada, mostra
- * o modal "como jogar" (nome do jogo, formato rodada/disputa, passo a
- * passo e uma dica) e só resolve quando o usuário clicar "Começar jogo"
+ * o modal "como jogar" (nome do jogo, formato rodada/disputa e o passo a
+ * passo) e só resolve quando o usuário clicar "Começar jogo"
  * — quem chama deve aguardar essa Promise antes de iniciar a partida de
  * fato. Fora de uma disputa sorteada (ou se essa página não for a etapa
  * esperada), resolve na hora, sem mostrar nada.

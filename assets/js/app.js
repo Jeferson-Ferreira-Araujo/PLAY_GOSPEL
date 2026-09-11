@@ -784,22 +784,29 @@ async function runDraw() {
   const chosen = shuffleArray(pool).slice(0, 3);
 
   // Monta o sorteio de verdade em paralelo com a animação (não trava a
-  // UI esperando os fetch de config.json de cada jogo). howTo/tips/
-  // matchType vão junto no jogo sorteado — é o que assets/js/game-intro.js
-  // usa pra montar o modal "como jogar" de cada etapa (nome, passo a
-  // passo, dica e se é rodada ou disputa), sem precisar buscar o
-  // config.json/games.json de novo lá na página do jogo.
+  // UI esperando os fetch de config.json de cada jogo). howTo/matchType
+  // vão junto no jogo sorteado — é o que assets/js/game-intro.js usa pra
+  // montar o modal "como jogar" de cada etapa (nome, passo a passo e se
+  // é rodada ou disputa), sem precisar buscar o config.json/games.json
+  // de novo lá na página do jogo.
+  //
+  // "drawHowTo" (quando existir no config.json) tem prioridade sobre o
+  // "howTo" normal — alguns jogos começam o passo a passo com "Escolha a
+  // categoria/dificuldade e o tempo", instrução que não faz sentido no
+  // sorteio (as configurações já saem sorteadas sozinhas, ver
+  // randomizeSettingsForGame). "drawHowTo" é a versão desse passo a
+  // passo sem esse primeiro passo.
   const builtPromise = (async () => {
     const built = [];
     for (const game of chosen) {
       const cfg = await loadGameConfig(game);
+      const howTo = Array.isArray(cfg?.drawHowTo) ? cfg.drawHowTo : (Array.isArray(cfg?.howTo) ? cfg.howTo : []);
       built.push({
         id: game.id,
         title: game.title,
         route: game.route,
         settings: await randomizeSettingsForGame(game, cfg),
-        howTo: Array.isArray(cfg?.howTo) ? cfg.howTo : [],
-        tips: Array.isArray(cfg?.tips) ? cfg.tips : [],
+        howTo,
         matchType: game.matchType || null,
       });
     }

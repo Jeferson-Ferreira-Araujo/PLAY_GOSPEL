@@ -56,7 +56,13 @@
 }
 
 .pgui-modal__close {
+  /* Não depende do reset.css pra tirar o visual nativo de <button> (fundo
+     e borda cinza) — reset.css não é carregado nas páginas de jogo, só
+     no catálogo, então precisa resetar aqui mesmo. */
   display: inline-flex;
+  background: none;
+  border: none;
+  cursor: pointer;
   color: var(--pgui-text-secondary);
   padding: var(--pgui-space-4);
   border-radius: var(--pgui-radius-sm);
@@ -174,7 +180,8 @@
   border-radius: var(--pgui-radius-md);
   background: rgba(255, 255, 255, .04);
   color: var(--pgui-text-secondary);
-  font-size: var(--pgui-fs-caption);
+  font-size: var(--pgui-fs-body);
+  line-height: 1.4;
 }
 
 .pgui-intro-format svg {
@@ -193,23 +200,6 @@
 }
 
 .pgui-intro-box .pgui-howto-list {
-  gap: var(--pgui-space-8);
-  font-size: var(--pgui-fs-caption);
-}
-
-/* Caixa de dica, destacada na cor de marca (vem do "tips" do config.json). */
-.pgui-intro-tip {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--pgui-space-8);
-  padding: var(--pgui-space-12);
-  border-radius: var(--pgui-radius-md);
-  background: color-mix(in srgb, var(--pgui-color-primary) 12%, transparent);
-  border: 1px solid color-mix(in srgb, var(--pgui-color-primary) 30%, transparent);
-  font-size: var(--pgui-fs-caption);
-  color: var(--pgui-text-primary);
-}
-
-.pgui-intro-tip b {
-  color: var(--pgui-color-primary);
+  gap: var(--pgui-space-12);
+  font-size: var(--pgui-fs-body);
 }
