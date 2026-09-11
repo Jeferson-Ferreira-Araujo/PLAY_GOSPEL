@@ -572,7 +572,6 @@ function exitGame() {
   setGameOverUI(false);
 
   gameScreen.classList.add("d-none");
-  setupScreen.classList.remove("d-none");
 
   verseText.textContent = "—";
   referenceBox.classList.add("d-none");
