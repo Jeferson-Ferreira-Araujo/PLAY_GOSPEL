@@ -442,10 +442,12 @@
   justify-content: center;
 }
 
-.pg-team-pill {
-  flex: 0 1 240px;
-}
-
+/* flex: 1 1 (cresce e encolhe) em vez de 0 1 (só encolhe) — com o badge
+   de integrantes (ícone+contagem+"integrantes"+seta) o conteúdo passou a
+   precisar de mais que os 240px de antes. min-width trava um piso real
+   (não só a flex-basis, que ainda deixava encolher/sobrepor) — abaixo
+   dele o pill quebra pra própria linha (.pg-teams-banner-teams já tem
+   flex-wrap) em vez de espremer o nome/badge até sobrepor. */
 .pg-team-pill {
   display: flex;
   align-items: center;
@@ -455,7 +457,8 @@
   border-radius: 14px;
   background: rgba(255, 255, 255, .03);
   border: 1.5px solid var(--pill-color, var(--gold));
-  min-width: 0;
+  flex: 1 1 380px;
+  min-width: 380px;
 }
 
 /* Time na frente: pills já vêm ordenadas por placar (maior primeiro, ver
@@ -513,6 +516,10 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  /* Sem isso, o overflow:hidden zera o tamanho mínimo automático do flex
+     item — o nome sumia por completo pra abrir espaço pro badge de
+     integrantes em vez de só truncar. */
+  min-width: 4em;
 }
 
 /* Selo da coroa fica depois do placar (não colado no nome) — menos
@@ -1766,20 +1773,23 @@
   font-style: italic;
 }
 
-/* Botão "ver participantes" dentro do pill de equipe do catálogo — na
-   cor da própria equipe (não cinza neutro) pra não passar despercebido
-   ao lado do nome. */
+/* Botão "ver participantes" dentro do pill de equipe do catálogo — badge
+   com ícone + contagem + seta, na cor da própria equipe (não cinza
+   neutro) pra não passar despercebido ao lado do nome. A palavra
+   "integrante(s)" some no mobile (ver media query), sobrando só o
+   número — cabe mais gente na mesma linha sem apertar. */
 .pg-team-pill-members-btn {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   flex: 0 0 auto;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
   border: 1.5px solid var(--pill-color, var(--gold));
   background: rgba(255,255,255,.06);
   color: var(--pill-color, var(--gold));
+  font-size: .78rem;
+  font-weight: 600;
   cursor: pointer;
   transition: background .15s ease, transform .15s ease;
 }
@@ -1787,7 +1797,21 @@
 .pg-team-pill-members-btn:hover {
   background: var(--pill-color, var(--gold));
   color: var(--bg-main);
-  transform: scale(1.08);
+  transform: scale(1.03);
+}
+
+.pg-team-pill-members-count {
+  font-weight: 800;
+}
+
+@media (max-width: 600px) {
+  .pg-team-pill-members-label {
+    display: none;
+  }
+
+  .pg-team-pill-members-btn {
+    padding: 5px 8px;
+  }
 }
 
 .pg-chip-btn {
@@ -1997,9 +2021,15 @@
     display: none;
   }
 
+  /* auto-fit (não um "repeat(2,...)" fixo): com o pill maior agora (nome
+     + badge de integrantes + placar), forçar sempre 2 colunas faria
+     sobrepor conteúdo em telas mais estreitas dessa faixa. Com
+     auto-fit, cabe o que couber — normalmente 2 equipes por linha, mas
+     recua pra 1 coluna sozinha se a largura não permitir os 380px
+     mínimos de cada pill (ver min-width em .pg-team-pill). */
   .pg-teams-banner-teams {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
     width: 100%;
   }
 }

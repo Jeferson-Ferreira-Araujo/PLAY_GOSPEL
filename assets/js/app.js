@@ -642,6 +642,9 @@ function renderTeamsBanner() {
           ${hasMembers ? `
             <button type="button" class="pg-team-pill-members-btn" data-team-pill-members="${escapeAttr(t.id)}" title="Ver participantes" aria-label="Ver participantes de ${escapeAttr(t.name)}">
               ${icon("users", { size: 13 })}
+              <span class="pg-team-pill-members-count">${t.members.length}</span>
+              <span class="pg-team-pill-members-label">${t.members.length === 1 ? "integrante" : "integrantes"}</span>
+              ${icon("chevron-right", { size: 12 })}
             </button>
           ` : ""}
         </div>
@@ -1663,7 +1666,7 @@ function openTeamMembersModal({ name, color, icon: iconName, members }) {
   const safeIcon = Teams.teamIconNames.includes(iconName) ? iconName : "star";
   titleEl.innerHTML = `
     <span class="pg-team-members-modal-icon" style="--pill-color:${escapeAttr(color || "#F4C430")}">${icon(safeIcon, { size: 16 })}</span>
-    ${escapeHtml(name || "Equipe")}
+    Equipe "${escapeHtml(name || "")}"
   `;
 
   listEl.innerHTML = (members?.length ? members : [])

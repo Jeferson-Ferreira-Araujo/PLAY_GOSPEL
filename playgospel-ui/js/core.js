@@ -100,6 +100,7 @@ const ICONS = {
   minimize: '<path d="M9 4v3a1 1 0 0 1-1 1H5"/><path d="M15 4v3a1 1 0 0 0 1 1h3"/><path d="M9 20v-3a1 1 0 0 0-1-1H5"/><path d="M15 20v-3a1 1 0 0 1 1-1h3"/>',
   'chevron-down': '<path d="M6 9l6 6 6-6"/>',
   'chevron-up': '<path d="M6 15l6-6 6 6"/>',
+  'chevron-right': '<path d="M9 6l6 6-6 6"/>',
   book: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H12v18H6.5A2.5 2.5 0 0 1 4 18.5v-13Z"/><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H12v18h5.5a2.5 2.5 0 0 0 2.5-2.5v-13Z"/>',
   flag: '<path d="M5 21V4"/><path d="M5 4h13l-3 4 3 4H5"/>',
   refresh: '<path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 4v4h-4"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 20v-4h4"/>',
