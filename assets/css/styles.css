@@ -688,6 +688,24 @@
   color: rgba(11,18,32,.7);
 }
 
+/* Tablet em pé: pills um pouco menores (padding/fonte/gap reduzidos) pra
+   caberem numa linha só ao lado do botão "Sortear jogos", sem quebrar. */
+@media (min-width: 601px) and (max-width: 900px) {
+  .pg-category-pills {
+    gap: 8px;
+  }
+
+  .pg-category-pill {
+    padding: 7px 12px;
+    gap: 6px;
+    font-size: .78rem;
+  }
+
+  .pg-category-pill-count {
+    font-size: .72rem;
+  }
+}
+
 /* ==============================
    MODAL
 ================================= */
