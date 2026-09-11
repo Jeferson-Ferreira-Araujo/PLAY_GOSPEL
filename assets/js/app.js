@@ -1,6 +1,8 @@
 import { Teams } from "./teams.js";
+import { GameDraw } from "./game-draw.js";
 import { icon } from "../../playgospel-ui/js/core.js";
 import { initDropdowns } from "../../playgospel-ui/js/dropdown.js";
+import { confirmDialog } from "../../playgospel-ui/js/modal.js";
 
 // Capa compartilhada: usada quando um jogo não tem capa própria (games.json
 // sem "cover") e como fallback se a imagem informada falhar ao carregar.
@@ -481,6 +483,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const teamsModal = bootstrap.Modal.getInstance(teamsModalEl) || new bootstrap.Modal(teamsModalEl);
     teamsModal.show();
   });
+
+  // Sortear jogos (disputa de 3 jogos aleatórios em sequência)
+  wireDrawGames();
+  maybeAutoRedraw();
 });
 
 /* =========================
@@ -692,6 +698,129 @@ function updateTeamsNavButton() {
   const label = document.getElementById("teamsNavBtnLabel");
   if (!label) return;
   label.textContent = Teams.isEnabled() ? "Editar equipes" : "Criar equipes";
+}
+
+/* =========================
+   SORTEAR JOGOS — disputa de 3 jogos aleatórios jogados em sequência,
+   com o mesmo placar de equipes valendo pros 3 (ver assets/js/game-draw.js
+   pro estado e score-popup.js pro avanço entre etapas dentro do jogo).
+========================= */
+function wireDrawGames() {
+  document.getElementById("btnDrawGames")?.addEventListener("click", () => { drawGames(); });
+
+  // Botão do modal "Jogos sorteados!" — só aqui o primeiro jogo é revelado
+  // (a navegação em si já mostra qual é, de propósito: nada denuncia os
+  // 3 jogos antes da hora).
+  document.getElementById("btnStartDraw")?.addEventListener("click", () => {
+    const first = GameDraw.currentGame();
+    if (first) window.location.href = GameDraw.buildUrl(first);
+  });
+}
+
+// Depois do 3º jogo, "Sortear novos jogos" (ver buildTournamentFinalFooter
+// em score-popup.js) volta pro catálogo com ?sortear=1 — aqui a gente
+// detecta isso e dispara um sorteio novo automaticamente (equipes já
+// estão ativas nesse ponto, então cai direto no modal "Jogos sorteados!").
+function maybeAutoRedraw() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("sortear") !== "1") return;
+
+  const url = new URL(window.location.href);
+  url.searchParams.delete("sortear");
+  window.history.replaceState({}, "", url.toString());
+
+  drawGames();
+}
+
+async function drawGames() {
+  if (!Teams.isEnabled()) {
+    const wantsToCreate = await confirmDialog({
+      title: "Crie as equipes primeiro",
+      message: "Pra sortear jogos, você precisa ter pelo menos 2 equipes ativas.",
+      confirmLabel: "Criar equipes",
+      cancelLabel: "Fechar",
+    });
+    if (wantsToCreate) {
+      const teamsModalEl = document.getElementById("teamsModal");
+      (bootstrap.Modal.getInstance(teamsModalEl) || new bootstrap.Modal(teamsModalEl)).show();
+    }
+    return;
+  }
+
+  // Jogos "em breve" (unavailable) ficam fora do sorteio, óbvio.
+  const pool = allGames.filter((g) => !g.unavailable);
+  if (pool.length < 3) return; // catálogo pequeno demais — não deveria acontecer
+
+  const chosen = shuffleArray(pool).slice(0, 3);
+  const built = [];
+  for (const game of chosen) {
+    const cfg = await loadGameConfig(game);
+    built.push({
+      id: game.id,
+      title: game.title,
+      route: game.route,
+      settings: await randomizeSettingsForGame(game, cfg),
+    });
+  }
+
+  // Placar de cada equipe no momento do sorteio — o popup final compara
+  // com o placar de lá pra cá, pra apurar o vencedor só da disputa (não
+  // o acumulado histórico das equipes).
+  const baseline = Teams.getState().teams.map((t) => ({ id: t.id, score: t.score }));
+  GameDraw.start(built, baseline);
+
+  const modalEl = document.getElementById("drawReadyModal");
+  (bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl)).show();
+}
+
+function pickRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+// Pro tempo de resposta especificamente, nunca sorteia o extremo mais
+// curto nem o mais longo — sempre um valor de meio-termo, pra não juntar
+// dificuldade alta com tempo curto (ou fácil com tempo longo demais).
+// "0" (sem tempo) fica de fora do cálculo por ser um extremo também.
+function pickBalancedTime(values) {
+  const nums = values
+    .map(Number)
+    .filter((n) => !Number.isNaN(n) && n > 0)
+    .sort((a, b) => a - b);
+  if (!nums.length) return values[0];
+  return nums[Math.floor((nums.length - 1) / 2)];
+}
+
+// Monta as configurações da rodada sorteada pra um jogo, no mesmo formato
+// que collectModalSettings() produz a partir do formulário do modal —
+// mas escolhendo os valores sozinho em vez de ler campos da tela:
+// dificuldade/categoria saem aleatórias, tempo sai equilibrado
+// (pickBalancedTime), e campos de texto livre (word-list etc.) mantêm o
+// padrão do jogo — não faz sentido sortear um texto.
+async function randomizeSettingsForGame(game, cfg) {
+  const result = {};
+  const settings = Array.isArray(cfg?.settings) ? cfg.settings : [];
+
+  for (const s of settings) {
+    const type = String(s.type || "select").toLowerCase();
+
+    if (type !== "select") {
+      result[s.key] = s.default ?? "";
+      continue;
+    }
+
+    let values;
+    if (s.dynamic) {
+      const options = await resolveDynamicOptions(game, s.dynamic, s.dynamicSource);
+      values = options.map((opt) => opt.value);
+    } else {
+      values = (s.options ?? []).map((opt) => (opt && typeof opt === "object" ? opt.value : opt));
+    }
+    if (!values.length) continue;
+
+    result[s.key] = s.key === "time" ? pickBalancedTime(values) : pickRandom(values);
+  }
+
+  return result;
 }
 
 /* =========================

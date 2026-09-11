@@ -33,6 +33,7 @@
   <link href="playgospel-ui/css/forms.css" rel="stylesheet">
   <link href="playgospel-ui/css/cards.css" rel="stylesheet">
   <link href="playgospel-ui/css/dropdown.css" rel="stylesheet">
+  <link href="playgospel-ui/css/modal.css" rel="stylesheet">
 
   <link href="assets/css/styles.css" rel="stylesheet">
     <script>
@@ -96,6 +97,20 @@
       <!-- PLACAR DE EQUIPES (aparece se já houver equipes ativas) — fica
            logo abaixo do header, acima da lista de jogos. -->
       <div id="teamsBanner" class="pg-teams-banner d-none"></div>
+
+      <!-- SORTEAR JOGOS: sorteia 3 jogos aleatórios pra jogar em sequência,
+           com o mesmo placar valendo pros 3 — só libera com equipes já
+           criadas (ver wireDrawGames/drawGames em app.js). -->
+      <div class="pg-draw-bar" id="drawBar">
+        <div class="pg-draw-bar-text">
+          <span class="pg-draw-bar-icon" aria-hidden="true">🎲</span>
+          <div>
+            <div class="pg-draw-bar-title">Não sabe qual jogo escolher?</div>
+            <div class="pg-draw-bar-sub">Sorteie 3 jogos pra jogar em sequência, com o placar valendo pros 3.</div>
+          </div>
+        </div>
+        <button type="button" class="btn pg-btn-primary" id="btnDrawGames">🎲 Sortear jogos</button>
+      </div>
 
       <!-- CATALOGO -->
       <main id="catalogo" class="pg-catalogo">
@@ -225,6 +240,36 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12"/><path d="M18 6 6 18"/></svg>
         </button>
         <div class="modal-body pg-return-body" id="returnModalBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL "JOGOS SORTEADOS" — depois de girar o sorteio (ver drawGames()
+       em app.js). De propósito NÃO revela quais jogos foram sorteados:
+       isso só aparece ao entrar em cada um, na hora. -->
+  <div class="modal fade" id="drawReadyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content pg-modal">
+        <div class="modal-header pg-modal-header">
+          <h5 class="modal-title mb-0">🎲 Jogos sorteados!</h5>
+          <button type="button" class="btn-close pg-btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+
+        <div class="modal-body">
+          <p class="pg-support-text">
+            Já sorteamos os 3 jogos da disputa — mas isso é surpresa! Cada
+            um vale até 10 rodadas, e no final de cada um aparece o placar
+            com um botão pro próximo.
+          </p>
+          <p class="pg-support-text">
+            Se precisar sair no meio, sem problema: os pontos já
+            conquistados continuam valendo.
+          </p>
+        </div>
+
+        <div class="modal-footer pg-modal-footer">
+          <button type="button" class="btn pg-btn-primary" id="btnStartDraw" data-bs-dismiss="modal">Vamos jogar!</button>
+        </div>
       </div>
     </div>
   </div>

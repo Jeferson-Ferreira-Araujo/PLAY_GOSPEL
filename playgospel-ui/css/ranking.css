@@ -154,6 +154,17 @@
    da lista fina com linha pontilhada usada nos outros usos de .pgui-ranking
    pelo site, ex: prévia da tela de setup). Fica só dentro de
    .pgui-score-popup de propósito — não mexe no ranking padrão. */
+/* Aviso dentro do rodapé de saída, só quando uma disputa sorteada está
+   em andamento (ver buildExitFooter em score-popup.js) — flex-basis:100%
+   faz ele quebrar numa linha própria, acima dos botões, dentro do mesmo
+   contêiner flex de .pgui-modal__actions. */
+.pgui-score-popup__note {
+  flex: 1 1 100%;
+  margin: 0 0 var(--pgui-space-4);
+  font-size: var(--pgui-fs-caption);
+  color: var(--pgui-text-muted);
+}
+
 .pgui-score-popup__columns {
   display: flex;
   justify-content: space-between;

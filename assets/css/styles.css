@@ -520,6 +520,75 @@
 }
 
 /* ==============================
+   SORTEAR JOGOS (barra de destaque)
+================================= */
+
+.pg-draw-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin: 0 32px 24px;
+  padding: 16px 22px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(244, 196, 48, .14), rgba(244, 196, 48, .04));
+  border: 1px solid rgba(244, 196, 48, .3);
+}
+
+.pg-draw-bar-text {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.pg-draw-bar-icon {
+  flex: 0 0 auto;
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.pg-draw-bar-title {
+  font-weight: 700;
+  font-size: .98rem;
+  color: var(--text-main);
+}
+
+.pg-draw-bar-sub {
+  font-size: .85rem;
+  color: var(--text-muted);
+}
+
+.pg-draw-bar #btnDrawGames {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+@media (max-width: 880px) {
+  .pg-draw-bar {
+    margin: 0 16px 20px;
+    padding: 14px 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .pg-draw-bar {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .pg-draw-bar-text {
+    justify-content: center;
+  }
+
+  .pg-draw-bar #btnDrawGames {
+    width: 100%;
+  }
+}
+
+/* ==============================
    GRADE (todos os jogos)
 ================================= */
 
