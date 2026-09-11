@@ -526,17 +526,33 @@
 }
 
 /* Placar real da equipe (só leitura) — a pontuação é sempre dada dentro
-   dos jogos (Acertou/Errou/etc.), nunca ajustada manualmente por aqui. */
-.pg-team-score-value {
+   dos jogos (Acertou/Errou/etc.), nunca ajustada manualmente por aqui.
+   Rótulo "pts" ao lado do número — sem ele, "0" sozinho (equipe recém-
+   criada, ainda sem pontuar) parecia uma contagem de integrantes, não
+   um placar. */
+.pg-team-score-box {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
   flex: 0 0 auto;
   min-width: 32px;
   padding: 4px 10px;
   border-radius: 10px;
-  text-align: center;
   background: rgba(255, 255, 255, .06);
+}
+
+.pg-team-score-value {
   font-weight: 800;
   font-size: 1.15rem;
   color: var(--pill-color, var(--gold));
+}
+
+.pg-team-score-label {
+  font-size: .62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  color: var(--text-muted);
 }
 
 /* ==============================

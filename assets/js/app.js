@@ -646,7 +646,10 @@ function renderTeamsBanner() {
           ` : ""}
         </div>
         <div class="pg-team-pill-score-wrap">
-          <span class="pg-team-score-value">${Number(t.score) || 0}</span>
+          <div class="pg-team-score-box" title="Pontuação de ${escapeAttr(t.name)}">
+            <span class="pg-team-score-value">${Number(t.score) || 0}</span>
+            <span class="pg-team-score-label">pts</span>
+          </div>
           ${leading ? `<span class="pg-team-pill-leader" title="Na frente">${icon("crown", { size: 14 })}</span>` : ""}
         </div>
       </div>
