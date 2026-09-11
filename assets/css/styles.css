@@ -139,36 +139,12 @@
 }
 
 /* ==============================
-   CABEÇALHO DE SEÇÃO ("Jogos disponíveis")
+   CABEÇALHO DE SEÇÃO (categorias)
 ================================= */
 
 .pg-section-head {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px 24px;
   margin-bottom: 28px;
-}
-
-.pg-section-title {
-  display: flex;
-  align-items: center;
-  flex: 0 0 auto;
-  gap: 10px;
-  margin: 0;
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-.pg-section-title svg {
-  color: var(--gold);
-}
-
-.pg-section-head .pg-category-pills {
-  flex: 1 1 auto;
-  justify-content: flex-end;
 }
 
 .pg-catalogo {
@@ -1868,14 +1844,6 @@
     gap: 12px;
   }
 
-  /* "Jogos disponíveis" centralizado na própria linha no mobile — as
-     categorias (linha de baixo) continuam alinhadas à esquerda de
-     propósito (rolagem horizontal, ver regra mais abaixo). */
-  .pg-section-title {
-    width: 100%;
-    justify-content: center;
-  }
-
   /* Placar de equipes: fica fechado por padrão (só o cabeçalho, sem os
      cartões) — no mobile o espaço vertical é curto e não faz sentido
      empurrar a lista de jogos pra fora da dobra por causa do placar. O
@@ -1934,11 +1902,6 @@
   /* Filtros de categoria: uma linha só que arrasta pro lado (sem
      quebrar) — evita a altura variável de sobrar pills em linhas novas
      e deixa mais espaço acima da grade de jogos. */
-  /* Mesma especificidade de ".pg-section-head .pg-category-pills" (a
-     regra do desktop que põe justify-content:flex-end) — precisa bater
-     essa especificidade aqui dentro, senão a regra do desktop ganha
-     mesmo estando numa media query "depois" no arquivo. */
-  .pg-section-head .pg-category-pills,
   .pg-category-pills {
     flex-wrap: nowrap;
     justify-content: flex-start;
