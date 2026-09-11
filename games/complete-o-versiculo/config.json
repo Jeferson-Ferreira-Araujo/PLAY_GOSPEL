@@ -5,5 +5,17 @@
 
     { "key": "time", "label": "Tempo (segundos)", "type": "select",
       "default": 30, "options": [0, 20, 30, 45, 60, 90] }
+  ],
+  "howTo": [
+    "Um versículo (KJV) será exibido com palavras faltando.",
+    "Escolha a dificuldade e o tempo antes de começar.",
+    "Quando o tempo acabar, você pode revelar a resposta e avançar para o próximo.",
+    "Sem repetição até terminar a lista."
+  ],
+  "tips": [
+    "Ótimo para dinâmica em grupo e memorização.",
+    "Depois de responder, confira a referência.",
+    "Se houver equipes: Acertou soma ponto, Errou desconta o mesmo valor. Passar a vez dobra a pontuação (e o risco) da próxima equipe.",
+    "Atalhos: N (próximo) • R (mostrar resposta)"
   ]
 }

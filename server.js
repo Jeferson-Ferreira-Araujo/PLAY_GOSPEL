@@ -133,7 +133,15 @@ function serveStatic(req, res, pathname) {
       filePath = path.join(filePath, 'index.html');
     }
     const ext = path.extname(filePath).toLowerCase();
-    res.writeHead(200, { 'Content-Type': MIME_TYPES[ext] || 'application/octet-stream' });
+    res.writeHead(200, {
+      'Content-Type': MIME_TYPES[ext] || 'application/octet-stream',
+      // Servidor de desenvolvimento: nunca deixa o navegador cachear nada
+      // entre navegações. Sem isso, editar um game.js e recarregar a
+      // página às vezes continua rodando a versão antiga do arquivo (o
+      // clássico "minha mudança não aparece"), porque não mandávamos
+      // nenhum header de cache e o navegador ficava livre pra decidir.
+      'Cache-Control': 'no-store',
+    });
     fs.createReadStream(filePath).pipe(res);
   });
 }
