@@ -1536,7 +1536,14 @@ function collectTeamsFromForm() {
     const score = Number(existing[i]?.score ?? 0);
     // Participantes sorteados (opcional) — mantém o que já tinha sido
     // aceito antes se essa equipe não passou por um novo sorteio agora.
-    const members = Array.isArray(teamDraw[i]) ? teamDraw[i] : (existing[i]?.members ?? []);
+    // Exceção: se a resposta desta edição foi "Não" (não quer sortear
+    // pessoas), limpa todo mundo — escolher "Não" é uma decisão
+    // deliberada de não ter participantes dessa vez, não deveria deixar
+    // gente de um sorteio antigo (de quando a equipe tinha outra
+    // composição) pendurada só porque a pessoa não repetiu o sorteio.
+    const members = drawChoice === "no"
+      ? []
+      : (Array.isArray(teamDraw[i]) ? teamDraw[i] : (existing[i]?.members ?? []));
 
     teams.push({ id: `t${i}`, name, color, icon: iconName, score, members });
   }
