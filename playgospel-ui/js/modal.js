@@ -44,14 +44,20 @@ function ensureOverlay() {
 }
 
 /**
- * @param {{title?:string, body?:string|HTMLElement, footer?:string|HTMLElement, dismissable?:boolean}} opts
+ * @param {{title?:string|HTMLElement, body?:string|HTMLElement, footer?:string|HTMLElement, dismissable?:boolean}} opts
  */
 export function open(opts = {}) {
   const { title = '', body = '', footer = '', dismissable = true } = opts;
   const el = ensureOverlay();
   el.dataset.dismissable = String(dismissable);
 
-  el.querySelector('.pgui-modal__title').textContent = title;
+  const titleEl = el.querySelector('.pgui-modal__title');
+  titleEl.innerHTML = '';
+  // Igual body/footer: string vira texto simples (uso mais comum), mas
+  // aceita um elemento pronto pra títulos mais ricos (ícone + subtítulo,
+  // ver assets/js/game-intro.js).
+  if (title instanceof HTMLElement) titleEl.appendChild(title);
+  else titleEl.textContent = title;
 
   const bodyEl = el.querySelector('.pgui-modal__body');
   bodyEl.innerHTML = '';

@@ -784,10 +784,11 @@ async function runDraw() {
   const chosen = shuffleArray(pool).slice(0, 3);
 
   // Monta o sorteio de verdade em paralelo com a animação (não trava a
-  // UI esperando os fetch de config.json de cada jogo). O "howTo" de
-  // cada config.json vai junto no jogo sorteado — é o que
-  // assets/js/game-intro.js usa pra montar o modal "como jogar" de cada
-  // etapa, sem precisar buscar o config.json de novo lá na página do jogo.
+  // UI esperando os fetch de config.json de cada jogo). howTo/tips/
+  // matchType vão junto no jogo sorteado — é o que assets/js/game-intro.js
+  // usa pra montar o modal "como jogar" de cada etapa (nome, passo a
+  // passo, dica e se é rodada ou disputa), sem precisar buscar o
+  // config.json/games.json de novo lá na página do jogo.
   const builtPromise = (async () => {
     const built = [];
     for (const game of chosen) {
@@ -798,6 +799,8 @@ async function runDraw() {
         route: game.route,
         settings: await randomizeSettingsForGame(game, cfg),
         howTo: Array.isArray(cfg?.howTo) ? cfg.howTo : [],
+        tips: Array.isArray(cfg?.tips) ? cfg.tips : [],
+        matchType: game.matchType || null,
       });
     }
     return built;

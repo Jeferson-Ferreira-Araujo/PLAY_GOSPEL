@@ -98,3 +98,118 @@
 @media (max-width: 480px) {
   .pgui-modal { padding: var(--pgui-space-16); }
 }
+
+/* ---- Modal "como jogar" de cada etapa de uma disputa sorteada
+   (assets/js/game-intro.js) ---- */
+
+/* Cabeçalho rico (ícone + título + subtítulo "Jogo N/3") passado como
+   título via openModal({ title: <HTMLElement> }) — ver modal.js. */
+.pgui-intro-header {
+  display: flex;
+  align-items: center;
+  gap: var(--pgui-space-12);
+  min-width: 0;
+}
+
+.pgui-intro-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--pgui-radius-lg);
+  background: rgba(139, 92, 246, .18);
+  font-size: 1.2rem;
+}
+
+.pgui-intro-heading {
+  min-width: 0;
+}
+
+.pgui-intro-title {
+  font-size: var(--pgui-fs-title);
+  font-weight: 700;
+  color: var(--pgui-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pgui-intro-subtitle {
+  font-size: var(--pgui-fs-caption);
+  font-weight: 400;
+  color: var(--pgui-text-muted);
+}
+
+/* Rótulo de seção ("Como jogar") com barrinha dourada à esquerda. */
+.pgui-intro-section-label {
+  display: flex;
+  align-items: center;
+  gap: var(--pgui-space-8);
+  margin-bottom: var(--pgui-space-12);
+  font-weight: 700;
+  font-size: var(--pgui-fs-body);
+  color: var(--pgui-text-primary);
+}
+
+.pgui-intro-section-label::before {
+  content: "";
+  width: 4px;
+  height: 16px;
+  border-radius: 2px;
+  background: var(--pgui-color-primary);
+  flex: 0 0 auto;
+}
+
+/* Linha "Rodada"/"Disputa" — explica se as equipes jogam em turnos ou
+   todas ao mesmo tempo (pedido explícito do usuário: deixar isso claro
+   antes de começar). */
+.pgui-intro-format {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--pgui-space-8);
+  margin-bottom: var(--pgui-space-16);
+  padding: var(--pgui-space-8) var(--pgui-space-12);
+  border-radius: var(--pgui-radius-md);
+  background: rgba(255, 255, 255, .04);
+  color: var(--pgui-text-secondary);
+  font-size: var(--pgui-fs-caption);
+}
+
+.pgui-intro-format svg {
+  color: var(--pgui-color-primary);
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+/* Caixa contornada em volta do passo a passo. */
+.pgui-intro-box {
+  padding: var(--pgui-space-16);
+  margin-bottom: var(--pgui-space-16);
+  border: 1px solid var(--pgui-border-strong);
+  border-radius: var(--pgui-radius-md);
+  background: rgba(255, 255, 255, .02);
+}
+
+.pgui-intro-box .pgui-howto-list {
+  gap: var(--pgui-space-8);
+  font-size: var(--pgui-fs-caption);
+}
+
+/* Caixa de dica, destacada na cor de marca (vem do "tips" do config.json). */
+.pgui-intro-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--pgui-space-8);
+  padding: var(--pgui-space-12);
+  border-radius: var(--pgui-radius-md);
+  background: color-mix(in srgb, var(--pgui-color-primary) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pgui-color-primary) 30%, transparent);
+  font-size: var(--pgui-fs-caption);
+  color: var(--pgui-text-primary);
+}
+
+.pgui-intro-tip b {
+  color: var(--pgui-color-primary);
+}
