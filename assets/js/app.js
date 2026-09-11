@@ -659,12 +659,10 @@ function renderTeamsBanner() {
     `;
   }).join("");
 
-  // Com o máximo de 4 equipes, os cards preenchem a linha toda — nesse
-  // caso centraliza (sem esticar) pra não sobrar espaço vazio de um lado
-  // só. Com menos equipes (2 ou 3), mantém alinhado à esquerda de
-  // propósito (pedido do usuário).
-  const isFull = teams.length >= 4;
-
+  // Quantidade de equipes ativas vira variável CSS — a grade usa ela pra
+  // decidir quantas colunas mostrar (desktop e tablet deitado: todas
+  // numa linha só; tablet em pé força 2 colunas fixas por cima disso,
+  // ver styles.css).
   banner.innerHTML = `
     <button type="button" class="pg-teams-banner-toggle" id="teamsBannerToggle" aria-expanded="false" aria-controls="teamsBannerTeams">
       <span class="pg-teams-banner-label">
@@ -673,7 +671,7 @@ function renderTeamsBanner() {
       </span>
       <span class="pg-teams-banner-chevron">${icon("chevron-down", { size: 16 })}</span>
     </button>
-    <div class="pg-teams-banner-teams${isFull ? " is-full" : ""}" id="teamsBannerTeams">${pillsHtml}</div>
+    <div class="pg-teams-banner-teams" id="teamsBannerTeams" style="--pg-team-count:${teams.length}">${pillsHtml}</div>
   `;
 
   banner.classList.remove("d-none");

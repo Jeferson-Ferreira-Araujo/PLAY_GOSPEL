@@ -422,32 +422,18 @@
   transition: transform .2s ease;
 }
 
-/* flex (não grid auto-fit) de propósito: com poucas equipes (2 de 4, por
-   exemplo) as pills não devem esticar pra preencher a largura toda do
-   banner — cada uma fica com uma largura confortável, alinhada à
-   esquerda, e o resto do espaço sobra vazio, em vez de virar uma barra
-   enorme. Só quando o máximo de 4 equipes está ativo (".is-full", ver
-   renderTeamsBanner em app.js) é que os cards já preenchem a linha
-   naturalmente — nesse caso centraliza (sem esticar) pra não sobrar
-   espaço só de um lado. */
+/* Grade com uma coluna por equipe (--pg-team-count, definida inline por
+   renderTeamsBanner em app.js) — sempre numa linha só no desktop/tablet
+   deitado (pedido explícito do usuário: 4 equipes tem que caber numa
+   linha, não sobrar uma esticada sozinha embaixo). Tablet em pé força 2
+   colunas fixas por cima disso, e o mobile (colapsável) força 1 —
+   ambos como overrides mais abaixo. */
 .pg-teams-banner-teams {
-  display: flex;
-  flex: 1 1 auto;
-  flex-wrap: wrap;
-  justify-content: flex-start;
+  display: grid;
+  grid-template-columns: repeat(var(--pg-team-count, 4), 1fr);
   gap: 14px;
 }
 
-.pg-teams-banner-teams.is-full {
-  justify-content: center;
-}
-
-/* flex: 1 1 (cresce e encolhe) em vez de 0 1 (só encolhe) — com o badge
-   de integrantes (ícone+contagem+"integrantes"+seta) o conteúdo passou a
-   precisar de mais que os 240px de antes. min-width trava um piso real
-   (não só a flex-basis, que ainda deixava encolher/sobrepor) — abaixo
-   dele o pill quebra pra própria linha (.pg-teams-banner-teams já tem
-   flex-wrap) em vez de espremer o nome/badge até sobrepor. */
 .pg-team-pill {
   display: flex;
   align-items: center;
@@ -457,8 +443,7 @@
   border-radius: 14px;
   background: rgba(255, 255, 255, .03);
   border: 1.5px solid var(--pill-color, var(--gold));
-  flex: 1 1 380px;
-  min-width: 380px;
+  min-width: 0;
 }
 
 /* Time na frente: pills já vêm ordenadas por placar (maior primeiro, ver
@@ -2004,12 +1989,11 @@
   }
 }
 
-/* Tablet em pé: não é estreito o bastante pra colapsar (isso só existe
-   no celular, ver @media max-width:600px mais abaixo), mas título +
-   pills lado a lado (layout padrão do desktop) não cabem direito nessa
-   largura — as pills acabavam quebrando uma por linha. Título centralizado
-   em cima, pills numa grade de 2 colunas (2 equipes = 1 linha; 3 = duas
-   linhas, a segunda com 1; 4 = duas linhas com 2 cada). */
+/* Tablet em pé: título centralizado em cima, pills numa grade de 2
+   colunas fixas — pedido explícito do usuário (2 equipes = 1 linha; 3 =
+   duas linhas, a segunda com 1; 4 = duas linhas com 2 cada). Ignora
+   --pg-team-count de propósito (2 colunas sempre, não "uma coluna por
+   equipe" como no desktop/tablet deitado). */
 @media (min-width: 601px) and (max-width: 900px) {
   .pg-teams-banner {
     flex-direction: column;
@@ -2025,15 +2009,8 @@
     display: none;
   }
 
-  /* auto-fit (não um "repeat(2,...)" fixo): com o pill maior agora (nome
-     + badge de integrantes + placar), forçar sempre 2 colunas faria
-     sobrepor conteúdo em telas mais estreitas dessa faixa. Com
-     auto-fit, cabe o que couber — normalmente 2 equipes por linha, mas
-     recua pra 1 coluna sozinha se a largura não permitir os 380px
-     mínimos de cada pill (ver min-width em .pg-team-pill). */
   .pg-teams-banner-teams {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     width: 100%;
   }
 }
@@ -2072,19 +2049,16 @@
     justify-content: space-between;
   }
 
+  /* 1 coluna só — cada equipe na sua própria linha, largura toda. */
   .pg-teams-banner-teams {
     display: none;
-    flex: 1 1 100%;
+    grid-template-columns: 1fr;
     width: 100%;
     margin-top: 14px;
-    /* No desktop o alinhamento à esquerda é proposital (ver comentário
-       acima da regra base) — mas dentro do colapso do mobile, centralizado
-       fica mais equilibrado (o bloco já ocupa a largura toda). */
-    justify-content: center;
   }
 
   .pg-teams-banner.is-open .pg-teams-banner-teams {
-    display: flex;
+    display: grid;
   }
 
   .pg-teams-banner-chevron {
