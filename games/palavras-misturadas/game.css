@@ -112,6 +112,7 @@
 }
 
 .timer-card {
+  flex: 0 0 auto;
   padding: 6px 14px;
 }
 
