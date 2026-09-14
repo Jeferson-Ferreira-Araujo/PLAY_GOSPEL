@@ -321,10 +321,8 @@ function startPrepareCountdown(onDone) {
 // de sobrescrever a tela errada.
 let quoteRequestId = 0;
 
-function loadQuoteAtIndex(i) {
+async function loadQuoteAtIndex(i) {
   current = pool[i];
-
-  quoteText.textContent = `“${current.quote}”`;
 
   answerBox.classList.add("d-none");
   answerText.textContent = "";
@@ -336,11 +334,15 @@ function loadQuoteAtIndex(i) {
   pointGiven = false;
   renderTeamScoreButtons();
 
+  // Busca a tradução ANTES de escrever o texto na tela — escrever o
+  // original e trocar pelo traduzido logo em seguida (como era antes)
+  // fazia o texto "piscar" duas vezes, com o traduzido geralmente
+  // maior/menor que o original (percebido como "o texto mudou de
+  // tamanho sozinho").
   const reqId = ++quoteRequestId;
-  BibleVersion.resolveText(current.quote, current.reference).then((text) => {
-    if (reqId !== quoteRequestId) return; // já foi pra outra frase enquanto buscava
-    quoteText.textContent = `“${text}”`;
-  });
+  const text = await BibleVersion.resolveText(current.quote, current.reference);
+  if (reqId !== quoteRequestId) return; // já foi pra outra frase enquanto buscava
+  quoteText.textContent = `“${text}”`;
 }
 
 // Troca de tradução (ver bibflix:bible-version:change) com o jogo

@@ -244,12 +244,16 @@ function renderCard() {
   setTeamsControlsVisible(false);
 
   startPrepareCountdown(async () => {
-    $("verseText").textContent = item.verse || "—";
     $("answerText").textContent = item.reference || "—";
     timerRow?.classList.remove("d-none");
     startTimer(settings.time);
     resetPassChain();
 
+    // Busca a tradução ANTES de escrever o texto na tela — escrever o
+    // original e trocar pelo traduzido logo em seguida (como era antes)
+    // fazia o texto "piscar" duas vezes, com o traduzido geralmente
+    // maior/menor que o original (percebido como "o texto mudou de
+    // tamanho sozinho").
     const reqId = ++verseRequestId;
     const text = await BibleVersion.resolveText(item.verse, item.reference);
     if (reqId !== verseRequestId) return; // já foi pra outra carta enquanto buscava
