@@ -34,7 +34,7 @@ const STEPS = [
     selector: null,
     emoji: "🎉",
     title: "5. Divirta-se!",
-    text: "É isso — bora reunir a equipe e aproveitar. Boas risadas e boa sorte!",
+    text: "Agora é só reunir seus irmãos, aprender mais da Palavra e se divertir juntos. Deus abençoe!",
   },
 ];
 
