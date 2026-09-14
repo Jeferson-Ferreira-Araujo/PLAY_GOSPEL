@@ -17,10 +17,14 @@ const API_BASE = "https://abibliadigital.api.br/api/verses";
 const FETCH_TIMEOUT_MS = 4000;
 
 export const BIBLE_VERSIONS = [
-  { id: "original", label: "Padrão do site" },
   { id: "acf", label: "Almeida (ACF)" },
   { id: "ntlh", label: "NTLH" },
+  { id: "original", label: "Padrão do site" },
 ];
+
+// Almeida é a tradução mais familiar pro público de igreja — padrão
+// pra quem ainda não escolheu nada (ver BibleVersion.get() abaixo).
+const DEFAULT_VERSION = "acf";
 
 // Nomes de livro em português (como aparecem nos data.json dos jogos,
 // sempre "1 João" / "2 Reis", nunca com º/ª) -> abreviação usada pela
@@ -153,9 +157,9 @@ export const BibleVersion = {
   get() {
     try {
       const v = localStorage.getItem(VERSION_KEY);
-      return BIBLE_VERSIONS.some((x) => x.id === v) ? v : "original";
+      return BIBLE_VERSIONS.some((x) => x.id === v) ? v : DEFAULT_VERSION;
     } catch {
-      return "original";
+      return DEFAULT_VERSION;
     }
   },
 
