@@ -1650,13 +1650,28 @@
 
 /* Lista de equipes só-leitura no topo do passo 3 (nome+ícone de cada
    uma, ver renderDrawTeamsPreview em app.js) — pra saber pra quem tá
-   sorteando sem precisar voltar ao passo 2. */
+   sorteando sem precisar voltar ao passo 2. Grid de 2 colunas (no
+   máximo 2 linhas pra até 4 equipes) — uma equipe por linha ocupava
+   espaço vertical demais. */
 .pg-teams-draw-teams-preview {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px 14px;
   padding: 12px 14px;
   margin-bottom: 16px;
   border-radius: 12px;
   background: var(--bg-main);
   border: 1px solid rgba(255, 255, 255, .08);
+}
+
+.pg-team-row-card {
+  min-width: 0;
+}
+
+.pg-teams-draw-teams-preview .pg-team-row-summary-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Um campo por pessoa (em vez de um textarea "um nome por linha") — sem

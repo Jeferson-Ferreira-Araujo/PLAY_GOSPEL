@@ -1647,18 +1647,26 @@ function renderDrawTeamsPreview() {
     const colorVal = colorEl?.value ?? "#F4C430";
     const iconVal = Teams.teamIconNames.includes(iconEl?.value) ? iconEl.value : "star";
 
+    // Agrupa nome+prévia num cartão só — cada equipe é uma célula do grid
+    // de 2 colunas (ver .pg-teams-draw-teams-preview no styles.css), não
+    // dá pra deixar como irmãos soltos senão o grid quebra o pareamento.
+    const card = document.createElement("div");
+    card.className = "pg-team-row-card";
+
     const summary = document.createElement("div");
     summary.className = "pg-team-row-summary";
     summary.innerHTML = `
       <span class="pg-team-row-summary-icon" style="--pill-color:${escapeAttr(colorVal)}">${icon(iconVal, { size: 15 })}</span>
       <span class="pg-team-row-summary-name">${escapeHtml(name)}</span>
     `;
-    wrap.appendChild(summary);
+    card.appendChild(summary);
 
     const preview = document.createElement("div");
     preview.className = "pg-team-row-preview d-none";
     preview.dataset.teamRowPreview = String(i);
-    wrap.appendChild(preview);
+    card.appendChild(preview);
+
+    wrap.appendChild(card);
 
     if (teamDraw[i]?.length) {
       updateTeamRowPreview(i, teamDraw[i], colorVal);

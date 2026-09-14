@@ -434,27 +434,26 @@
           <div class="pg-teams-step-panel d-none" data-step-panel="2">
             <p class="pg-teams-draw-hint">Sorteie quem fica em cada equipe — distribuímos igualmente entre elas.</p>
 
-            <div class="pg-teams-draw-teams-preview" id="drawTeamsPreview"></div>
-
             <div class="pg-teams-draw-names" id="drawNamesList"></div>
 
-            <div class="d-flex gap-2">
-              <button type="button" class="pg-chip-btn" id="btnDrawAddName">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-                Adicionar pessoa
-              </button>
-              <button type="button" class="pg-chip-btn" id="btnDrawPeople">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <rect x="3" y="3" width="18" height="18" rx="4"/>
-                  <circle cx="8.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/>
-                  <circle cx="15.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/>
-                  <circle cx="8.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/>
-                  <circle cx="15.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/>
-                  <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/>
-                </svg>
-                <span id="btnDrawPeopleLabel">Sortear agora</span>
-              </button>
-            </div>
+            <button type="button" class="pg-chip-btn mb-3" id="btnDrawAddName">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+              Adicionar pessoa
+            </button>
+
+            <div class="pg-teams-draw-teams-preview" id="drawTeamsPreview"></div>
+
+            <button type="button" class="pg-chip-btn" id="btnDrawPeople">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="4"/>
+                <circle cx="8.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/>
+                <circle cx="15.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/>
+                <circle cx="8.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/>
+                <circle cx="15.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/>
+                <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/>
+              </svg>
+              <span id="btnDrawPeopleLabel">Sortear agora</span>
+            </button>
             <div id="drawError" class="text-danger small mt-2 d-none"></div>
           </div>
         </div>
