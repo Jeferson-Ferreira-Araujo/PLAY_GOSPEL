@@ -154,10 +154,46 @@
 
   .pm-pair-team {
     padding: 6px 12px;
-    flex: 1 1 140px;
   }
 
   .pm-pair-team-name {
     font-size: .88rem;
+  }
+}
+
+/* Mobile/tablet: em vez de empilhar caixas de rodada + par em linhas
+   separadas (quebrando bastante em telas estreitas), tudo fica numa
+   linha só que rola na horizontal se não couber — .round-topbar e
+   .pm-pair-row "somem" como caixa (display:contents) e suas caixas
+   internas viram filhos diretos do .presenter-top, que passa a ser o
+   container que rola. */
+@media (max-width: 1024px) {
+  .presenter-top {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+  }
+
+  .round-topbar,
+  .pm-pair-row {
+    display: contents;
+  }
+
+  .round-box,
+  .timer-card,
+  .pm-pair-team {
+    flex: 0 0 auto;
+  }
+
+  .timer-wrap {
+    width: 140px;
+  }
+
+  .pm-pair-vs {
+    display: flex;
+    align-items: center;
   }
 }
