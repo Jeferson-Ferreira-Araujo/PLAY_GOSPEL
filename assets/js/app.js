@@ -255,6 +255,7 @@ function sanitizeTeamName(value) {
 // acessibilidade/tooltip, a lista de nomes válidos continua vindo do Teams.
 const TEAM_ICON_LABELS = {
   paw: "Pata (leão)",
+  eagle: "Águia",
   flame: "Fogo",
   cloud: "Nuvem",
   tree: "Árvore",
@@ -269,6 +270,7 @@ const TEAM_ICON_LABELS = {
   "music-note": "Nota musical",
   users: "Pessoas",
   check: "Certo",
+  fish: "Peixe",
 };
 
 function getGameCategory(game) {
@@ -1765,9 +1767,33 @@ function autoFillNames() {
   for (let i = 0; i < count; i++) {
     const input = document.querySelector(`[data-team-name="${i}"]`);
     if (!input) continue;
-    if (!(input.value || "").trim()) input.value = names[i];
+    if ((input.value || "").trim()) continue; // já tinha nome — não mexe
+
+    input.value = names[i];
+
+    // Ícone acompanha o nome sugerido (ex: "Águias" -> pena, nunca
+    // "fogo") — sem isso o ícone ficava parado no padrão sequencial da
+    // equipe (definido só pela posição, sem relação com o nome).
+    const iconName = Teams.iconForSuggestedName(names[i]);
+    if (iconName) setTeamIcon(i, iconName);
   }
   updateTeamsStep1Cta();
+}
+
+// Aplica um ícone à equipe de índice i: hidden input + preview do botão +
+// item ativo no dropdown — mesmos 3 lugares que o clique manual num item
+// do dropdown atualiza (ver o listener "pgui:dropdown:select" abaixo).
+function setTeamIcon(i, iconName) {
+  const hidden = document.querySelector(`[data-team-icon="${i}"]`);
+  if (hidden) hidden.value = iconName;
+
+  const preview = document.querySelector(`[data-team-icon-preview="${i}"]`);
+  if (preview) preview.innerHTML = icon(iconName, { size: 20 });
+
+  const dropdown = document.querySelector(`[data-team-icon-dropdown="${i}"]`);
+  dropdown?.querySelectorAll(".pg-team-icon-option").forEach((opt) => {
+    opt.classList.toggle("active", opt.dataset.iconName === iconName);
+  });
 }
 
 function clearAllNames() {

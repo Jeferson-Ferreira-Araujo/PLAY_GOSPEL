@@ -58,22 +58,47 @@ function advanceMemberTurn(st, leavingIndex) {
   }
 }
 
+// Nome sugerido + ícone que combina com ele (ex: "Águias" -> ícone de
+// pena/ave, nunca "fogo" ou outro sem relação) — usado tanto pro texto
+// quanto pro ícone quando "Gerar nomes" preenche as equipes de uma vez
+// (ver autoFillNames em app.js). Alguns nomes dividem ícone de propósito
+// (ex: "Atos"/"Profetas"/"Romanos" -> livro) quando fazem parte do mesmo
+// tema — isso não é "descombinado", só reaproveita o ícone mais próximo
+// disponível.
+const NAME_ICON_PRESETS = [
+  { name: "Leões", icon: "paw" },
+  { name: "Águias", icon: "eagle" },
+  { name: "Valentes", icon: "trophy" },
+  { name: "Guerreiros", icon: "flag" },
+  { name: "Sal", icon: "star" },
+  { name: "Luz", icon: "flame" },
+  { name: "Discípulos", icon: "users" },
+  { name: "Profetas", icon: "book" },
+  { name: "Reis", icon: "crown" },
+  { name: "Atos", icon: "book" },
+  { name: "Romanos", icon: "book" },
+  { name: "Sião", icon: "crown" },
+  { name: "Oliveira", icon: "tree" },
+  { name: "Sementes", icon: "tree" },
+  { name: "Pescadores", icon: "fish" },
+  { name: "Aliança", icon: "harp" },
+];
+
 function suggestNames(n) {
-  const presets = [
-    "Leões", "Águias", "Valentes", "Guerreiros", "Sal", "Luz",
-    "Discípulos", "Profetas", "Reis", "Atos", "Romanos", "Sião",
-    "Oliveira", "Sementes", "Pescadores", "Aliança"
-  ];
   const out = [];
   const used = new Set();
   while (out.length < n) {
-    const name = presets[Math.floor(Math.random() * presets.length)];
-    if (!used.has(name)) {
-      used.add(name);
-      out.push(name);
+    const preset = NAME_ICON_PRESETS[Math.floor(Math.random() * NAME_ICON_PRESETS.length)];
+    if (!used.has(preset.name)) {
+      used.add(preset.name);
+      out.push(preset.name);
     }
   }
   return out;
+}
+
+function iconForSuggestedName(name) {
+  return NAME_ICON_PRESETS.find((p) => p.name === name)?.icon ?? null;
 }
 
 function defaultColors(n) {
@@ -85,9 +110,9 @@ function defaultColors(n) {
 // curadoria voltada ao tema (natureza/força/adoração) em vez de ícones de UI
 // genéricos, pra combinar com nomes de equipe como "Leões", "Sal e Luz" etc.
 const TEAM_ICON_NAMES = [
-  "paw", "flame", "cloud", "tree", "harp",
+  "paw", "eagle", "flame", "cloud", "tree", "harp",
   "star", "heart", "flag", "book", "crown",
-  "trophy", "music", "music-note", "users", "check",
+  "trophy", "music", "music-note", "users", "check", "fish",
 ];
 
 function defaultIcons(n) {
@@ -110,6 +135,13 @@ export const Teams = {
   // Exposto para UI
   suggestedNames(count = 2) {
     return suggestNames(count);
+  },
+
+  // Exposto para UI — ícone que combina com um nome sugerido (ver
+  // NAME_ICON_PRESETS). Retorna null pra nome fora da lista (digitado
+  // manualmente), aí quem chamou decide o que fazer (não mexe no ícone).
+  iconForSuggestedName(name) {
+    return iconForSuggestedName(name);
   },
 
   // Exposto para UI

@@ -120,6 +120,8 @@ const ICONS = {
   harp: '<path d="M6 21V5l11 5v11"/><path d="M9 21V9"/><path d="M12 21V11"/><path d="M15 21V13"/>',
   paw: '<ellipse cx="12" cy="17" rx="5" ry="4"/><circle cx="5" cy="10" r="2.2"/><circle cx="10" cy="6" r="2.2"/><circle cx="15" cy="6.5" r="2.2"/><circle cx="19" cy="10.5" r="2.2"/>',
   crown: '<path d="M4 18 3 8l5 4 4-6 4 6 5-4-1 10Z"/>',
+  eagle: '<path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><path d="M16 8 2 22"/><path d="M17.5 15H9"/>',
+  fish: '<path d="M6.5 12c0-3 3-6 8-6 3 0 5 2 6.5 4-1 1-1.5 1.5-1.5 2s.5 1 1.5 2c-1.5 2-3.5 4-6.5 4-5 0-8-3-8-6Z"/><path d="M3 9c1 1 2 2 2 3s-1 2-2 3"/><circle cx="16" cy="10.5" r="1" fill="currentColor" stroke="none"/>',
 };
 
 export const ICON_NAMES = Object.keys(ICONS);
