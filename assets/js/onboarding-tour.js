@@ -29,7 +29,7 @@ const STEPS = [
     selector: "#bibleVersionPickerHeader",
     emoji: "📖",
     title: "4. Escolha a tradução",
-    text: "Prefere Almeida ou NTLH? Escolha aqui a tradução da Bíblia usada nos versículos — vale para o Complete o Versículo, Qual a Passagem e Quem Disse Isso.",
+    text: "Prefere Almeida ou NTLH? Escolha aqui a tradução da Bíblia — vale para os jogos que citam versículos.",
   },
   {
     selector: "#navHowToBtn",
