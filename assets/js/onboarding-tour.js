@@ -10,7 +10,7 @@ const STEPS = [
     selector: "#teamsNavBtn",
     emoji: "👥",
     title: "1. Crie suas equipes",
-    text: "Mesmo que seja só você e mais uma pessoa, crie as equipes aqui — é assim que o placar é guardado durante os jogos.",
+    text: "Mesmo que seja só você e mais uma pessoa, crie as equipes aqui — dê um nome e uma cor pra cada uma, e sorteie os participantes entre elas se quiser. Nos jogos por turno, a pessoa da vez dentro da equipe também é sorteada a cada rodada.",
   },
   {
     selector: "#gamesGrid",
