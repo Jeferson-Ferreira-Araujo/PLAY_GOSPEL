@@ -83,27 +83,32 @@
 /* Par da rodada — só 2 equipes disputam por vez (rodízio em game.js
    quando há mais equipes ativas); mostra nome da equipe + pessoa da vez
    (se houver participantes sorteados), uma de cada lado do "×".
-   .presenter-top vira uma grade de 3 colunas (1fr / auto / 1fr): a 1ª
-   coluna leva o .round-topbar (categoria/rodada/pontos/tempo, encostado
-   à esquerda), a 2ª leva o .pm-pair-row com largura do próprio conteúdo
-   — como as duas colunas das pontas são iguais (1fr cada), essa coluna
-   do meio fica sempre centralizada na tela, não importa a largura do
-   round-topbar ao lado. No mobile/tablet (ver media query abaixo) isso
-   vira uma linha só que rola na horizontal em vez de tentar centralizar
-   (não cabe mesmo, então é melhor deslizar). */
+   .round-topbar e .pm-pair-row "somem" como caixa (display:contents) —
+   suas caixas internas viram filhas diretas do .presenter-top, que vira
+   UMA linha só (nowrap) com todas as caixas dividindo o espaço em
+   partes iguais (flex:1 1 0), nunca quebrando — em telas muito estreitas
+   ela rola na horizontal em vez de quebrar (ver overflow-x abaixo). */
 .presenter-top {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  column-gap: 14px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.round-topbar,
+.pm-pair-row {
+  display: contents;
 }
 
 /* As caixas de categoria/rodada/pontos não precisam do mesmo destaque das
-   equipes — encolhem pro tamanho do conteúdo em vez de esticar, e o
-   conteúdo/padding também encolhe (caixa mais discreta, cabe mais fácil
-   ao lado do par de equipes sem quebrar linha). */
+   equipes — o conteúdo/padding encolhe (caixa mais discreta), mas a
+   largura continua dividindo a linha em partes iguais com as demais,
+   senão elas não ficam na mesma linha nas larguras mais comuns de tela. */
 .round-box {
-  flex: 0 0 auto;
+  flex: 1 1 0;
+  min-width: 100px;
   padding: 6px 14px;
 }
 
@@ -112,18 +117,13 @@
 }
 
 .timer-card {
-  flex: 0 0 auto;
+  flex: 1 1 0;
+  min-width: 100px;
   padding: 6px 14px;
 }
 
 .timer-wrap {
-  width: 150px;
-}
-
-.pm-pair-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100%;
 }
 
 .pm-pair-team {
@@ -136,7 +136,8 @@
   background: var(--team-color, var(--gold));
   color: #0b1220;
   box-shadow: 0 8px 20px rgba(0, 0, 0, .25);
-  flex: 0 0 auto;
+  flex: 1 1 0;
+  min-width: 130px;
 }
 
 .pm-pair-team-icon {
@@ -195,35 +196,21 @@
   }
 }
 
-/* Mobile/tablet: não dá pra centralizar o par no meio da tela e caber
-   tudo ao mesmo tempo em telas estreitas — em vez da grade de 3 colunas
-   do desktop, .presenter-top vira uma linha só que rola na horizontal,
-   com .round-topbar e .pm-pair-row como dois blocos lado a lado dentro
-   dela (cada um already é uma linha internamente). */
+/* Mobile/tablet: dividir a linha em partes iguais (base acima) deixa
+   cada caixa espremida demais nessas larguras — em vez disso elas voltam
+   a ter largura natural (tamanho do conteúdo) e a linha rola na
+   horizontal se não couber tudo, em vez de espremer ou quebrar. */
 @media (max-width: 1024px) {
   .presenter-top {
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: stretch;
     gap: 14px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
     padding-bottom: 6px;
-  }
-
-  .round-topbar {
-    flex: 0 0 auto;
-    flex-wrap: nowrap;
-  }
-
-  .pm-pair-row {
-    flex: 0 0 auto;
   }
 
   .round-box,
   .timer-card,
   .pm-pair-team {
     flex: 0 0 auto;
+    min-width: 0;
   }
 
   .timer-wrap {
