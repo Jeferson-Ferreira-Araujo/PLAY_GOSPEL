@@ -98,6 +98,18 @@
   flex: 0 0 auto;
 }
 
+.admin-nav-item--external {
+  margin-top: 8px;
+  border-top: 1px solid var(--admin-border);
+  padding-top: 19px;
+}
+
+.admin-nav-external-icon {
+  margin-left: auto;
+  opacity: 0.55;
+  flex: 0 0 auto;
+}
+
 .admin-sidebar-footer {
   border-top: 1px solid var(--admin-border);
   padding-top: 16px;
@@ -105,26 +117,6 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-}
-
-.admin-help {
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.03);
-  text-decoration: none;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  font-size: 0.82rem;
-}
-
-.admin-help strong {
-  color: var(--admin-text);
-  font-size: 0.85rem;
-}
-
-.admin-help span {
-  color: var(--admin-text-muted);
 }
 
 .admin-profile {

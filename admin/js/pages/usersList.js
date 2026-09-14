@@ -13,6 +13,19 @@ function formatDate(value) {
   return d.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
+// A planilha guarda o WhatsApp como número puro (o Sheets às vezes
+// converte o texto digitado em número, derrubando o "+" e os zeros à
+// esquerda) — reconstrói o formato brasileiro (XX) XXXXX-XXXX a partir
+// só dos dígitos, removendo o "55" do país quando presente.
+function formatPhone(value) {
+  if (!value) return '';
+  let digits = String(value).replace(/\D/g, '');
+  if (digits.length > 11 && digits.startsWith('55')) digits = digits.slice(2);
+  if (digits.length === 11) return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  if (digits.length === 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  return String(value);
+}
+
 // A planilha pode ter as colunas nomeadas de formas ligeiramente
 // diferentes dependendo de como o Apps Script foi escrito — tenta achar
 // o valor em qualquer uma das variações conhecidas antes de desistir.
@@ -56,6 +69,10 @@ export async function renderUsersList(el) {
     return;
   }
 
+  // Mais recente primeiro (appendRow no Apps Script sempre empilha no
+  // fim da planilha, então isso é essencialmente inverter a lista).
+  rows.sort((a, b) => new Date(pick(b, ['timestamp', 'Timestamp', 'Carimbo de data/hora', 'seenAt', 'Data', 'data'])) - new Date(pick(a, ['timestamp', 'Timestamp', 'Carimbo de data/hora', 'seenAt', 'Data', 'data'])));
+
   function renderTable(list) {
     if (list.length === 0) {
       tableWrap.innerHTML = `
@@ -81,10 +98,10 @@ export async function renderUsersList(el) {
           ${list.map((row) => `
             <tr>
               <td>${escapeHtml(pick(row, ['name', 'Nome', 'nome'])) || '—'}</td>
-              <td>${escapeHtml(pick(row, ['whatsapp', 'WhatsApp'])) || '—'}</td>
+              <td>${escapeHtml(formatPhone(pick(row, ['whatsapp', 'WhatsApp', 'Whatsapp']))) || '—'}</td>
               <td>${escapeHtml(pick(row, ['church', 'Igreja', 'igreja'])) || '—'}</td>
               <td>${escapeHtml(pick(row, ['city', 'Cidade', 'cidade'])) || '—'}</td>
-              <td>${formatDate(pick(row, ['timestamp', 'Timestamp', 'Carimbo de data/hora', 'seenAt']))}</td>
+              <td>${formatDate(pick(row, ['timestamp', 'Timestamp', 'Carimbo de data/hora', 'seenAt', 'Data', 'data']))}</td>
             </tr>
           `).join('')}
         </tbody>

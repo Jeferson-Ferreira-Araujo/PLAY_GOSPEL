@@ -17,7 +17,11 @@ const PORT = process.env.PORT || 5177;
 // Mesma Planilha Google pra onde o site manda o cadastro de visitantes
 // (assets/js/app.js:65/71) — o admin lê de volta por aqui pra não expor o
 // token de novo no bundle do admin.
-const WELCOME_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxh45f8NeFzOFDLtnP3lxxF_LP3Ze0mqU2sq28BpUYBv1LvRWLINs34KgDnwE4Pn3KhZw/exec';
+// Implantação separada da que assets/js/app.js usa pra gravar (essa aqui
+// tem o doGet e "Quem tem acesso: Qualquer pessoa" configurado; a de
+// gravação continua intacta em produção) — mesmo script/planilha, então
+// os dados lidos aqui são os mesmos que o site grava.
+const WELCOME_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxAvC9lWtB5-ylfFcVlHpCsBGW4usqrz596VieeD2QlmrkfAHwuaVhgabFH4ldC2QyeQA/exec';
 const WELCOME_SHEET_TOKEN = '1cddb869b1d3e46c97972c9a41b615485e9e15305256d5a4';
 
 const MIME_TYPES = {
