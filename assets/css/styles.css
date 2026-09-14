@@ -2056,6 +2056,24 @@
     gap: 12px;
   }
 
+  /* Botão "Sortear jogos": só no mobile, sai de perto dos filtros e vira
+     um botão flutuante fixo — grudado na tela (não rola com o
+     conteúdo), um pouco afastado da borda inferior. Reserva espaço
+     embaixo da grade (padding no <main>) pra ele nunca cobrir o
+     último card sozinho. */
+  .pg-draw-btn {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    z-index: 30;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, .45);
+  }
+
+  .pg-catalogo {
+    padding-bottom: 84px;
+  }
+
   /* Placar de equipes: fica fechado por padrão (só o cabeçalho, sem os
      cartões) — no mobile o espaço vertical é curto e não faz sentido
      empurrar a lista de jogos pra fora da dobra por causa do placar. O
