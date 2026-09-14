@@ -3,6 +3,7 @@ import { Teams } from "../../assets/js/teams.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
 import { playCountdownTick, playCountdownGo } from "../../assets/js/countdown-sound.js";
+import { mountSoundMuteButton } from "../../assets/js/sound-mute-ui.js";
 
 // Máximo de rodadas por partida (evita jogar todas as afirmações de uma vez).
 const ROUND_SIZE = 10;
@@ -76,6 +77,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderTurnBanner();
     updateScoreBtn();
   });
+  mountSoundMuteButton(document.querySelector(".game-topbar-actions"));
   checkAutoStartFromURL(); // ✅ novo fluxo
 });
 

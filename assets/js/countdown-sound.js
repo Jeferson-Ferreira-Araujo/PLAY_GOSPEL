@@ -9,6 +9,28 @@
 // clique/toque/tecla em QUALQUER lugar da página, não só no que
 // disparou a contagem — padrão comum pra contornar essa restrição.
 
+// Mudo — preferência do site inteiro (não por jogo), igual a tradução
+// da Bíblia: ligar/desligar num jogo vale pros outros também, não
+// precisa mutar de novo em cada um.
+const MUTE_KEY = "bibflix_sound_muted_v1";
+
+export function isMuted() {
+  try {
+    return localStorage.getItem(MUTE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function setMuted(muted) {
+  try {
+    localStorage.setItem(MUTE_KEY, muted ? "1" : "0");
+  } catch {
+    /* best-effort */
+  }
+  window.dispatchEvent(new CustomEvent("bibflix:sound-muted:change", { detail: muted }));
+}
+
 let ctx = null;
 
 function getContext() {
@@ -28,6 +50,8 @@ function unlock() {
 );
 
 function beep({ freq, duration, volume, type }) {
+  if (isMuted()) return;
+
   const c = getContext();
   if (!c) return;
   if (c.state === "suspended") c.resume().catch(() => {});

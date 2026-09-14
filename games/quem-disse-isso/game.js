@@ -6,6 +6,7 @@ import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
 import { BibleVersion } from "../../assets/js/bible-version.js";
 import { mountBibleVersionPicker } from "../../assets/js/bible-version-ui.js";
 import { playCountdownTick, playCountdownGo } from "../../assets/js/countdown-sound.js";
+import { mountSoundMuteButton } from "../../assets/js/sound-mute-ui.js";
 
 // Máximo de rodadas por partida (evita jogar todas as frases de uma vez).
 const ROUND_SIZE = 10;
@@ -76,6 +77,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
   mountBibleVersionPicker(document.querySelector(".game-topbar-actions"));
   window.addEventListener("bibflix:bible-version:change", reloadCurrentQuoteText);
+  mountSoundMuteButton(document.querySelector(".game-topbar-actions"));
   checkAutoStartFromURL(); // 🔥 NOVO
 });
 
