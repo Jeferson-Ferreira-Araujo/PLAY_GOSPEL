@@ -3,6 +3,8 @@ import { Teams } from "../../assets/js/teams.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
 import { icon } from "../../playgospel-ui/js/core.js";
+import { playCorrectSound } from "../../assets/js/countdown-sound.js";
+import { mountSoundMuteButton } from "../../assets/js/sound-mute-ui.js";
 
 /* ===== ELEMENTS ===== */
 const setupScreen = document.getElementById("setupScreen");
@@ -68,6 +70,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderTeamScoreButtons();
     updateScoreBtn();
   });
+  mountSoundMuteButton(document.querySelector(".game-topbar-actions"));
   applyParamsFromURL();
 });
 
@@ -467,10 +470,7 @@ function setGameOverUI(isOver) {
 }
 
 function playPointSound() {
-  try {
-    const audio = new Audio("../../assets/sounds/correct.mp3");
-    audio.play();
-  } catch {}
+  playCorrectSound();
 }
 
 /* ========================= ITEM POOL ========================= */

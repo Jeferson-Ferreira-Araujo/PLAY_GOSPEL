@@ -81,3 +81,11 @@ export function playCountdownTick() {
 export function playCountdownGo() {
   beep({ freq: 1046.5, duration: 0.22, volume: 0.2, type: "triangle" });
 }
+
+/** Chime de acerto (duas notas subindo) — usado quando uma equipe marca
+ * ponto (ex: palavras-misturadas, adivinhe-emoji). Mesma técnica
+ * sintetizada de cima, respeitando o mudo igual aos bipes da contagem. */
+export function playCorrectSound() {
+  beep({ freq: 523.25, duration: 0.1, volume: 0.18, type: "sine" });
+  setTimeout(() => beep({ freq: 784, duration: 0.16, volume: 0.2, type: "sine" }), 90);
+}
