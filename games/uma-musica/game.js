@@ -2,6 +2,7 @@ import { shuffleArray, createCountdownTimer, pointsLabel } from "../../assets/js
 import { Teams } from "../../assets/js/teams.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
+import { playCountdownTick, playCountdownGo } from "../../assets/js/countdown-sound.js";
 
 // Máximo de rodadas por partida (evita jogar todas as palavras de uma vez).
 const ROUND_SIZE = 10;
@@ -212,14 +213,17 @@ function startPrepareCountdown(onDone) {
 
   let n = 3;
   wordText.textContent = prepareLabel(n);
+  playCountdownTick();
 
   countdownInterval = setInterval(() => {
     n -= 1;
     if (n > 0) {
       wordText.textContent = prepareLabel(n);
+      playCountdownTick();
       return;
     }
     clearCountdown();
+    playCountdownGo();
     onDone();
   }, 1000);
 }

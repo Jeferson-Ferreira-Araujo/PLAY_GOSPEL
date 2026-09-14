@@ -4,6 +4,7 @@ import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../ass
 import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
 import { BibleVersion } from "../../assets/js/bible-version.js";
 import { mountBibleVersionPicker } from "../../assets/js/bible-version-ui.js";
+import { playCountdownTick, playCountdownGo } from "../../assets/js/countdown-sound.js";
 
 // Máximo de rodadas por partida (evita jogar todos os versículos de uma vez).
 const ROUND_SIZE = 10;
@@ -228,14 +229,17 @@ function startPrepareCountdown(onDone) {
 
   let n = 3;
   verseText.textContent = prepareLabel(n);
+  playCountdownTick();
 
   countdownInterval = setInterval(() => {
     n -= 1;
     if (n > 0) {
       verseText.textContent = prepareLabel(n);
+      playCountdownTick();
       return;
     }
     clearCountdown();
+    playCountdownGo();
     onDone();
   }, 1000);
 }
