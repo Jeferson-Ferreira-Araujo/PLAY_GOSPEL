@@ -118,7 +118,8 @@
 
   <main class="presenter d-none" id="gameScreen">
 
-  <!-- TOPO (bloco de rodada + timer) -->
+  <!-- TOPO: categoria/rodada à esquerda, par de equipes centralizado na
+       tela, tempo à direita (ver .presenter-top em game.css). -->
   <div class="presenter-top">
     <div class="round-topbar">
       <div class="round-box">
@@ -129,25 +130,20 @@
         <div class="round-box-label"><svg class="round-box-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4"/><path d="M5 4h13l-3 4 3 4H5"/></svg>Rodada</div>
         <div class="round-box-value" id="badgeRound">--</div>
       </div>
-      <div class="round-box d-none" id="pointsBox">
-        <div class="round-box-label"><svg class="round-box-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4Z"/><path d="M8 5H5a2 2 0 0 0 0 4h1"/><path d="M16 5h3a2 2 0 0 1 0 4h-1"/><path d="M9 20h6"/><path d="M12 13v4"/></svg>Pontos em jogo</div>
-        <div class="round-box-value" id="pointsValue">Vale 1 ponto</div>
-      </div>
-      <div class="timer-card" id="presenterTimerRow">
-        <div class="round-box-label"><svg class="round-box-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Tempo</div>
-        <div class="timer-wrap">
-          <div id="timerText" class="timer-text">30s</div>
-          <div class="progress bg-secondary-subtle" style="height: 8px;">
-            <div id="timerBar" class="progress-bar" style="width: 0%"></div>
-          </div>
+    </div>
+
+    <!-- PAR DA RODADA (só 2 equipes disputam por vez — rodízio em game.js) -->
+    <div class="pm-pair-row d-none" id="pairRow"></div>
+
+    <div class="timer-card" id="presenterTimerRow">
+      <div class="round-box-label"><svg class="round-box-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Tempo</div>
+      <div class="timer-wrap">
+        <div id="timerText" class="timer-text">30s</div>
+        <div class="progress bg-secondary-subtle" style="height: 8px;">
+          <div id="timerBar" class="progress-bar" style="width: 0%"></div>
         </div>
       </div>
     </div>
-
-    <!-- PAR DA RODADA (só 2 equipes disputam por vez — rodízio em game.js) —
-         fica dentro do .presenter-top pra poder entrar na mesma linha das
-         caixas de rodada no mobile/tablet (ver game.css). -->
-    <div class="pm-pair-row d-none" id="pairRow"></div>
   </div>
 
   <!-- PALAVRA -->

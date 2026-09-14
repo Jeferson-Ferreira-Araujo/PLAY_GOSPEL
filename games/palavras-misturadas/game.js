@@ -34,7 +34,6 @@ const gameOverNotice = document.getElementById("gameOverNotice");
 
 const scoreBtn = document.getElementById("scoreBtn");
 const teamScoreButtons = document.getElementById("teamScoreButtons");
-const pointsBox = document.getElementById("pointsBox");
 const pairRow = document.getElementById("pairRow");
 
 /* ===== STATE ===== */
@@ -149,7 +148,6 @@ function updateScoreBtn() {
   if (!scoreBtn) return;
   const show = !gameScreen.classList.contains("d-none") && Teams.isEnabled();
   scoreBtn.classList.toggle("d-none", !show);
-  pointsBox?.classList.toggle("d-none", !show);
 }
 
 /* ===== Trava de equipes (tela de configuração) =====
