@@ -1,7 +1,8 @@
-// Tour guiado de primeiro acesso — evidencia as 5 funções mais importantes
-// do catálogo (equipes, escolher jogo, sortear, como jogar, divirta-se)
-// com um "spotlight" recortado sobre cada elemento. Pulável a qualquer
-// momento (botão "Pular" ou Esc); quem concluir ou pular nunca mais vê
+// Tour guiado de primeiro acesso — evidencia as funções mais importantes
+// do catálogo (equipes, escolher jogo, sortear, tradução da Bíblia,
+// como jogar, divirta-se) com um "spotlight" recortado sobre cada
+// elemento. Pulável a qualquer momento (botão "Pular" ou Esc); quem
+// concluir ou pular nunca mais vê
 // de novo (controle de "visto" fica por conta de quem chama startTour,
 // via onEnd — este módulo só cuida da apresentação visual).
 
@@ -25,15 +26,21 @@ const STEPS = [
     text: "Sem ideia de qual jogar? Esse botão sorteia 3 jogos pra vocês jogarem em sequência, com o mesmo placar valendo pra todos.",
   },
   {
-    selector: "#navHowToBtn",
+    selector: "#bibleVersionPickerHeader",
     emoji: "📖",
-    title: "4. Veja como jogar",
+    title: "4. Escolha a tradução",
+    text: "Prefere Almeida ou NTLH? Escolha aqui a tradução da Bíblia usada nos versículos — vale para o Complete o Versículo, Qual a Passagem e Quem Disse Isso.",
+  },
+  {
+    selector: "#navHowToBtn",
+    emoji: "❓",
+    title: "5. Veja como jogar",
     text: "Cada jogo mostra suas instruções antes de começar. E aqui no topo você confere as regras gerais quando quiser.",
   },
   {
     selector: null,
     emoji: "🎉",
-    title: "5. Divirta-se!",
+    title: "6. Divirta-se!",
     text: "Agora é só reunir seus irmãos, aprender mais da Palavra e se divertir juntos. Deus abençoe!",
   },
 ];
