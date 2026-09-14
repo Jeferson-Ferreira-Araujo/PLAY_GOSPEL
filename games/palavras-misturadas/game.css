@@ -82,15 +82,21 @@
 
 /* Par da rodada — só 2 equipes disputam por vez (rodízio em game.js
    quando há mais equipes ativas); mostra nome da equipe + pessoa da vez
-   (se houver participantes sorteados), uma de cada lado do "×". */
-.pm-pair-row {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  padding: 0 16px;
+   (se houver participantes sorteados), uma de cada lado do "×".
+   .round-topbar e .pm-pair-row "somem" como caixa (display:contents) o
+   tempo todo — suas caixas internas viram filhas diretas do
+   .presenter-top, que passa a ser UM único container flex (uma linha só,
+   caixas de rodada + par do mesmo tamanho, ver .round-box/.timer-card em
+   game-base.css). No mobile/tablet (ver media query abaixo) ele rola na
+   horizontal em vez de manter todo mundo espremido. */
+.presenter-top {
+  flex-direction: row;
   flex-wrap: wrap;
+}
+
+.round-topbar,
+.pm-pair-row {
+  display: contents;
 }
 
 .pm-pair-team {
@@ -102,7 +108,8 @@
   background: var(--team-color, var(--gold));
   color: #0b1220;
   box-shadow: 0 8px 20px rgba(0, 0, 0, .25);
-  min-width: 0;
+  flex: 1 1 0;
+  min-width: 130px;
 }
 
 .pm-pair-team-icon {
@@ -110,8 +117,8 @@
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  width: 26px;
-  height: 26px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: rgba(0, 0, 0, .18);
 }
@@ -125,16 +132,16 @@
 
 .pm-pair-team-name {
   font-weight: 800;
-  font-size: 1rem;
+  font-size: 1.15rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .pm-pair-team-player {
-  font-size: .74rem;
+  font-size: 1.05rem;
   font-weight: 700;
-  color: rgba(11, 18, 32, .65);
+  color: rgba(11, 18, 32, .75);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -161,25 +168,18 @@
   }
 }
 
-/* Mobile/tablet: em vez de empilhar caixas de rodada + par em linhas
-   separadas (quebrando bastante em telas estreitas), tudo fica numa
-   linha só que rola na horizontal se não couber — .round-topbar e
-   .pm-pair-row "somem" como caixa (display:contents) e suas caixas
-   internas viram filhos diretos do .presenter-top, que passa a ser o
-   container que rola. */
+/* Mobile/tablet: no desktop as caixas (rodada + par) esticam pra ocupar
+   a linha toda em tamanho igual (ver .presenter-top acima); aqui embaixo
+   isso pioraria (caixas espremidas demais) — em vez disso elas voltam a
+   ter largura natural e a linha passa a rolar na horizontal se não
+   couber tudo, em vez de quebrar em várias linhas. */
 @media (max-width: 1024px) {
   .presenter-top {
-    flex-direction: row;
     flex-wrap: nowrap;
     align-items: stretch;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     padding-bottom: 6px;
-  }
-
-  .round-topbar,
-  .pm-pair-row {
-    display: contents;
   }
 
   .round-box,
