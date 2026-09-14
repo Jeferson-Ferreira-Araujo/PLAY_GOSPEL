@@ -36,6 +36,7 @@ const scoreBtn = document.getElementById("scoreBtn");
 const teamScoreButtons = document.getElementById("teamScoreButtons");
 const pointsBox = document.getElementById("pointsBox");
 const timerRow = document.getElementById("presenterTimerRow");
+const pairRow = document.getElementById("pairRow");
 
 /* ===== STATE ===== */
 let data = null;
@@ -50,6 +51,72 @@ let wordPool = [];
 let poolIndex = 0;
 
 let gameOver = false;
+
+// ===== Rodízio de pares (2 equipes por rodada) =====
+// Com só 2 equipes ativas, o par é sempre o mesmo (as duas). Com 3+, a
+// ordem das equipes é embaralhada uma vez no início da partida e o par
+// avança uma posição a cada rodada (A x B, B x C, C x A, repete...) — um
+// rodízio circular que garante que ninguém fica de fora rodadas seguidas
+// (cada equipe entra em 2 de cada N rodadas do ciclo).
+let pairOrder = [];
+let pairCursor = -1;
+let currentPair = null; // [índiceEquipeA, índiceEquipeB] ou null antes da 1ª rodada
+
+function shuffledIndices(n) {
+  const arr = Array.from({ length: n }, (_, i) => i);
+  return shuffleArray(arr);
+}
+
+function initPairing() {
+  const n = Teams.getState().teams.length;
+  pairOrder = shuffledIndices(n);
+  pairCursor = -1;
+  currentPair = null;
+}
+
+// Chamada no início de cada rodada nova: fecha a rodada anterior (avança
+// quem representa cada equipe do par que acabou de jogar) e decide o
+// próximo par pelo rodízio.
+function advancePair() {
+  const n = Teams.getState().teams.length;
+  if (pairOrder.length !== n) initPairing();
+
+  if (currentPair) {
+    Teams.advanceMemberTurnFor(currentPair[0]);
+    Teams.advanceMemberTurnFor(currentPair[1]);
+  }
+
+  pairCursor = (pairCursor + 1) % n;
+  const a = pairOrder[pairCursor % n];
+  const b = pairOrder[(pairCursor + 1) % n];
+  currentPair = [a, b];
+}
+
+function renderPairRow() {
+  if (!pairRow) return;
+  if (!currentPair || gameOver) {
+    pairRow.classList.add("d-none");
+    pairRow.innerHTML = "";
+    return;
+  }
+
+  const state = Teams.getState();
+  pairRow.classList.remove("d-none");
+  pairRow.innerHTML = currentPair.map((teamIndex) => {
+    const team = state.teams[teamIndex];
+    if (!team) return "";
+    const player = Teams.playerOf(teamIndex);
+    return `
+      <div class="pm-pair-team" style="--team-color:${escapeHtml(team.color)}">
+        <span class="pm-pair-team-icon">${icon(teamIconName(team), { size: 18 })}</span>
+        <span class="pm-pair-team-text">
+          <span class="pm-pair-team-name">${escapeHtml(team.name)}</span>
+          ${player ? `<span class="pm-pair-team-player">${escapeHtml(player)}</span>` : ""}
+        </span>
+      </div>
+    `;
+  }).join(`<div class="pm-pair-vs">×</div>`);
+}
 
 let answerRevealed = false;
 let timeExpired = false;
@@ -96,9 +163,10 @@ function updateTeamsGate() {
   startBtn.disabled = !enabled;
 }
 
-/* ===== Formato "disputa": um botão de pontuação por equipe ativa =====
-   Todas as equipes veem a mesma palavra ao mesmo tempo; quem administra o
-   jogo clica no botão da equipe que falar a resposta certa primeiro. */
+/* ===== Formato "disputa": um botão de pontuação por equipe do par da vez =====
+   Só as 2 equipes do par atual (ver advancePair) veem a mesma palavra;
+   quem administra o jogo clica no botão da equipe que falar a resposta
+   certa primeiro. */
 function escapeHtml(str) {
   return String(str ?? "").replace(/[&<>"']/g, (c) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
@@ -113,7 +181,7 @@ function renderTeamScoreButtons() {
   // Só aparecem depois que a resposta certa foi revelada na tela — assim
   // quem administra confere a palavra antes de dar o ponto pra equipe
   // certa (evita pontuar a equipe errada por engano).
-  if (!Teams.isEnabled() || !answerRevealed || gameOver) {
+  if (!Teams.isEnabled() || !answerRevealed || gameOver || !currentPair) {
     teamScoreButtons.innerHTML = "";
     teamScoreButtons.classList.add("d-none");
     return;
@@ -124,7 +192,10 @@ function renderTeamScoreButtons() {
 
   const locked = roundPhase !== "playing";
 
-  teamScoreButtons.innerHTML = state.teams.map((team, index) => `
+  teamScoreButtons.innerHTML = currentPair.map((index) => {
+    const team = state.teams[index];
+    if (!team) return "";
+    return `
     <button
       type="button"
       class="pm-team-btn"
@@ -135,7 +206,8 @@ function renderTeamScoreButtons() {
       <span class="pm-team-btn-icon">${icon(teamIconName(team), { size: 16 })}</span>
       <span>${escapeHtml(team.name)} acertou</span>
     </button>
-  `).join("");
+  `;
+  }).join("");
 
   teamScoreButtons.querySelectorAll(".pm-team-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -272,6 +344,7 @@ function wireUI() {
     gameOver = false;
     setGameOverUI(false);
 
+    initPairing();
     buildWordPool();
     nextWord();
   });
@@ -307,6 +380,7 @@ function startGame() {
   gameOver = false;
   setGameOverUI(false);
 
+  initPairing();
   buildWordPool();
 
   nextWord();
@@ -322,6 +396,9 @@ function nextWord() {
 
   round++;
   badgeRound.textContent = `${round}/${wordPool.length}`;
+
+  advancePair();
+  renderPairRow();
 
   currentWord = next;
   answerRevealed = false;
@@ -425,6 +502,7 @@ function endGame() {
   scrambledWordEl.classList.remove("pm-countdown");
   scrambledWordEl.textContent = "FIM DE JOGO";
   setGameOverUI(true);
+  renderPairRow();
 
   showScorePopup({
     title: "🏁 Fim de jogo!",
@@ -506,18 +584,29 @@ function playPointSound() {
 // novamente"), então nenhuma palavra repete enquanto ainda sobrar alguma
 // não usada na categoria — só quando a fila esvaziar ela é reembaralhada
 // e recomeça do zero (podendo repetir a partir daí).
-const ROUND_SIZE = 10;
+//
+// Padrão do site é 10 rodadas fixas, mas aqui só 2 equipes jogam por vez
+// — com muitas equipes ativas, 10 rodadas fixas deixariam cada uma jogar
+// poucas vezes (ex: 6 equipes em 10 rodadas = só 3,3 rodadas por equipe,
+// em média). Escala o total pra garantir pelo menos ~4 rodadas por
+// equipe (2 equipes por rodada => 2×tamanho rodadas cobre isso), sem
+// nunca ficar abaixo do padrão de 10.
+function roundSizeFor(teamCount) {
+  return Math.max(10, teamCount * 2);
+}
 
 let categoryQueue = [];
 let categoryQueueId = null;
 
 function buildWordPool() {
+  const roundSize = roundSizeFor(Teams.getState().teams.length);
+
   if (categoryQueueId !== currentCategory.id || categoryQueue.length === 0) {
     categoryQueue = shuffleArray(currentCategory.words || []);
     categoryQueueId = currentCategory.id;
   }
 
-  wordPool = categoryQueue.splice(0, ROUND_SIZE);
+  wordPool = categoryQueue.splice(0, roundSize);
   poolIndex = 0;
 }
 

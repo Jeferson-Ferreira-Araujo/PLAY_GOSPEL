@@ -221,11 +221,34 @@ export const Teams = {
   // outra pessoa dela, sem depender de quantas vezes as outras equipes
   // jogaram nesse meio tempo.
   currentPlayer() {
-    const t = this.currentTeam();
+    const st = load();
+    clampTurn(st);
+    if (!st.enabled || !st.teams.length) return null;
+    return this.playerOf(st.turn);
+  },
+
+  // Igual a currentPlayer(), mas pra uma equipe qualquer por índice — não
+  // depende de ser "a da vez" (st.turn). Usado por jogos que colocam mais
+  // de uma equipe em campo ao mesmo tempo (ex: Palavras Embaralhadas, que
+  // revezam pares de equipes por rodada em vez de uma equipe global de
+  // cada vez).
+  playerOf(index) {
+    const st = this.getState();
+    const t = st.teams[index];
     if (!t || !Array.isArray(t.members) || !t.members.length) return null;
     const n = t.members.length;
     const idx = (((Number(t.memberTurn) || 0) % n) + n) % n;
     return t.members[idx];
+  },
+
+  // Avança o ponteiro de integrante de uma equipe específica por índice —
+  // mesma lógica de advanceMemberTurn (interna), exposta pra jogos que
+  // não usam nextTurn()/setTurn() pra decidir quem joga (ver playOf acima).
+  advanceMemberTurnFor(index) {
+    const st = load();
+    advanceMemberTurn(st, index);
+    save(st);
+    return st;
   },
 
   nextTurn() {

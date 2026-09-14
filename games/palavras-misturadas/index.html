@@ -65,7 +65,7 @@
           <!-- Formato "disputa": só faz sentido com equipes ativas (é dali que
                vêm os botões "X acertou"). Sem equipes, avisa e trava o Iniciar. -->
           <div id="teamsSetupWarning" class="alert alert-warning d-none mb-3">
-            ⚠️ Este jogo é jogado em <b>equipes</b> — as duas (ou mais) veem a mesma palavra e quem falar certo primeiro pontua.
+            ⚠️ Este jogo é jogado em <b>equipes</b> — 2 por vez se enfrentam em cada rodada (as demais revezam, se houver mais equipes) e quem falar certo primeiro pontua.
             <br>
             Nenhuma equipe ativa ainda.
             <a class="alert-link" href="../../index.html#catalogo">Crie as equipes no catálogo</a> e volte para esta tela.
@@ -108,7 +108,7 @@
           <ul class="text-secondary mb-0">
             <li>Frases com espaços (ex: “Atos dos Apóstolos”) também embaralham.</li>
             <li>Use “Mostrar resposta” se estiver usando em grupo.</li>
-            <li>Se houver <b>equipes</b> criadas, todas veem a mesma palavra ao mesmo tempo. Quando alguém falar a resposta, clique em <b>Mostrar resposta</b> para conferir — só depois disso os botões de pontuação de cada equipe aparecem.</li>
+            <li>Se houver <b>equipes</b> criadas, 2 delas disputam por vez (as demais revezam entre as rodadas). Quando alguém falar a resposta, clique em <b>Mostrar resposta</b> para conferir — só depois disso os botões de pontuação do par da vez aparecem.</li>
             <li><b>Espaço</b>: próxima palavra</li>
           </ul>
         </div>
@@ -145,13 +145,15 @@
     </div>
   </div>
 
+  <!-- PAR DA RODADA (só 2 equipes disputam por vez — rodízio em game.js) -->
+  <div class="pm-pair-row d-none" id="pairRow"></div>
+
   <!-- PALAVRA -->
   <div class="presenter-center">
     <div class="scrambled stage-text" id="scrambledWord">CARREGANDO</div>
   </div>
 
-  <!-- QUEM ACERTOU (um botão por equipe ativa — formato "disputa": todas veem a
-       mesma palavra ao mesmo tempo, quem falar certo primeiro ganha o ponto) -->
+  <!-- QUEM ACERTOU (um botão por equipe do par da vez) -->
   <div class="team-score-row d-none" id="teamScoreButtons"></div>
 
   <!-- CONTROLES -->
