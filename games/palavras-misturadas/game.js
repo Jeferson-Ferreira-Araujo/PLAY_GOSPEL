@@ -35,7 +35,6 @@ const gameOverNotice = document.getElementById("gameOverNotice");
 const scoreBtn = document.getElementById("scoreBtn");
 const teamScoreButtons = document.getElementById("teamScoreButtons");
 const pointsBox = document.getElementById("pointsBox");
-const timerRow = document.getElementById("presenterTimerRow");
 const pairRow = document.getElementById("pairRow");
 
 /* ===== STATE ===== */
@@ -417,9 +416,8 @@ function startCountdown() {
   showAnswerBtn.classList.add("d-none");
   scrambledWordEl.classList.add("pm-countdown");
 
-  // O timer só volta a aparecer quando a rodada realmente começar (ver
-  // beginRound) — durante o "Prepare-se!" ele fica escondido.
-  timerRow?.classList.add("d-none");
+  // A caixa de tempo fica sempre visível (mesmo durante o "Prepare-se!")
+  // — só o conteúdo muda, pra não sumir e reaparecer no layout.
   timerBar.style.width = "0%";
 
   let n = 3;
@@ -446,7 +444,6 @@ function beginRound() {
   showAnswerBtn.classList.remove("d-none");
   showAnswerBtn.textContent = "Mostrar resposta";
 
-  timerRow?.classList.remove("d-none");
   setRoundPhase("playing");
   startOrResetTimer();
 
@@ -469,11 +466,9 @@ function toggleAnswer() {
 function revealAnswer() {
   answerRevealed = true;
 
-  // 🔥 PARA E ESCONDE O TEMPO — só volta quando uma rodada nova começar
-  // (ver startCountdown/beginRound), mesmo que a resposta seja ocultada
-  // de novo (toggleAnswer) nesta mesma rodada.
+  // 🔥 PARA O TEMPO (a caixa continua visível, só congela) — só volta a
+  // contar quando uma rodada nova começar (ver startCountdown/beginRound).
   stopTimer();
-  timerRow?.classList.add("d-none");
 
   // 🔥 MOSTRA NO CENTRO
   scrambledWordEl.textContent = currentWord;
@@ -497,7 +492,8 @@ function endGame() {
   gameOver = true;
   clearCountdown();
   stopTimer();
-  timerRow?.classList.add("d-none");
+  timerText.textContent = "--";
+  timerBar.style.width = "0%";
 
   scrambledWordEl.classList.remove("pm-countdown");
   scrambledWordEl.textContent = "FIM DE JOGO";
@@ -513,7 +509,6 @@ function endGame() {
 /* ========================= AFTER POINT ========================= */
 function afterPoint() {
   stopTimer();
-  timerRow?.classList.add("d-none");
 }
 
 /* ========================= TIMER ========================= */
@@ -531,7 +526,6 @@ function createOrUpdateTimer() {
     onEnd: () => {
       timerText.textContent = "Tempo esgotado!";
       timerBar.style.width = "0%";
-      timerRow?.classList.add("d-none");
 
       timeExpired = true;
 
