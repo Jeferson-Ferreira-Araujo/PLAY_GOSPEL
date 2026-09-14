@@ -11,7 +11,11 @@
 // página que chamar mountBibleVersionPicker.
 import { BibleVersion, BIBLE_VERSIONS } from "./bible-version.js";
 
-const BOOK_ICON = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H12v18H6.5A2.5 2.5 0 0 1 4 18.5v-13Z"/><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H12v18h5.5a2.5 2.5 0 0 0 2.5-2.5v-13Z"/></svg>`;
+// Livro fechado com cruz grande na capa — um livro aberto sozinho (ícone
+// antigo) ficava genérico demais em 16px (podia ser confundido com
+// qualquer outro ícone de "livro"/"menu"); a cruz bem grande, mesmo
+// pequena a caixa toda, deixa claro que é a Bíblia.
+const BOOK_ICON = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 3v18"/><path d="M14 7.5v7"/><path d="M11 11h6"/></svg>`;
 const CHEVRON_ICON = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>`;
 
 function currentVersion() {

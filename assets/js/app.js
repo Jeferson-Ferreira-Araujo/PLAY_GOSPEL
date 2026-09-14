@@ -772,10 +772,13 @@ function renderTeamsBanner() {
   });
 }
 
+// Rótulo fixo "Equipes" (não muda com "Criar"/"Editar" — o estado já
+// fica claro pelo aviso/passo em que a pessoa está) — mais curto ajuda
+// o botão de tradução da Bíblia a caber do lado sem quebrar no mobile.
 function updateTeamsNavButton() {
   const label = document.getElementById("teamsNavBtnLabel");
   if (!label) return;
-  label.textContent = Teams.isEnabled() ? "Editar equipes" : "Criar equipes";
+  label.textContent = "Equipes";
 }
 
 /* =========================
