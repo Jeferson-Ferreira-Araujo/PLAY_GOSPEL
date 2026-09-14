@@ -17,7 +17,7 @@ const DEFAULT_COVER = "assets/img/cover-placeholder.svg";
 // turnos (indicador "Vez de..." dentro do jogo). Jogos sem o campo ainda
 // não foram classificados — não mostra selo nesse caso.
 const MATCH_TYPE_META = {
-  disputa: { label: "Disputa", icon: "flame", sub: "Todas as equipes respondem juntas" },
+  disputa: { label: "Disputa", icon: "flame", sub: "2 equipes respondem juntas" },
   rodada: { label: "Rodada", icon: "refresh", sub: "Uma equipe por vez, em turnos" },
 };
 
