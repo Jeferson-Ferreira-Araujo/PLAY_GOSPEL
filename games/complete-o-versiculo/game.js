@@ -2,6 +2,8 @@ import { shuffleArray, createCountdownTimer, pointsLabel } from "../../assets/js
 import { Teams } from "../../assets/js/teams.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
+import { BibleVersion } from "../../assets/js/bible-version.js";
+import { mountBibleVersionPicker } from "../../assets/js/bible-version-ui.js";
 
 // Máximo de rodadas por partida (evita jogar todos os versículos de uma vez).
 const ROUND_SIZE = 10;
@@ -246,6 +248,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   wireUI();
   updateScoreBtn();
   window.addEventListener("bibflix:teams:change", updateScoreBtn);
+  mountBibleVersionPicker(document.querySelector(".game-topbar-actions"));
+  window.addEventListener("bibflix:bible-version:change", reloadCurrentVerseText);
 
   // A tela de configuração ficou só no modal do catálogo (que já barra
   // "Jogar" sem equipes ativas — ver assets/js/app.js). Se mesmo assim
@@ -406,17 +410,39 @@ function nextVerse() {
   });
 }
 
-function loadVerseAtIndex(i) {
+// Incrementado a cada troca de versículo/tradução — busca de texto que
+// terminar depois de já termos ido pra outro verso (ou fim de jogo) é
+// descartada em vez de sobrescrever a tela errada.
+let verseRequestId = 0;
+
+async function loadVerseAtIndex(i) {
   current = pool[i];
 
   referenceBox.classList.add("d-none");
   referenceText.textContent = "";
 
-  renderVerseWithBlanks(current.text, currentDifficulty);
+  const reqId = ++verseRequestId;
+  const text = await BibleVersion.resolveText(current.text, current.reference);
+  if (reqId !== verseRequestId) return;
+
+  renderVerseWithBlanks(text, currentDifficulty);
 
   showAnswerBtn.textContent = "Mostrar resposta";
 
   resetPassChain();
+}
+
+// Troca de tradução (ver bibflix:bible-version:change) com o jogo
+// parado no meio de um verso: busca o texto na tradução nova e
+// re-renderiza os espaços em branco, sem reiniciar rodada/placar de
+// passes. Só faz sentido antes da resposta já ter sido revelada — depois
+// disso o texto mostrado na tela já são os espaços preenchidos/revelados.
+async function reloadCurrentVerseText() {
+  if (!current || answerRevealed || gameOver) return;
+  const reqId = ++verseRequestId;
+  const text = await BibleVersion.resolveText(current.text, current.reference);
+  if (reqId !== verseRequestId) return;
+  renderVerseWithBlanks(text, currentDifficulty);
 }
 
 function endGame(text) {

@@ -2,6 +2,8 @@ import { createCountdownTimer, shuffleArray, pointsLabel } from "../../assets/js
 import { Teams } from "../../assets/js/teams.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
+import { BibleVersion } from "../../assets/js/bible-version.js";
+import { mountBibleVersionPicker } from "../../assets/js/bible-version-ui.js";
 
 // Máximo de rodadas por partida (evita jogar todos os versículos de uma vez).
 const ROUND_SIZE = 10;
@@ -237,13 +239,36 @@ function renderCard() {
   // pra ninguém clicar Passar a vez antes da rodada realmente começar.
   setTeamsControlsVisible(false);
 
-  startPrepareCountdown(() => {
+  startPrepareCountdown(async () => {
     $("verseText").textContent = item.verse || "—";
     $("answerText").textContent = item.reference || "—";
     timerRow?.classList.remove("d-none");
     startTimer(settings.time);
     resetPassChain();
+
+    const reqId = ++verseRequestId;
+    const text = await BibleVersion.resolveText(item.verse, item.reference);
+    if (reqId !== verseRequestId) return; // já foi pra outra carta enquanto buscava
+    $("verseText").textContent = text || "—";
   });
+}
+
+// Incrementado a cada carta nova/troca de tradução — busca de texto que
+// terminar depois de já termos ido pra outra carta é descartada em vez
+// de sobrescrever a tela errada.
+let verseRequestId = 0;
+
+// Troca de tradução (ver bibflix:bible-version:change) com o jogo
+// parado numa carta: busca o texto na tradução nova e substitui. Só
+// antes de revelar a resposta — depois disso mexer no texto não faz
+// sentido (a carta já foi respondida).
+async function reloadCurrentVerseText() {
+  if (!pool.length || answerRevealed || gameOver) return;
+  const item = pool[index];
+  const reqId = ++verseRequestId;
+  const text = await BibleVersion.resolveText(item.verse, item.reference);
+  if (reqId !== verseRequestId) return;
+  $("verseText").textContent = text || "—";
 }
 
 // Avança pra próxima carta — quem chama decide o que acontece com a vez
@@ -486,6 +511,8 @@ async function init() {
   wireEvents();
   updateScoreBtn();
   window.addEventListener("bibflix:teams:change", updateScoreBtn);
+  mountBibleVersionPicker(document.querySelector(".game-topbar-actions"));
+  window.addEventListener("bibflix:bible-version:change", reloadCurrentVerseText);
 
   // A tela de configuração ficou só no modal do catálogo (que já barra
   // "Jogar" sem equipes ativas — ver assets/js/app.js). Se mesmo assim

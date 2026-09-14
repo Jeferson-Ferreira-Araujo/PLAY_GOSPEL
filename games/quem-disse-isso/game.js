@@ -3,6 +3,8 @@ import { Teams } from "../../assets/js/teams.js";
 import { icon } from "../../playgospel-ui/js/core.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
+import { BibleVersion } from "../../assets/js/bible-version.js";
+import { mountBibleVersionPicker } from "../../assets/js/bible-version-ui.js";
 
 // Máximo de rodadas por partida (evita jogar todas as frases de uma vez).
 const ROUND_SIZE = 10;
@@ -71,6 +73,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderTeamScoreButtons();
     updateScoreBtn();
   });
+  mountBibleVersionPicker(document.querySelector(".game-topbar-actions"));
+  window.addEventListener("bibflix:bible-version:change", reloadCurrentQuoteText);
   checkAutoStartFromURL(); // 🔥 NOVO
 });
 
@@ -308,6 +312,11 @@ function startPrepareCountdown(onDone) {
   }, 1000);
 }
 
+// Incrementado a cada frase nova/troca de tradução — busca de texto que
+// terminar depois de já termos ido pra outra frase é descartada em vez
+// de sobrescrever a tela errada.
+let quoteRequestId = 0;
+
 function loadQuoteAtIndex(i) {
   current = pool[i];
 
@@ -322,6 +331,25 @@ function loadQuoteAtIndex(i) {
   answerRevealed = false;
   pointGiven = false;
   renderTeamScoreButtons();
+
+  const reqId = ++quoteRequestId;
+  BibleVersion.resolveText(current.quote, current.reference).then((text) => {
+    if (reqId !== quoteRequestId) return; // já foi pra outra frase enquanto buscava
+    quoteText.textContent = `“${text}”`;
+  });
+}
+
+// Troca de tradução (ver bibflix:bible-version:change) com o jogo
+// parado numa frase: busca o texto na tradução nova e substitui. Só
+// antes de revelar a resposta — depois disso mexer no texto não faz
+// sentido (a frase já foi respondida).
+function reloadCurrentQuoteText() {
+  if (!current || answerRevealed || gameOver) return;
+  const reqId = ++quoteRequestId;
+  BibleVersion.resolveText(current.quote, current.reference).then((text) => {
+    if (reqId !== quoteRequestId) return;
+    quoteText.textContent = `“${text}”`;
+  });
 }
 
 function revealAnswer() {
