@@ -142,6 +142,7 @@
       "version": "0.1.0",
       "route": "games/adivinhe-emoji/index.html",
       "matchType": "disputa",
+      "unavailable": true,
 
       "teams": {
         "required": true,
