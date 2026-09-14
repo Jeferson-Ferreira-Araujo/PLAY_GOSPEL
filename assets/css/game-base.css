@@ -213,8 +213,8 @@ body {
 }
 
 .round-box {
-  flex: 0 0 auto;
-  min-width: 0;
+  flex: 1 1 0;
+  min-width: 130px;
   padding: 10px 20px;
   background: var(--bg-secondary);
   border: 1px solid rgba(255, 255, 255, .14);
@@ -260,7 +260,8 @@ body {
    antes, fácil de não notar). Rótulo e valor ficam lado a lado numa linha
    só, com texto escuro (mesmo padrão de contraste do .team-chip-score). */
 .round-box--team {
-  flex: 1 1 200px;
+  flex: 1 1 0;
+  min-width: 130px;
   background: var(--team-color, var(--gold));
   border-color: var(--team-color, var(--gold));
   display: flex;
@@ -315,7 +316,8 @@ body {
    rodada (fundo, borda, cantos, rótulo com ícone), só que com espaço pra
    barra de progresso embaixo do número. */
 .timer-card {
-  flex: 0 0 auto;
+  flex: 1 1 0;
+  min-width: 130px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -326,11 +328,11 @@ body {
 }
 
 .timer-wrap {
-  flex: 0 0 auto;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  width: 180px;
+  width: 100%;
   max-width: 100%;
 }
 
