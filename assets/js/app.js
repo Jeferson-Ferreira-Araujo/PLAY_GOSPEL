@@ -530,7 +530,33 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Sortear jogos (disputa de 3 jogos aleatórios em sequência)
   wireDrawGames();
   maybeAutoRedraw();
+  wireDrawBtnFooterVisibility();
 });
+
+// Botão flutuante "Sortear jogos" (só existe como fixed no mobile, ver
+// styles.css) precisa sumir quando o rodapé entra na tela — senão fica
+// flutuando por cima do texto do rodapé até o fim do scroll. Some
+// tocando o rodapé, volta assim que ele sai de vista de novo. Em
+// telas onde o botão não é fixed (desktop/tablet) essa classe não faz
+// nada visualmente, então não custa nada deixar o listener sempre ativo.
+// Checagem direta no scroll (em vez de IntersectionObserver) — mais
+// simples e sem depender do agendamento de callbacks do navegador. Uma
+// leitura de getBoundingClientRect por evento de scroll é barata o
+// suficiente pra não precisar de throttle/rAF aqui (um elemento só).
+function wireDrawBtnFooterVisibility() {
+  const btn = document.getElementById("btnDrawGames");
+  const footer = document.querySelector(".pg-footer");
+  if (!btn || !footer) return;
+
+  function update() {
+    const footerVisible = footer.getBoundingClientRect().top < window.innerHeight;
+    btn.classList.toggle("pg-draw-btn--fab-hidden", footerVisible);
+  }
+
+  window.addEventListener("scroll", update, { passive: true });
+  window.addEventListener("resize", update);
+  update();
+}
 
 /* =========================
    LOAD CATALOG

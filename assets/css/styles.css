@@ -2068,6 +2068,15 @@
     transform: translateX(-50%);
     z-index: 30;
     box-shadow: 0 8px 22px rgba(0, 0, 0, .45);
+    transition: opacity .2s ease;
+  }
+
+  /* Some enquanto o rodapé estiver visível (ver wireDrawBtnFooterVisibility
+     em app.js, via IntersectionObserver) — senão o botão fica flutuando
+     por cima do texto do rodapé até o fim do scroll. */
+  .pg-draw-btn--fab-hidden {
+    opacity: 0;
+    pointer-events: none;
   }
 
   .pg-catalogo {
