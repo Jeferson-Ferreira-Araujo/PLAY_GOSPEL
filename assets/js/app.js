@@ -1860,6 +1860,19 @@ function wireTeamsModal() {
       drawChoice = btn.dataset.ask;
       document.querySelectorAll("[data-ask]").forEach((b) => b.classList.toggle("active", b === btn));
       updateTeamsStep1Cta();
+
+      // Nomes ainda vazios/inválidos nesse ponto: nem "Próximo" nem
+      // "Criar equipes" aparecem depois de responder Sim/Não — sem
+      // avisar, o clique parece não ter feito nada. Rola até o erro
+      // (já mostrado por validateTeamsForm, ver updateTeamsStep1Cta) e
+      // leva o foco pro primeiro campo de nome vazio.
+      const nextHidden = document.getElementById("btnTeamsNext")?.classList.contains("d-none") ?? true;
+      const saveHidden = document.getElementById("btnTeamsSave")?.classList.contains("d-none") ?? true;
+      if (nextHidden && saveHidden) {
+        document.getElementById("teamsError")?.scrollIntoView({ block: "center", behavior: "smooth" });
+        const firstEmpty = [...document.querySelectorAll("[data-team-name]")].find((el) => !el.value.trim());
+        firstEmpty?.focus();
+      }
     });
   });
 
