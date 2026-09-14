@@ -3,6 +3,7 @@ import { GameDraw } from "./game-draw.js";
 import { icon } from "../../playgospel-ui/js/core.js";
 import { initDropdowns } from "../../playgospel-ui/js/dropdown.js";
 import { confirmDialog } from "../../playgospel-ui/js/modal.js";
+import { startOnboardingTour } from "./onboarding-tour.js";
 
 // Capa compartilhada: usada quando um jogo não tem capa própria (games.json
 // sem "cover") e como fallback se a imagem informada falhar ao carregar.
@@ -24,6 +25,37 @@ const MATCH_TYPE_META = {
 // localStorage puro (permanente, não por sessão de aba como o Teams) —
 // nunca mais aparece pra quem já viu, mesmo fechando e voltando outro dia.
 const WELCOME_KEY = "bibflix_visitor_v1";
+
+// Tour guiado (assets/js/onboarding-tour.js) — roda uma única vez, logo
+// depois que o visitante fecha o modal de boas-vindas pela primeira vez
+// (nunca em visitas seguintes, mesmo que ele tenha sido pulado). Precisa
+// esperar tanto o fechamento do welcome quanto o catálogo estar
+// renderizado (os alvos do tour, como #gamesGrid, ainda não existem
+// antes de loadGames() terminar) — os dois booleans abaixo coordenam isso.
+const TOUR_KEY = "bibflix_tour_v1";
+let tourCatalogReady = false;
+let tourWelcomeFirstClose = false;
+
+function maybeStartOnboardingTour() {
+  if (!tourWelcomeFirstClose || !tourCatalogReady) return;
+  tourWelcomeFirstClose = false; // dispara no máximo uma vez por carregamento
+  let seen = false;
+  try {
+    seen = Boolean(localStorage.getItem(TOUR_KEY));
+  } catch {
+    seen = false;
+  }
+  if (seen) return;
+  startOnboardingTour({
+    onEnd: () => {
+      try {
+        localStorage.setItem(TOUR_KEY, "1");
+      } catch {
+        /* localStorage indisponível — sem drama, só reaparece na próxima visita */
+      }
+    },
+  });
+}
 
 // App da Web do Google Apps Script (doPost em uma Planilha Google) — pra
 // onde os dados do modal de boas-vindas são enviados, se algum campo foi
@@ -269,6 +301,10 @@ function wireWelcomeModal() {
   // Já visto antes (em qualquer visita passada) — nunca mais mostra.
   if (saved && saved.seen) return;
 
+  // Chegou até aqui sem "saved" — é a primeira visita de verdade. Guarda
+  // pra disparar o tour guiado quando esse modal fechar (ver TOUR_KEY).
+  const isFirstEverVisit = !saved;
+
   const nameInput = document.getElementById("welcomeName");
   const whatsappInput = document.getElementById("welcomeWhatsapp");
   const churchInput = document.getElementById("welcomeChurch");
@@ -299,6 +335,10 @@ function wireWelcomeModal() {
       JSON.stringify({ seen: true, ...payload, seenAt: new Date().toISOString() })
     );
     sendWelcomeToSheet(payload);
+    if (isFirstEverVisit) {
+      tourWelcomeFirstClose = true;
+      maybeStartOnboardingTour();
+    }
   }, { once: true });
 
   btnEnter?.addEventListener("click", () => modal.hide());
@@ -465,6 +505,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderGames(allGames);
   renderCategoryPills();
   maybeShowReturnModal();
+
+  tourCatalogReady = true;
+  maybeStartOnboardingTour();
 
   // Teams UI (modal + banner no catálogo + rótulo do botão na navbar)
   wireTeamsModal();

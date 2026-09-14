@@ -2556,3 +2556,128 @@
     gap: 0;
   }
 }
+
+/* ==============================
+   TOUR DE PRIMEIRO ACESSO (assets/js/onboarding-tour.js) — overlay com
+   "spotlight" recortado (box-shadow gigante) sobre o elemento em destaque
+   + um cartão com o texto do passo. Sem dependência do Bootstrap.
+================================= */
+.pg-tour-root {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+}
+
+.pg-tour-spotlight {
+  position: fixed;
+  border-radius: 14px;
+  box-shadow: 0 0 0 9999px rgba(6, 10, 20, .72);
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  pointer-events: none;
+  transition: top .25s ease, left .25s ease, width .25s ease, height .25s ease;
+}
+
+.pg-tour-card {
+  position: fixed;
+  width: min(320px, calc(100vw - 32px));
+  background: var(--bg-secondary);
+  border: 1px solid rgba(244, 196, 48, .3);
+  border-radius: 16px;
+  padding: 18px 18px 16px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .45);
+  transition: top .25s ease, left .25s ease;
+}
+
+.pg-tour-card--centered {
+  position: fixed;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%);
+}
+
+.pg-tour-skip {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: .78rem;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+
+.pg-tour-skip:hover {
+  color: var(--text-main);
+  text-decoration: underline;
+}
+
+.pg-tour-emoji {
+  font-size: 1.8rem;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.pg-tour-title {
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0 0 6px;
+  padding-right: 56px;
+}
+
+.pg-tour-text {
+  font-size: .88rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0 0 16px;
+}
+
+.pg-tour-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.pg-tour-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.pg-tour-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .18);
+}
+
+.pg-tour-dot.is-active {
+  background: var(--gold);
+}
+
+.pg-tour-actions {
+  display: flex;
+  gap: 8px;
+}
+
+@media (max-width: 420px) {
+  .pg-tour-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .pg-tour-dots {
+    justify-content: center;
+  }
+
+  .pg-tour-actions {
+    justify-content: stretch;
+  }
+
+  .pg-tour-actions button {
+    flex: 1 1 0;
+  }
+}
