@@ -19,7 +19,6 @@ const FETCH_TIMEOUT_MS = 4000;
 export const BIBLE_VERSIONS = [
   { id: "acf", label: "Almeida (ACF)" },
   { id: "ntlh", label: "NTLH" },
-  { id: "original", label: "Padrão do site" },
 ];
 
 // Almeida é a tradução mais familiar pro público de igreja — padrão
@@ -173,12 +172,10 @@ export const BibleVersion = {
     window.dispatchEvent(new CustomEvent("bibflix:bible-version:change", { detail: id }));
   },
 
-  // Resolve o texto a mostrar: se a preferência for "original" (ou a
-  // referência/API não der certo), devolve originalText sem mudar nada.
+  // Resolve o texto a mostrar na tradução escolhida; se a referência não
+  // for reconhecida ou a busca falhar, devolve originalText sem quebrar.
   async resolveText(originalText, reference) {
-    const versionId = this.get();
-    if (versionId === "original") return originalText;
-    const translated = await fetchVerseText(reference, versionId);
+    const translated = await fetchVerseText(reference, this.get());
     return translated || originalText;
   },
 };

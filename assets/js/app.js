@@ -502,7 +502,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   wireWelcomeModal();
   wireSupportModal();
   mountBibleVersionPicker(document.getElementById("bibleVersionPickerHeader"), {
-    className: "pg-header-select",
     title: "Tradução da Bíblia usada nos versículos (Complete o Versículo, Qual a Passagem, Quem Disse Isso)",
   });
 

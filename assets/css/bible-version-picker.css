@@ -1,0 +1,95 @@
+/* =====================================================
+   SELETOR DE TRADUÇÃO DA BÍBLIA (assets/js/bible-version-ui.js)
+   Compartilhado entre o catálogo (index.html) e os 3 jogos que citam
+   texto literal de versículo — por isso usa as variáveis de cor
+   --bg-secondary/--gold/--text-main/--text-muted, que existem com os
+   mesmos nomes tanto em assets/css/styles.css quanto em
+   assets/css/game-base.css.
+
+   No mobile (≤480px) o rótulo do texto some e sobra só o ícone do
+   livro — o texto completo ("Almeida (ACF)") empurrava/quebrava o
+   resto do cabeçalho em telas estreitas.
+   ===================================================== */
+
+.pg-bible-version-picker {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.pg-bible-version-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-secondary);
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 10px;
+  padding: 8px 12px;
+  color: var(--text-main);
+  font-size: .82rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color .15s ease, color .15s ease;
+}
+
+.pg-bible-version-trigger:hover {
+  color: var(--gold);
+  border-color: rgba(244, 196, 48, .4);
+}
+
+.pg-bible-version-trigger svg {
+  flex: 0 0 auto;
+}
+
+.pg-bible-version-trigger svg:last-child {
+  color: var(--text-muted);
+  transition: transform .15s ease;
+}
+
+.pg-bible-version-picker.is-open .pg-bible-version-trigger svg:last-child {
+  transform: rotate(180deg);
+}
+
+.pg-bible-version-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 40;
+  min-width: 160px;
+  background: var(--bg-secondary);
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .45);
+}
+
+.pg-bible-version-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 10px;
+  color: var(--text-main);
+  font-size: .85rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.pg-bible-version-option:hover,
+.pg-bible-version-option.active {
+  background: rgba(244, 196, 48, .14);
+  color: var(--gold);
+}
+
+@media (max-width: 480px) {
+  .pg-bible-version-label {
+    display: none;
+  }
+
+  .pg-bible-version-trigger {
+    padding: 8px 10px;
+  }
+}
