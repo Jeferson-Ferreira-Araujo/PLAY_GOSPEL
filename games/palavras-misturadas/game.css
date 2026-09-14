@@ -227,3 +227,64 @@
     align-items: center;
   }
 }
+
+/* Mobile na vertical: mesmo rolando, uma linha só com 3 blocos fica
+   apertada demais — melhor virar 2 linhas fixas (sem rolagem): categoria
+   + rodada + tempo em cima, par de equipes embaixo, ocupando a largura
+   toda. Grade (em vez de flex-wrap) pra forçar categoria/rodada a
+   encolher e dividir a 1ª linha com o tempo — com flex-wrap sozinho o
+   navegador prefere jogar a caixa de tempo pra 2ª linha a espremer a de
+   categoria, então a grade decide o lugar de cada uma explicitamente. */
+@media (max-width: 600px) {
+  .presenter-top {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    row-gap: 8px;
+    column-gap: 10px;
+    overflow-x: visible;
+  }
+
+  .round-topbar {
+    grid-column: 1;
+    grid-row: 1;
+    flex-wrap: nowrap;
+    min-width: 0;
+  }
+
+  /* Categoria/rodada encolhem e truncam com "..." se o nome da
+     categoria não couber, em vez de quebrar linha ou estourar a
+     largura da coluna. */
+  .round-box {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 6px 10px;
+  }
+
+  .round-box-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .timer-card {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .timer-wrap {
+    width: 90px;
+  }
+
+  .pm-pair-row {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    min-width: 0;
+  }
+
+  /* Nome de equipe/pessoa compridos podem estourar a largura da tela
+     nesse breakpoint — encolhe e trunca com "..." em vez disso. */
+  .pm-pair-team {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
