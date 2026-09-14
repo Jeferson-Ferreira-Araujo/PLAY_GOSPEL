@@ -4,6 +4,7 @@ import { icon } from "../../playgospel-ui/js/core.js";
 import { initDropdowns } from "../../playgospel-ui/js/dropdown.js";
 import { confirmDialog } from "../../playgospel-ui/js/modal.js";
 import { startOnboardingTour } from "./onboarding-tour.js";
+import { mountBibleVersionPicker } from "./bible-version-ui.js";
 
 // Capa compartilhada: usada quando um jogo não tem capa própria (games.json
 // sem "cover") e como fallback se a imagem informada falhar ao carregar.
@@ -500,6 +501,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderFooterVerse();
   wireWelcomeModal();
   wireSupportModal();
+  mountBibleVersionPicker(document.getElementById("bibleVersionPickerHeader"), {
+    className: "pg-header-select",
+    title: "Tradução da Bíblia usada nos versículos (Complete o Versículo, Qual a Passagem, Quem Disse Isso)",
+  });
 
   await loadGames();
 

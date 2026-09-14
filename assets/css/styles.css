@@ -129,6 +129,31 @@
   border-color: rgba(244, 196, 48, .4);
 }
 
+/* Tradução da Bíblia — seletor compacto no header (ver
+   assets/js/bible-version-ui.js), escolhida de antemão mesmo só valendo
+   dentro dos jogos que citam texto literal de versículo. */
+.pg-header-select {
+  background: var(--bg-secondary);
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 10px;
+  padding: 8px 12px;
+  color: var(--text-main);
+  font-size: .82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color .15s ease, color .15s ease;
+}
+
+.pg-header-select:hover {
+  color: var(--gold);
+  border-color: rgba(244, 196, 48, .4);
+}
+
+.pg-header-select:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
 /* ---- Conteúdo principal ---- */
 
 .pg-main {

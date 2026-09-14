@@ -6,15 +6,15 @@
 // (ver assets/js/bible-version.js).
 import { BibleVersion, BIBLE_VERSIONS } from "./bible-version.js";
 
-export function mountBibleVersionPicker(container) {
+export function mountBibleVersionPicker(container, { className, title } = {}) {
   if (!container) return;
 
   const select = document.createElement("select");
   select.id = "bibleVersionSelect";
-  select.className = "form-select form-select-sm bg-dark text-light border-secondary";
+  select.className = className || "form-select form-select-sm bg-dark text-light border-secondary";
   select.style.width = "auto";
   select.setAttribute("aria-label", "Tradução da Bíblia");
-  select.title = "Tradução da Bíblia usada nos versículos";
+  select.title = title || "Tradução da Bíblia usada nos versículos";
 
   select.innerHTML = BIBLE_VERSIONS.map(
     (v) => `<option value="${v.id}">${v.label}</option>`
