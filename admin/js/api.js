@@ -24,3 +24,10 @@ export const songsApi = {
   update: (id, song) => request(`${BASE_URL}/${id}`, { method: 'PUT', body: JSON.stringify(song) }),
   remove: (id) => request(`${BASE_URL}/${id}`, { method: 'DELETE' }),
 };
+
+// Lê o cadastro de visitantes (nome/WhatsApp/igreja/cidade) direto da
+// Planilha Google — o server.js repassa a chamada pro Apps Script
+// (assets/js/app.js:65) pra não expor o token de novo aqui.
+export const visitorsApi = {
+  list: () => request('/api/visitors'),
+};

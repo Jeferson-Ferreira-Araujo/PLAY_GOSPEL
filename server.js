@@ -14,6 +14,12 @@ import songsRepository from './server/songsRepository.js';
 const ROOT = import.meta.dirname;
 const PORT = process.env.PORT || 5177;
 
+// Mesma Planilha Google pra onde o site manda o cadastro de visitantes
+// (assets/js/app.js:65/71) — o admin lê de volta por aqui pra não expor o
+// token de novo no bundle do admin.
+const WELCOME_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxh45f8NeFzOFDLtnP3lxxF_LP3Ze0mqU2sq28BpUYBv1LvRWLINs34KgDnwE4Pn3KhZw/exec';
+const WELCOME_SHEET_TOKEN = '1cddb869b1d3e46c97972c9a41b615485e9e15305256d5a4';
+
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
@@ -64,9 +70,33 @@ function validateSong(song) {
   return null;
 }
 
+async function handleVisitors(req, res) {
+  if (req.method !== 'GET') return sendJson(res, 404, { error: 'Rota não encontrada.' });
+
+  const url = `${WELCOME_SHEET_URL}?token=${encodeURIComponent(WELCOME_SHEET_TOKEN)}&action=list`;
+  let apiRes;
+  try {
+    apiRes = await fetch(url);
+  } catch {
+    return sendJson(res, 502, { error: 'Não foi possível falar com a Planilha Google.' });
+  }
+  if (!apiRes.ok) {
+    return sendJson(res, 502, { error: `A Planilha Google respondeu com erro ${apiRes.status}.` });
+  }
+  let data;
+  try {
+    data = await apiRes.json();
+  } catch {
+    return sendJson(res, 502, { error: 'Resposta inesperada da Planilha Google (o doGet foi publicado?).' });
+  }
+  return sendJson(res, 200, data);
+}
+
 async function handleApi(req, res, pathname) {
   const parts = pathname.split('/').filter(Boolean); // ['api', 'songs', ':id'?]
   const id = parts[2];
+
+  if (parts[1] === 'visitors') return handleVisitors(req, res);
 
   if (parts.length === 2 && req.method === 'GET') {
     return sendJson(res, 200, await songsRepository.list());
