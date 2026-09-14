@@ -5,6 +5,7 @@ import { initDropdowns } from "../../playgospel-ui/js/dropdown.js";
 import { confirmDialog } from "../../playgospel-ui/js/modal.js";
 import { startOnboardingTour } from "./onboarding-tour.js";
 import { mountBibleVersionPicker } from "./bible-version-ui.js";
+import { mountCityAutocomplete } from "./city-autocomplete.js";
 
 // Capa compartilhada: usada quando um jogo não tem capa própria (games.json
 // sem "cover") e como fallback se a imagem informada falhar ao carregar.
@@ -313,6 +314,8 @@ function wireWelcomeModal() {
   const churchInput = document.getElementById("welcomeChurch");
   const cityInput = document.getElementById("welcomeCity");
   const btnEnter = document.getElementById("btnWelcomeEnter");
+
+  if (cityInput) mountCityAutocomplete(cityInput);
 
   // Prefilling defensivo: se por algum motivo já existir um rascunho salvo
   // sem "seen" (não deveria acontecer no fluxo normal), não pede de novo.
