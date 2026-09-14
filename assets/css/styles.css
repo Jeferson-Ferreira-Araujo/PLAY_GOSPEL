@@ -2091,6 +2091,13 @@
   .pg-teams-banner {
     margin: 16px 16px 14px;
     padding: 14px 16px;
+    /* Fechado, esse bloco ficava parecido demais com o resto da página
+       (mesmo fundo escuro que os cards) — fácil de passar batido sem
+       notar que as equipes já foram criadas. Borda e fundo com um toque
+       de dourado destacam ele do resto, mesmo colapsado. */
+    border-color: rgba(244, 196, 48, .4);
+    background: linear-gradient(180deg, rgba(244, 196, 48, .1), var(--bg-secondary) 65%);
+    box-shadow: 0 4px 14px rgba(244, 196, 48, .1);
   }
 
   /* No mobile o toggle ocupa a largura toda do bloco e empurra a seta
