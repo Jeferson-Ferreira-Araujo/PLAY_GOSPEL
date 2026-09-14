@@ -427,11 +427,16 @@
    deitado (pedido explícito do usuário: 4 equipes tem que caber numa
    linha, não sobrar uma esticada sozinha embaixo). Tablet em pé força 2
    colunas fixas por cima disso, e o mobile (colapsável) força 1 —
-   ambos como overrides mais abaixo. */
+   ambos como overrides mais abaixo.
+   Colunas com largura máxima (minmax(0, 320px), não "1fr" puro) — com
+   poucas equipes (1-2) numa faixa larga, "1fr" fazia cada pill esticar
+   pra preencher a linha toda (visual estranho, muito espaço vazio
+   dentro do card). Limitado a 320px, encolhe normalmente se precisar
+   caber 4 equipes num espaço mais estreito. */
 .pg-teams-banner-teams {
   display: grid;
   flex: 1 1 auto;
-  grid-template-columns: repeat(var(--pg-team-count, 4), 1fr);
+  grid-template-columns: repeat(var(--pg-team-count, 4), minmax(0, 320px));
   gap: 14px;
 }
 
