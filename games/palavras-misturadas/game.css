@@ -29,15 +29,6 @@
   font-weight: 800;
 }
 
-@keyframes pm-ready-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.04); }
-}
-
-.pm-ready-btn:not(:disabled) {
-  animation: pm-ready-pulse 1.4s ease-in-out infinite;
-}
-
 /* Formato "disputa": um botão de pontuação por equipe ativa — todas as
    equipes veem a mesma palavra, e quem acertar primeiro ganha o ponto. */
 .team-score-row {
