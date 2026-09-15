@@ -34,7 +34,6 @@ const newWordBtn = document.getElementById("newWordBtn");
 const correctBtn = document.getElementById("correctBtn");
 const wrongBtn = document.getElementById("wrongBtn");
 const passTurnBtn = document.getElementById("passTurnBtn");
-const restartTimerBtn = document.getElementById("restartTimerBtn");
 const exitBtn = document.getElementById("exitBtn");
 const brandLink = document.getElementById("brandLink");
 const playAgainBtn = document.getElementById("playAgainBtn");
@@ -328,11 +327,6 @@ function wireUI() {
     passTurn();
   });
 
-  restartTimerBtn?.addEventListener("click", () => {
-    if (gameOver) return;
-    startTimer(durationSec);
-  });
-
   playAgainBtn.addEventListener("click", () => {
     restartGame(); // reembaralha e reinicia usando as mesmas roundWords
   });
@@ -464,7 +458,6 @@ function endGame(text) {
 
 function setGameOverUI(isOver) {
   newWordBtn.disabled = isOver;
-  if (restartTimerBtn) restartTimerBtn.disabled = isOver;
   if (correctBtn) correctBtn.disabled = isOver;
   if (wrongBtn) wrongBtn.disabled = isOver;
   if (passTurnBtn) passTurnBtn.disabled = isOver;

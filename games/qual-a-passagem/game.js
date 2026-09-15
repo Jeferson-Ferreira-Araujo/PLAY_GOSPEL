@@ -308,7 +308,6 @@ function gameOverScreen() {
 
   $("revealBtn").disabled = true;
   $("nextBtn").disabled = true;
-  $("restartTimerBtn").disabled = true;
   setGameOverButtons(true);
 
   $("timerText").textContent = "--";
@@ -343,7 +342,6 @@ function resetGame() {
 
   $("revealBtn").disabled = false;
   $("nextBtn").disabled = false;
-  $("restartTimerBtn").disabled = false;
   setGameOverButtons(false);
 
   if (!pool.length) {
@@ -401,8 +399,6 @@ function wireEvents() {
     nextCard();
   });
 
-  $("restartTimerBtn").addEventListener("click", () => startTimer(settings.time));
-
   // Pontuação (equipes)
   correctBtn?.addEventListener("click", () => {
     if (gameOver) return;
@@ -445,7 +441,6 @@ function wireEvents() {
   $("playAgainBtn").addEventListener("click", () => {
     $("revealBtn").disabled = false;
     $("nextBtn").disabled = false;
-    $("restartTimerBtn").disabled = false;
     resetGame();
   });
 

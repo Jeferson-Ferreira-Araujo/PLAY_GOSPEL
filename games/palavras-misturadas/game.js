@@ -26,7 +26,6 @@ const timerBar = document.getElementById("timerBar");
 const readyBtn = document.getElementById("readyBtn");
 const newWordBtn = document.getElementById("newWordBtn");
 const showAnswerBtn = document.getElementById("showAnswerBtn");
-const restartTimerBtn = document.getElementById("restartTimerBtn");
 const exitBtn = document.getElementById("exitBtn");
 const brandLink = document.getElementById("brandLink");
 
@@ -230,16 +229,8 @@ function setRoundPhase(phase) {
 
   readyBtn.classList.toggle("d-none", phase !== "ready" || gameOver);
   newWordBtn.disabled = gameOver || phase === "countdown" || phase === "ready";
-  updateRestartButtonState();
 
   renderTeamScoreButtons();
-}
-
-// Com a resposta revelada o tempo já foi parado de propósito (ver
-// revealAnswer) — "Reiniciar tempo" não pode voltar a embaralhar a palavra
-// por baixo disso, senão desfaz a revelação sem avisar quem tá jogando.
-function updateRestartButtonState() {
-  restartTimerBtn.disabled = gameOver || roundPhase !== "playing" || answerRevealed;
 }
 
 function clearCountdown() {
@@ -333,15 +324,6 @@ function wireUI() {
 
   showAnswerBtn.addEventListener("click", () => {
     toggleAnswer();
-  });
-
-  restartTimerBtn.addEventListener("click", () => {
-    if (gameOver || roundPhase !== "playing" || answerRevealed) return;
-
-    scrambledWordEl.textContent = scrambleKeepSpaces(currentWord);
-    timeExpired = false;
-
-    startOrResetTimer();
   });
 
   playAgainBtn.addEventListener("click", () => {
@@ -497,7 +479,6 @@ function revealAnswer() {
   scrambledWordEl.textContent = currentWord;
 
   showAnswerBtn.textContent = "Ocultar resposta";
-  updateRestartButtonState();
   renderTeamScoreButtons();
 }
 
@@ -507,7 +488,6 @@ function hideAnswer() {
   scrambledWordEl.textContent = scrambleKeepSpaces(currentWord);
 
   showAnswerBtn.textContent = "Mostrar resposta";
-  updateRestartButtonState();
   renderTeamScoreButtons();
 }
 
@@ -586,7 +566,6 @@ function scrambleToken(token) {
 
 function setGameOverUI(isOver) {
   newWordBtn.disabled = isOver;
-  restartTimerBtn.disabled = isOver;
   readyBtn.classList.toggle("d-none", isOver || roundPhase !== "ready");
   renderTeamScoreButtons();
 

@@ -41,7 +41,6 @@ const trueBtn = document.getElementById("trueBtn");
 const falseBtn = document.getElementById("falseBtn");
 const revealBtn = document.getElementById("revealBtn");
 const nextBtn = document.getElementById("nextBtn");
-const restartTimerBtn = document.getElementById("restartTimerBtn");
 const exitBtn = document.getElementById("exitBtn");
 const brandLink = document.getElementById("brandLink");
 
@@ -180,11 +179,6 @@ function wireUI() {
   nextBtn.addEventListener("click", () => {
     if (gameOver) return;
     nextStatement();
-  });
-
-  restartTimerBtn.addEventListener("click", () => {
-    if (gameOver) return;
-    resetAndStartTimer();
   });
 
   playAgainBtn.addEventListener("click", () => restartGame());
@@ -462,7 +456,6 @@ function setAnswerButtonsEnabled(enabled) {
 
 function setGameOverUI(isOver) {
   nextBtn.disabled = isOver;
-  restartTimerBtn.disabled = isOver;
   trueBtn.disabled = isOver;
   falseBtn.disabled = isOver;
   revealBtn.disabled = isOver;

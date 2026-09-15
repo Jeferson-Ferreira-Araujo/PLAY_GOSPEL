@@ -43,7 +43,6 @@ const wrongBtn = document.getElementById("wrongBtn");
 const passTurnBtn = document.getElementById("passTurnBtn");
 
 const nextBtn = document.getElementById("nextBtn");
-const restartTimerBtn = document.getElementById("restartTimerBtn");
 const exitBtn = document.getElementById("exitBtn");
 const brandLink = document.getElementById("brandLink");
 
@@ -331,11 +330,6 @@ function wireUI() {
     nextVerse();
   });
 
-  restartTimerBtn.addEventListener("click", () => {
-    if (gameOver) return;
-    resetAndStartTimer();
-  });
-
   playAgainBtn.addEventListener("click", restartGame);
   scoreBtn?.addEventListener("click", () => showScorePopup());
   exitBtn.addEventListener("click", confirmExit);
@@ -596,7 +590,6 @@ function stopTimer() {
 ========================= */
 function setGameOverUI(isOver) {
   nextBtn.disabled = isOver;
-  restartTimerBtn.disabled = isOver;
 
   if (correctBtn) correctBtn.disabled = isOver;
   if (wrongBtn) wrongBtn.disabled = isOver;
