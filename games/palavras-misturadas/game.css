@@ -125,12 +125,29 @@
   font-size: .92rem;
 }
 
+/* Maior que as caixas de categoria/rodada de propósito — sobra espaço
+   vazio entre o par de equipes e o tempo nesse layout (grid 1fr/auto/1fr),
+   então aproveita pra deixar o tempo mais visível em vez de ficar do
+   mesmo tamanho pequeno das outras caixas. */
 .timer-card {
-  padding: 6px 14px;
+  padding: 10px 20px;
 }
 
 .timer-wrap {
-  width: 150px;
+  width: 220px;
+}
+
+.timer-card .round-box-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.timer-text {
+  font-size: 1.35rem;
+}
+
+.timer-card .progress {
+  height: 10px;
 }
 
 .pm-pair-row {
