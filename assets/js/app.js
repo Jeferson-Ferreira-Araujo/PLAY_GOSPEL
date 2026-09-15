@@ -6,7 +6,6 @@ import { confirmDialog } from "../../playgospel-ui/js/modal.js";
 import { startOnboardingTour } from "./onboarding-tour.js";
 import { mountBibleVersionPicker } from "./bible-version-ui.js";
 import { mountCityAutocomplete } from "./city-autocomplete.js";
-import { mountFullscreenButton } from "./fullscreen-ui.js";
 
 // Capa compartilhada: usada quando um jogo não tem capa própria (games.json
 // sem "cover") e como fallback se a imagem informada falhar ao carregar.
@@ -505,9 +504,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderFooterVerse();
   wireWelcomeModal();
   wireSupportModal();
-  // Tela cheia já desde a página inicial — dá pra aproveitar a
-  // plataforma inteira maior, não só durante as partidas.
-  mountFullscreenButton(document.getElementById("topbarActions"));
   mountBibleVersionPicker(document.getElementById("bibleVersionPickerHeader"), {
     title: "Tradução da Bíblia usada nos versículos (Complete o Versículo, Qual a Passagem, Quem Disse Isso)",
   });

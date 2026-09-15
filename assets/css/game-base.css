@@ -432,13 +432,40 @@ body {
 }
 
 /* ==============================
+   TELA CHEIA NO MOBILE (ver assets/js/fullscreen-ui.js)
+   Botão "fechar" flutuante — fica escondido por padrão; só aparece no
+   mobile com tela cheia ativa (ver media query abaixo), tomando o lugar
+   do header inteiro, que some nesse modo.
+================================= */
+.game-fullscreen-close {
+  display: none;
+  position: fixed;
+  top: max(10px, env(safe-area-inset-top));
+  right: max(10px, env(safe-area-inset-right));
+  z-index: 30;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .14);
+  background: rgba(11, 18, 32, .85);
+  backdrop-filter: blur(10px);
+  color: var(--text-main);
+}
+
+/* ==============================
    RESPONSIVO (mobile-first fixes)
 ================================= */
 
-/* O esconder do header em tela cheia (body.is-fullscreen) e o botão
-   "fechar" flutuante (.game-fullscreen-close) agora ficam em
-   assets/css/fullscreen-ui.css — compartilhado com a página inicial,
-   que também ganhou o botão de tela cheia. */
+/* Header inteiro (marca, placar, som, tela cheia...) some — sobra só os
+   elementos do jogo em si (rodada/equipes, texto central, botões) e o
+   botão "fechar" flutuante. No desktop tela cheia não muda o header, só
+   o navegador ganha mais área útil (padrão do SO). Duas condições
+   porque celular deitado é largo (não cai no max-width de retrato) mas
+   sempre baixo — max-height cobre esse caso; tablets/desktop landscape
+   também são baixos às vezes, mas isso não afeta em nada quem não
+   ativar tela cheia (o :is-fullscreen só existe nesse modo). */
 @media (max-width: 640px), (max-height: 500px) and (orientation: landscape) {
   /* Sem o nome da caixa (CATEGORIA/RODADA/TEMPO/...) no mobile (retrato
      ou paisagem) — só o ícone (à esquerda) já indica do que se trata,
@@ -448,6 +475,14 @@ body {
      não em em. Texto continua no HTML pra quem usa leitor de tela. */
   .round-box-label {
     font-size: 0;
+  }
+
+  body.is-fullscreen .game-topbar {
+    display: none;
+  }
+
+  body.is-fullscreen .game-fullscreen-close {
+    display: flex;
   }
 }
 

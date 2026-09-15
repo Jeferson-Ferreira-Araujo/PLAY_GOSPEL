@@ -1,18 +1,14 @@
-// Botão de tela cheia — aparece tanto no header da página inicial quanto
-// no das telas de jogo (mountFullscreenButton é chamado nos dois). Ajuda
-// a aproveitar melhor a tela, principalmente no celular.
+// Botão de tela cheia no header dos jogos — não aparece no catálogo, só
+// dentro das partidas. Ajuda a aproveitar melhor a tela, principalmente
+// no celular.
 //
 // No mobile, tela cheia por si só não ganha muito espaço (o header
 // continua lá do mesmo jeito) — por isso, só no mobile (ver media query
-// em assets/css/fullscreen-ui.css), ativar tela cheia também esconde o
-// header inteiro (.game-topbar ou .pg-header, dependendo da página):
-// marca, nav, placar, ícones. Sobra só o conteúdo (catálogo ou jogo).
-// Como o header some, um botão "fechar" flutuante (não dentro do header)
-// aparece no lugar, no canto superior direito.
-//
-// A tela cheia NÃO sobrevive a navegação entre páginas (comportamento
-// padrão do navegador) — trocar de página sempre sai da tela cheia,
-// mesmo entre páginas do próprio site.
+// em game-base.css), ativar tela cheia também esconde o .game-topbar
+// (marca, placar, ícones) inteiro, sobrando só os elementos do jogo
+// (caixas de rodada/equipes, texto central, botões). Como o header some,
+// um botão "fechar" flutuante (não dentro do header) some no lugar do
+// ícone de tela cheia normal, no canto superior direito.
 const EXPAND_ICON = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>`;
 const COMPRESS_ICON = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3v3a2 2 0 0 1-2 2H4"/><path d="M15 3v3a2 2 0 0 0 2 2h3"/><path d="M9 21v-3a2 2 0 0 0-2-2H4"/><path d="M15 21v-3a2 2 0 0 1 2-2h3"/></svg>`;
 const CLOSE_ICON = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12"/><path d="M18 6 6 18"/></svg>`;
