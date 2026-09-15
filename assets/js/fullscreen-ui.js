@@ -76,4 +76,63 @@ export function mountFullscreenButton(container) {
 
   render();
   container.prepend(btn);
+
+  mountFullscreenSuggestion();
+}
+
+/* ==============================
+   SUGESTÃO DE TELA CHEIA NO CELULAR DEITADO
+   No celular deitado (largura curta em altura), tem muita coisa disputando
+   pouco espaço vertical — a experiência só fica boa em tela cheia (esconde
+   o header, ver media query em game-base.css). Em vez de esperar o
+   jogador descobrir o botão sozinho, mostra um aviso sugerindo ativar,
+   assim que detecta esse formato de tela. Some sozinho ao ativar a tela
+   cheia, ou se a pessoa descartar (não volta mais nessa aba/sessão).
+================================= */
+const LANDSCAPE_MOBILE_QUERY = "(max-height: 500px) and (orientation: landscape)";
+const SUGGEST_DISMISSED_KEY = "bibflix_fs_suggest_dismissed_v1";
+
+let suggestEl = null;
+let suggestMql = null;
+
+function buildSuggestToast() {
+  const el = document.createElement("div");
+  el.className = "fs-suggest-toast";
+  el.innerHTML = `
+    <span class="fs-suggest-icon" aria-hidden="true">${EXPAND_ICON}</span>
+    <span class="fs-suggest-text">Fica melhor em tela cheia com o celular deitado.</span>
+    <button type="button" class="fs-suggest-btn" data-fs-activate>Ativar</button>
+    <button type="button" class="fs-suggest-close" data-fs-dismiss aria-label="Dispensar">${CLOSE_ICON}</button>
+  `;
+
+  el.querySelector("[data-fs-activate]").addEventListener("click", () => {
+    toggleFullscreen();
+  });
+
+  el.querySelector("[data-fs-dismiss]").addEventListener("click", () => {
+    sessionStorage.setItem(SUGGEST_DISMISSED_KEY, "1");
+    evaluateSuggestion();
+  });
+
+  document.body.appendChild(el);
+  return el;
+}
+
+function evaluateSuggestion() {
+  if (!suggestEl || !suggestMql) return;
+  const dismissed = sessionStorage.getItem(SUGGEST_DISMISSED_KEY) === "1";
+  const show = suggestMql.matches && !isFullscreen() && !dismissed;
+  suggestEl.classList.toggle("is-visible", show);
+}
+
+function mountFullscreenSuggestion() {
+  if (suggestEl) return;
+
+  suggestEl = buildSuggestToast();
+  suggestMql = window.matchMedia(LANDSCAPE_MOBILE_QUERY);
+
+  suggestMql.addEventListener("change", evaluateSuggestion);
+  document.addEventListener("fullscreenchange", evaluateSuggestion);
+
+  evaluateSuggestion();
 }

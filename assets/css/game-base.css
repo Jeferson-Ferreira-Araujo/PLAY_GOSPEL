@@ -465,6 +465,86 @@ body {
   color: var(--text-main);
 }
 
+/* Aviso sugerindo tela cheia — só aparece no celular deitado (é quando a
+   tela fica mais apertada, com muita coisa disputando pouca altura) e
+   enquanto a tela cheia ainda não estiver ativa (ver evaluateFsSuggest em
+   fullscreen-ui.js). Escondido por padrão (display:flex + opacity:0) pra
+   já entrar/sair com transição, sem esperar layout. */
+.fs-suggest-toast {
+  display: none;
+  position: fixed;
+  left: 50%;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  transform: translate(-50%, 12px);
+  z-index: 35;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100% - 24px);
+  padding: 9px 10px 9px 14px;
+  border-radius: 14px;
+  background: rgba(11, 18, 32, .95);
+  border: 1px solid rgba(255, 255, 255, .14);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .4);
+  color: var(--text-main);
+  font-size: .82rem;
+  line-height: 1.25;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+.fs-suggest-toast.is-visible {
+  display: flex;
+  opacity: 1;
+  transform: translate(-50%, 0);
+  pointer-events: auto;
+}
+
+.fs-suggest-icon {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: rgba(244, 196, 48, .16);
+  color: var(--gold);
+}
+
+.fs-suggest-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.fs-suggest-btn {
+  flex: 0 0 auto;
+  padding: 7px 12px;
+  border-radius: 9px;
+  border: none;
+  background: var(--gold);
+  color: #0b1220;
+  font-weight: 800;
+  font-size: .78rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.fs-suggest-close {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
 /* ==============================
    RESPONSIVO (mobile-first fixes)
 ================================= */
