@@ -1,10 +1,6 @@
 .scrambled{
   text-transform: uppercase;
   padding: 14px 16px;
-  border-radius: 18px;
-  border: 1px solid rgba(255,255,255,.14);
-  background: rgba(0,0,0,.35);
-  box-shadow: 0 10px 30px rgba(0,0,0,.35);
   font-size: clamp(36px, 8vw, 140px);
 }
 
@@ -21,15 +17,10 @@
   }
 }
 
-/* Contagem "3, 2, 1" antes de cada palavra aparecer */
-@keyframes pm-countdown-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.12); }
-}
-
+/* Contagem "3, 2, 1" antes de cada palavra aparecer — só destaque de cor,
+   sem animação (estático). */
 .scrambled.pm-countdown {
   color: var(--gold, #F5C518);
-  animation: pm-countdown-pulse 1s ease-in-out infinite;
 }
 
 /* Botão "Começar rodada" — ocupa o lugar da palavra no centro da tela
