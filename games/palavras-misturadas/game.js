@@ -23,6 +23,7 @@ const badgeRound = document.getElementById("badgeRound");
 const timerText = document.getElementById("timerText");
 const timerBar = document.getElementById("timerBar");
 
+const readyBtn = document.getElementById("readyBtn");
 const newWordBtn = document.getElementById("newWordBtn");
 const showAnswerBtn = document.getElementById("showAnswerBtn");
 const restartTimerBtn = document.getElementById("restartTimerBtn");
@@ -119,9 +120,10 @@ function renderPairRow() {
 let answerRevealed = false;
 let timeExpired = false;
 
-// Fases da rodada: "countdown" (3,2,1 antes da palavra aparecer),
-// "playing" (palavra visível, times podem pontuar) e "ended" (alguém
-// pontuou ou o tempo acabou — só resta clicar em "Nova palavra").
+// Fases da rodada: "ready" (par mostrado, esperando confirmação de quem
+// vai jogar), "countdown" (3,2,1 antes da palavra aparecer), "playing"
+// (palavra visível, times podem pontuar) e "ended" (alguém pontuou ou o
+// tempo acabou — só resta clicar em "Nova palavra").
 let roundPhase = "idle";
 let countdownInterval = null;
 
@@ -222,11 +224,12 @@ function renderTeamScoreButtons() {
   });
 }
 
-/* ===== Fase da rodada (countdown / playing / ended) ===== */
+/* ===== Fase da rodada (ready / countdown / playing / ended) ===== */
 function setRoundPhase(phase) {
   roundPhase = phase;
 
-  newWordBtn.disabled = gameOver || phase === "countdown";
+  readyBtn.classList.toggle("d-none", phase !== "ready" || gameOver);
+  newWordBtn.disabled = gameOver || phase === "countdown" || phase === "ready";
   updateRestartButtonState();
 
   renderTeamScoreButtons();
@@ -318,8 +321,13 @@ function wireUI() {
     startGame();
   });
 
+  readyBtn.addEventListener("click", () => {
+    if (gameOver || roundPhase !== "ready") return;
+    startCountdown();
+  });
+
   newWordBtn.addEventListener("click", () => {
-    if (gameOver || roundPhase === "countdown") return;
+    if (gameOver || roundPhase === "countdown" || roundPhase === "ready") return;
     nextWord();
   });
 
@@ -358,6 +366,10 @@ function wireUI() {
     if (e.code === "Space") {
       e.preventDefault();
       if (gameOver || roundPhase === "countdown") return;
+      if (roundPhase === "ready") {
+        startCountdown();
+        return;
+      }
       nextWord();
     }
   });
@@ -401,7 +413,25 @@ function nextWord() {
   answerRevealed = false;
   timeExpired = false;
 
-  startCountdown();
+  showReadyState();
+}
+
+/* ===== Espera a confirmação de "Pronto!" antes de começar a rodada —
+   como as pessoas revezam (ver advancePair), sempre precisa de um
+   momento pra quem vai jogar se posicionar antes da contagem começar.
+   O bloco do relógio mostra só o tempo (nada de texto de status nele);
+   avisos de "prepare-se"/"tempo esgotado" sempre vão no texto central. */
+function showReadyState() {
+  clearCountdown();
+  stopTimer();
+  setRoundPhase("ready");
+
+  showAnswerBtn.classList.add("d-none");
+  scrambledWordEl.classList.remove("pm-countdown");
+  scrambledWordEl.textContent = "Toque em Pronto para começar";
+
+  timerText.textContent = selectedDurationSec > 0 ? `${selectedDurationSec}s` : "Sem tempo";
+  timerBar.style.width = "0%";
 }
 
 /* ===== Contagem "3, 2, 1" antes de cada palavra — dá tempo das equipes
@@ -414,12 +444,7 @@ function startCountdown() {
   showAnswerBtn.classList.add("d-none");
   scrambledWordEl.classList.add("pm-countdown");
 
-  // A caixa de tempo fica sempre visível (mesmo durante o "Prepare-se!")
-  // — só o conteúdo muda, pra não sumir e reaparecer no layout.
-  timerBar.style.width = "0%";
-
   let n = 3;
-  timerText.textContent = "Prepare-se!";
   scrambledWordEl.textContent = String(n);
 
   countdownInterval = setInterval(() => {
@@ -522,13 +547,15 @@ function createOrUpdateTimer() {
       timerBar.style.width = `${progress01 * 100}%`;
     },
     onEnd: () => {
-      timerText.textContent = "Tempo esgotado!";
+      // O bloco do relógio mostra só o tempo — o aviso de "acabou" vai
+      // no texto central, junto com a palavra que some da tela.
+      timerText.textContent = "0s";
       timerBar.style.width = "0%";
 
       timeExpired = true;
 
-      // A palavra some da tela; só resta clicar em "Nova palavra".
-      scrambledWordEl.textContent = "⏱️";
+      scrambledWordEl.classList.remove("pm-countdown");
+      scrambledWordEl.textContent = "Tempo esgotado!";
       showAnswerBtn.classList.add("d-none");
 
       setRoundPhase("ended");
@@ -560,6 +587,7 @@ function scrambleToken(token) {
 function setGameOverUI(isOver) {
   newWordBtn.disabled = isOver;
   restartTimerBtn.disabled = isOver;
+  readyBtn.classList.toggle("d-none", isOver || roundPhase !== "ready");
   renderTeamScoreButtons();
 
   playAgainBtn.classList.toggle("d-none", !isOver);
