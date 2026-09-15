@@ -217,10 +217,11 @@ function renderTeamScoreButtons() {
       Teams.setTurn(index);
       Teams.addPoint(1);
 
-      revealAnswer();
       playPointSound();
-      afterPoint();
-      setRoundPhase("ended");
+      // Time acertou: já vai direto pra próxima rodada (tela de "Pronto"),
+      // sem esperar clicar em "Nova palavra" — esse botão só é usado
+      // quando ninguém pontua (tempo esgota, ver onEnd do timer).
+      nextWord();
     });
   });
 }
@@ -519,11 +520,6 @@ function endGame() {
     title: "🏁 Fim de jogo!",
     footer: buildPlayAgainFooter(() => playAgainBtn.click()),
   });
-}
-
-/* ========================= AFTER POINT ========================= */
-function afterPoint() {
-  stopTimer();
 }
 
 /* ========================= TIMER ========================= */
