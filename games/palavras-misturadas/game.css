@@ -238,26 +238,20 @@
   }
 }
 
-/* Mobile na vertical: mesmo rolando, uma linha só com 3 blocos fica
-   apertada demais — melhor virar 2 linhas fixas (sem rolagem): categoria
-   + rodada + tempo em cima, par de equipes embaixo, ocupando a largura
-   toda. Grade (em vez de flex-wrap) pra forçar categoria/rodada a
-   encolher e dividir a 1ª linha com o tempo — com flex-wrap sozinho o
-   navegador prefere jogar a caixa de tempo pra 2ª linha a espremer a de
-   categoria, então a grade decide o lugar de cada uma explicitamente. */
+/* Mobile na vertical: 3 linhas fixas (sem rolagem), cada uma ocupando a
+   largura toda — 1ª categoria/rodada, 2ª o par de equipes, 3ª o tempo.
+   A ordem no HTML já é essa (round-topbar, pm-pair-row, timer-card),
+   então só empilhar em coluna já basta. */
 @media (max-width: 600px) {
   .presenter-top {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    row-gap: 8px;
-    column-gap: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     overflow-x: visible;
   }
 
   .round-topbar {
-    grid-column: 1;
-    grid-row: 1;
+    width: 100%;
     flex-wrap: nowrap;
     min-width: 0;
   }
@@ -277,17 +271,15 @@
   }
 
   .timer-card {
-    grid-column: 2;
-    grid-row: 1;
+    width: 100%;
   }
 
   .timer-wrap {
-    width: 90px;
+    width: 100%;
   }
 
   .pm-pair-row {
-    grid-column: 1 / -1;
-    grid-row: 2;
+    width: 100%;
     min-width: 0;
   }
 

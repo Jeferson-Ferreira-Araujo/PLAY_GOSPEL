@@ -212,26 +212,33 @@ body {
   gap: 10px;
 }
 
+/* Ícone à esquerda, informação à direita, tudo numa linha só (não mais
+   rótulo em cima e valor embaixo) — caixa bem mais fina, sobra mais
+   espaço de tela pro conteúdo do jogo em si. Vale pra todos os jogos
+   (classe compartilhada). */
 .round-box {
   flex: 1 1 0;
   min-width: 130px;
-  padding: 10px 20px;
+  padding: 9px 16px;
   background: var(--bg-secondary);
   border: 1px solid rgba(255, 255, 255, .14);
-  border-radius: 18px;
+  border-radius: 14px;
   text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .round-box-label {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex: 0 0 auto;
   font-size: .65rem;
   font-weight: 700;
   letter-spacing: .06em;
   text-transform: uppercase;
   color: var(--text-muted);
-  margin-bottom: 3px;
   white-space: nowrap;
 }
 
@@ -239,13 +246,15 @@ body {
    mesmo traço/proporção dos ícones do playgospel-ui (24x24, stroke 2). */
 .round-box-icon {
   flex: 0 0 auto;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   color: var(--text-muted);
 }
 
 .round-box-value {
-  font-size: 1.05rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 1rem;
   font-weight: 800;
   color: var(--text-main);
   white-space: nowrap;
@@ -312,28 +321,30 @@ body {
   font-size: 1.05rem;
 }
 
-/* Cartão do timer — na mesma linha e com a mesma cara das outras caixas de
-   rodada (fundo, borda, cantos, rótulo com ícone), só que com espaço pra
-   barra de progresso embaixo do número. */
+/* Cartão do timer — mesma cara das outras caixas de rodada (fundo,
+   borda, cantos), com o rótulo+ícone à esquerda numa linha só; só a
+   barrinha de progresso (bem fina) fica embaixo do número, dentro do
+   .timer-wrap à direita. */
 .timer-card {
   flex: 1 1 0;
   min-width: 130px;
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 10px 20px;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
   background: var(--bg-secondary);
   border: 1px solid rgba(255, 255, 255, .14);
-  border-radius: 18px;
+  border-radius: 14px;
 }
 
 .timer-wrap {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   width: 100%;
   max-width: 100%;
+  min-width: 0;
 }
 
 .timer-wrap .progress {
@@ -343,7 +354,7 @@ body {
 .timer-text {
   font-weight: 800;
   color: var(--gold);
-  font-size: 1.3rem;
+  font-size: 1.05rem;
   line-height: 1;
 }
 
@@ -494,11 +505,25 @@ body {
     width: 100%;
   }
 
-  /* No mobile a caixa "vez de..." cresce pra ocupar a linha toda sozinha
-     quando quebra (nome de equipe + preenchimento sólido merecem destaque
-     total, não dividir metade da largura com a caixa vizinha). */
+  /* 3 linhas fixas no mobile vertical: 1ª as caixas de info (categoria/
+     rodada/dificuldade/acertos...), 2ª a equipe (ou par de equipes) da
+     rodada ocupando a linha toda, 3ª o tempo também ocupando a linha
+     toda — "order" decide a posição visual independente da ordem no
+     HTML (que varia de jogo pra jogo). */
+  .round-box:not(.round-box--team) {
+    order: 1;
+  }
+
   .round-box--team {
+    order: 2;
     flex-basis: 100%;
+  }
+
+  .timer-card {
+    order: 3;
+    flex-basis: 100%;
+    width: 100%;
+    padding: 8px 14px;
   }
 
   .round-box {
@@ -513,12 +538,8 @@ body {
     font-size: .92rem;
   }
 
-  .timer-card {
-    padding: 8px 14px;
-  }
-
   .timer-wrap {
-    width: 140px;
+    width: 100%;
   }
 
   .timer-text {
