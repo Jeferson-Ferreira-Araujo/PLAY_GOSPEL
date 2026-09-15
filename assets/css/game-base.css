@@ -447,11 +447,15 @@ body {
    RESPONSIVO (mobile-first fixes)
 ================================= */
 
-@media (max-width: 640px) {
-  /* Header inteiro (marca, placar, som, tela cheia...) some — sobra só
-     os elementos do jogo em si (rodada/equipes, texto central, botões)
-     e o botão "fechar" flutuante acima. No desktop tela cheia não muda
-     o header, só o navegador ganha mais área útil (padrão do SO). */
+/* Header inteiro (marca, placar, som, tela cheia...) some — sobra só os
+   elementos do jogo em si (rodada/equipes, texto central, botões) e o
+   botão "fechar" flutuante. No desktop tela cheia não muda o header, só
+   o navegador ganha mais área útil (padrão do SO). Duas condições
+   porque celular deitado é largo (não cai no max-width de retrato) mas
+   sempre baixo — max-height cobre esse caso; tablets/desktop landscape
+   também são baixos às vezes, mas isso não afeta em nada quem não
+   ativar tela cheia (o :is-fullscreen só existe nesse modo). */
+@media (max-width: 640px), (max-height: 500px) and (orientation: landscape) {
   body.is-fullscreen .game-topbar {
     display: none;
   }
@@ -459,7 +463,9 @@ body {
   body.is-fullscreen .game-fullscreen-close {
     display: flex;
   }
+}
 
+@media (max-width: 640px) {
   .game-topbar {
     flex-direction: column;
     align-items: stretch;
