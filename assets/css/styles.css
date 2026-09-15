@@ -2688,6 +2688,36 @@
   margin: 0 0 16px;
 }
 
+/* Trecho extra de um passo do tour com um ícone de verdade embutido
+   (ex: o ícone de tela cheia, que só existe dentro dos jogos — sem
+   mostrar o ícone em si, ninguém saberia o que procurar). */
+.pg-tour-extra {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: .88rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin: -8px 0 16px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid rgba(255, 255, 255, .08);
+}
+
+.pg-tour-icon-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  background: rgba(255, 255, 255, .06);
+  color: var(--text-main);
+}
+
 .pg-tour-footer {
   display: flex;
   align-items: center;

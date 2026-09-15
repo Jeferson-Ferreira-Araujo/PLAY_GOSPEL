@@ -6,6 +6,12 @@
 // de novo (controle de "visto" fica por conta de quem chama startTour,
 // via onEnd — este módulo só cuida da apresentação visual).
 
+// Mesmo ícone do botão de tela cheia (ver assets/js/fullscreen-ui.js) —
+// como esse botão só existe dentro dos jogos (não no catálogo), o passo
+// do tour que fala dele mostra o ícone em si, não só o texto, senão
+// ninguém saberia o que procurar.
+const FULLSCREEN_ICON = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>`;
+
 const STEPS = [
   {
     selector: "#teamsNavBtn",
@@ -36,12 +42,16 @@ const STEPS = [
     emoji: "❓",
     title: "5. Veja como jogar",
     text: "Cada jogo mostra suas instruções antes de começar. E aqui no topo você confere as regras gerais quando quiser.",
+    extra: `
+      <span class="pg-tour-icon-chip">${FULLSCREEN_ICON}</span>
+      Dentro de cada jogo, esse ícone no topo ativa a tela cheia — ajuda a aproveitar melhor a tela, principalmente no celular.
+    `,
   },
   {
     selector: null,
     emoji: "🎉",
     title: "6. Divirta-se!",
-    text: "Agora é só reunir seus irmãos, aprender mais da Palavra e se divertir juntos. Dica: durante as partidas, use o ícone de tela cheia no topo do jogo pra aproveitar melhor a tela, principalmente no celular. Deus abençoe!",
+    text: "Agora é só reunir seus irmãos, aprender mais da Palavra e se divertir juntos. Deus abençoe!",
   },
 ];
 
@@ -57,6 +67,7 @@ function buildOverlay() {
       <div class="pg-tour-emoji" data-tour-emoji></div>
       <h3 class="pg-tour-title" data-tour-title></h3>
       <p class="pg-tour-text" data-tour-text></p>
+      <p class="pg-tour-extra d-none" data-tour-extra></p>
       <div class="pg-tour-footer">
         <div class="pg-tour-dots" data-tour-dots></div>
         <div class="pg-tour-actions">
@@ -122,6 +133,13 @@ function render() {
   root.querySelector("[data-tour-emoji]").textContent = step.emoji;
   root.querySelector("[data-tour-title]").textContent = step.title;
   root.querySelector("[data-tour-text]").textContent = step.text;
+
+  // "extra" é conteúdo fixo (definido aqui em STEPS, não vindo de fora),
+  // por isso pode ir via innerHTML — é o jeito de mostrar um ícone de
+  // verdade dentro do texto do passo (ex: o ícone de tela cheia).
+  const extraEl = root.querySelector("[data-tour-extra]");
+  extraEl.classList.toggle("d-none", !step.extra);
+  extraEl.innerHTML = step.extra || "";
 
   const dots = root.querySelector("[data-tour-dots]");
   dots.innerHTML = STEPS.map((_, i) => `<span class="pg-tour-dot${i === index ? " is-active" : ""}"></span>`).join("");
