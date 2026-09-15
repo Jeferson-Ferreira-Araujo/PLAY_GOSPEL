@@ -5,6 +5,7 @@ import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
 import { icon } from "../../playgospel-ui/js/core.js";
 import { playCorrectSound } from "../../assets/js/countdown-sound.js";
 import { mountSoundMuteButton } from "../../assets/js/sound-mute-ui.js";
+import { mountFullscreenButton } from "../../assets/js/fullscreen-ui.js";
 
 /* ===== ELEMENTS ===== */
 const setupScreen = document.getElementById("setupScreen");
@@ -138,6 +139,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateTeamsGate();
     updateScoreBtn();
   });
+  mountFullscreenButton(document.querySelector(".game-topbar-actions"));
   mountSoundMuteButton(document.querySelector(".game-topbar-actions"));
   applyParamsFromURL();
 });

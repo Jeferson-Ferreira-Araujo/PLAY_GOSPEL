@@ -4,6 +4,7 @@ import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../ass
 import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
 import { playCountdownTick, playCountdownGo } from "../../assets/js/countdown-sound.js";
 import { mountSoundMuteButton } from "../../assets/js/sound-mute-ui.js";
+import { mountFullscreenButton } from "../../assets/js/fullscreen-ui.js";
 
 // Máximo de rodadas por partida (evita jogar todas as afirmações de uma vez).
 const ROUND_SIZE = 10;
@@ -76,6 +77,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderTurnBanner();
     updateScoreBtn();
   });
+  mountFullscreenButton(document.querySelector(".game-topbar-actions"));
   mountSoundMuteButton(document.querySelector(".game-topbar-actions"));
   checkAutoStartFromURL(); // ✅ novo fluxo
 });

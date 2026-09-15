@@ -6,6 +6,7 @@ import { BibleVersion } from "../../assets/js/bible-version.js";
 import { mountBibleVersionPicker } from "../../assets/js/bible-version-ui.js";
 import { playCountdownTick, playCountdownGo } from "../../assets/js/countdown-sound.js";
 import { mountSoundMuteButton } from "../../assets/js/sound-mute-ui.js";
+import { mountFullscreenButton } from "../../assets/js/fullscreen-ui.js";
 
 // Máximo de rodadas por partida (evita jogar todos os versículos de uma vez).
 const ROUND_SIZE = 10;
@@ -254,6 +255,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   window.addEventListener("bibflix:teams:change", updateScoreBtn);
   mountBibleVersionPicker(document.querySelector(".game-topbar-actions"));
   window.addEventListener("bibflix:bible-version:change", reloadCurrentVerseText);
+  mountFullscreenButton(document.querySelector(".game-topbar-actions"));
   mountSoundMuteButton(document.querySelector(".game-topbar-actions"));
 
   // A tela de configuração ficou só no modal do catálogo (que já barra
