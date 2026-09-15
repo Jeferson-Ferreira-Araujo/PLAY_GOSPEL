@@ -139,7 +139,7 @@ function showLetter() {
 
 function updateBadgeProgress() {
   const total = usedLetters.length + letterPool.length;
-  badgeProgress.textContent = `Letra ${usedLetters.length}/${total}`;
+  badgeProgress.textContent = `${usedLetters.length}/${total}`;
 }
 
 /* ===== Cronômetro por resposta =====

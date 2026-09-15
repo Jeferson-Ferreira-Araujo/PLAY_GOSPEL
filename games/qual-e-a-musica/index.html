@@ -100,21 +100,20 @@
   <!-- Tela de jogo (Game Layout do Avivaplay UI) -->
   <main class="pgui-game-layout d-none" id="gameScreen">
     <div class="pgui-game-layout__topbar">
-      <div class="qam-topbar-3col">
-        <div class="qam-topbar-box">
-          <div class="qam-topbar-box__label">Rodada</div>
-          <div class="qam-topbar-box__value" id="badgeSong">0</div>
+      <div class="round-topbar">
+        <div class="round-box">
+          <div class="round-box-label"><svg class="round-box-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4"/><path d="M5 4h13l-3 4 3 4H5"/></svg>Rodada</div>
+          <div class="round-box-value" id="badgeSong">0</div>
         </div>
-        <div class="qam-topbar-box qam-topbar-box--team d-none" id="turnBanner">
-          <div class="qam-topbar-box__label">Vez da equipe</div>
-          <div class="qam-topbar-box__value qam-topbar-box__value--team">
-            <span aria-hidden="true">👥</span>
-            <span id="turnBannerTeam">—</span>
+        <div class="round-box round-box--team d-none" id="turnBanner">
+          <div class="round-box-label"><svg class="round-box-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20v-1a5 5 0 0 1 5-5h3a5 5 0 0 1 5 5v1"/><path d="M16.5 5.5a3 3 0 0 1 0 6"/><path d="M21.5 20v-1a4.5 4.5 0 0 0-3-4.24"/></svg>Vez de</div>
+          <div class="round-box-team-info">
+            <div class="round-box-value" id="turnBannerTeam">—</div>
           </div>
         </div>
-        <div class="qam-topbar-box qam-topbar-box--points d-none" id="badgePoints">
-          <div class="qam-topbar-box__label">Pontos em jogo</div>
-          <div class="qam-topbar-box__value" id="badgePointsValue">Vale 1 ponto</div>
+        <div class="round-box d-none" id="badgePoints">
+          <div class="round-box-label"><svg class="round-box-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4Z"/><path d="M8 5H5a2 2 0 0 0 0 4h1"/><path d="M16 5h3a2 2 0 0 1 0 4h-1"/><path d="M9 20h6"/><path d="M12 13v4"/></svg>Pontos em jogo</div>
+          <div class="round-box-value" id="badgePointsValue">Vale 1 ponto</div>
         </div>
       </div>
     </div>

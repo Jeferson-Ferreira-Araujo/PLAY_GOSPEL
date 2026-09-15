@@ -53,110 +53,20 @@
   z-index: 25;
 }
 
-/* ---- Topo do jogo: 3 caixas (Rodada / Vez da equipe / Pontos em jogo) ----
-   Rodada e Pontos em jogo têm conteúdo curto (um número, um "Vale X"), então
-   ficam com largura só do necessário (auto) — dar 1fr igual pra elas deixava
-   um espaço vazio enorme sobrando. A caixa da equipe é a única que recebe o
-   espaço "de sobra" (1fr), porque nome de equipe pode variar bastante.
-   Equipe e Pontos em jogo só aparecem com equipes ativas/tentativa em
-   andamento; sem isso, sobra só a caixa de Rodada. */
-.qam-topbar-3col {
-  display: grid;
-  grid-template-columns: auto minmax(160px, 1fr) auto;
-  gap: var(--pgui-space-12);
-}
-
-.qam-topbar-box {
-  padding: var(--pgui-space-8) var(--pgui-space-16);
-  background: var(--pgui-bg-surface);
-  border: 1px solid var(--pgui-border);
-  border-radius: var(--pgui-radius-lg);
-  text-align: center;
-}
-
-.qam-topbar-box__label {
-  font-size: var(--pgui-fs-label);
-  font-weight: 700;
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  color: var(--pgui-text-secondary);
-  margin-bottom: 2px;
-  white-space: nowrap;
-}
-
-.qam-topbar-box__value {
-  font-size: var(--pgui-fs-subtitle);
-  font-weight: 800;
-  color: var(--pgui-text-primary);
-  white-space: nowrap;
-}
-
-.qam-topbar-box--team {
-  border-color: var(--team-color, var(--pgui-color-primary));
-}
-
-.qam-topbar-box__value--team {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--pgui-space-8);
-  color: var(--team-color, var(--pgui-color-primary));
-}
-
-/* Caixa "Pontos em jogo" — mesmo valor que antes era um badge solto em
-   cima do teclado, agora como a 3ª caixa do topo. --boosted (depois de um
-   ou mais "Passar") só troca a cor pro tema de "risco maior" (vermelho). */
-.qam-topbar-box--points {
-  border-color: var(--pgui-color-primary);
-}
-
-.qam-topbar-box--points .qam-topbar-box__value {
-  color: var(--pgui-color-primary);
-}
-
-.qam-topbar-box--points.qam-points-badge--boosted {
+/* ---- Topo do jogo: Rodada / Vez da equipe / Pontos em jogo ----
+   Mesmo padrão .round-box/.round-topbar dos outros jogos (ver
+   playgospel-ui/css/round-box.css) — aqui só o estado extra específico
+   deste jogo: --boosted (depois de um ou mais "Passar") troca a caixa de
+   "Pontos em jogo" pro tema de "risco maior" (vermelho, pulsando). */
+.round-box.qam-points-badge--boosted {
   border-color: var(--pgui-color-danger);
+  background: var(--pgui-color-danger);
   animation: pgui-pulse 1.1s ease-in-out infinite;
 }
 
-.qam-topbar-box--points.qam-points-badge--boosted .qam-topbar-box__value {
-  color: var(--pgui-color-danger-hover);
-}
-
-/* Continua em 1 linha só mesmo no mobile (empilhado em 3 linhas tomava
-   espaço vertical demais, sobrando pouco pra tela principal do jogo) — só
-   encolhe o conteúdo (padding/fonte) e deixa a coluna do meio livre pra ir
-   até onde sobrar (minmax(0, 1fr) em vez de 160px mínimo, senão estourava
-   a largura da tela). Fica DEPOIS das regras-base acima de propósito —
-   media query não aumenta especificidade, então uma regra sem media query
-   declarada depois ainda venceria uma com media query declarada antes. */
-@media (max-width: 560px) {
-  .qam-topbar-3col {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    gap: var(--pgui-space-8);
-  }
-
-  .qam-topbar-box {
-    padding: var(--pgui-space-4) var(--pgui-space-8);
-    min-width: 0; /* item de grid só encolhe de verdade com isso — senão o conteúdo com nowrap empurra a caixa e vaza por cima da vizinha */
-  }
-
-  .qam-topbar-box__label {
-    font-size: 9px;
-    white-space: normal; /* "VEZ DA EQUIPE"/"PONTOS EM JOGO" quebram em 2 linhas em vez de vazar da caixa */
-    overflow-wrap: break-word;
-  }
-
-  .qam-topbar-box__value {
-    font-size: var(--pgui-fs-small);
-    white-space: normal;
-    overflow-wrap: break-word;
-  }
-
-  .qam-topbar-box__value--team {
-    gap: var(--pgui-space-4);
-    white-space: normal; /* nome de equipe comprido pode quebrar em 2 linhas em vez de vazar da caixa */
-    overflow-wrap: break-word;
-  }
+.round-box.qam-points-badge--boosted .round-box-value,
+.round-box.qam-points-badge--boosted .round-box-label {
+  color: var(--pgui-on-danger);
 }
 
 /* ---- Placar: fica no popup do botão "🏆 Placar" do cabeçalho (sob

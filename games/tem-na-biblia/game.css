@@ -140,36 +140,10 @@
   font-size: var(--pgui-fs-caption);
 }
 
-/* ---- Badge de progresso (topbar) ---- */
-.ab-progress-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--pgui-space-4);
-  padding: var(--pgui-space-8) var(--pgui-space-16);
-  border-radius: var(--pgui-radius-pill);
-  background: rgba(255, 193, 7, .14);
-  border: 2px solid var(--pgui-color-primary);
-  color: var(--pgui-color-primary);
-  font-weight: 800;
-  font-size: var(--pgui-fs-small);
-}
-
-/* ---- Cronômetro + letra gigante (peça central do jogo) ---- */
+/* ---- Letra gigante (peça central do jogo; o cronômetro agora mora no
+   topbar, ver .timer-card em playgospel-ui/css/round-box.css) ---- */
 #playPanel.pgui-card-game {
   padding: var(--pgui-space-16) var(--pgui-space-24);
-}
-
-.ab-timer-linear {
-  width: min(320px, 80vw);
-  margin: 0 auto var(--pgui-space-16);
-  text-align: center;
-}
-
-.ab-timer-linear__time {
-  font-weight: 800;
-  font-size: var(--pgui-fs-title);
-  color: var(--pgui-color-primary);
-  margin-bottom: var(--pgui-space-8);
 }
 
 /* clamp() usando min(vw, vh): numa tela larga mas baixa (desktop comum,

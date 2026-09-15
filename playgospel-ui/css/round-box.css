@@ -1,0 +1,202 @@
+/* =====================================================
+   PLAYGOSPEL UI — BLOCOS DE INFORMAÇÃO DA RODADA
+   Mesmo padrão visual usado nos jogos "clássicos" (ver .round-box em
+   assets/css/game-base.css) — ícone à esquerda, valor à direita, numa
+   linha só — portado pros tokens do playgospel-ui (--pgui-*), pros
+   jogos que já usam esse design system (Uma Letra, Qual é a Música).
+   Cada jogo usa só as caixas que fizerem sentido pra ele (categoria,
+   rodada, tempo, vez da equipe, pontos em jogo...); sem categoria ou
+   sem tempo, a caixa correspondente simplesmente não entra no HTML.
+
+   Markup:
+   <div class="round-topbar">
+     <div class="round-box">
+       <div class="round-box-label">{svg 16x16}Rótulo</div>
+       <div class="round-box-value">Valor</div>
+     </div>
+     <div class="timer-card">
+       <div class="round-box-label">{svg}Tempo</div>
+       <div class="timer-wrap">
+         <div class="timer-text">30s</div>
+         <div class="pgui-progress__track"><div class="pgui-progress__fill" style="width:100%"></div></div>
+       </div>
+     </div>
+     <div class="round-box round-box--team">
+       <div class="round-box-label">{svg}Vez de</div>
+       <div class="round-box-team-info">
+         <div class="round-box-value">Nome da equipe</div>
+         <div class="round-box-player">Nome da pessoa</div>
+       </div>
+     </div>
+   </div>
+   ===================================================== */
+
+.round-topbar {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.round-box,
+.timer-card {
+  flex: 1 1 0;
+  min-width: 130px;
+  padding: 9px 16px;
+  background: var(--pgui-bg-surface);
+  border: 1px solid var(--pgui-border);
+  border-radius: var(--pgui-radius-lg);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.round-box-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--pgui-text-muted);
+  white-space: nowrap;
+}
+
+.round-box-icon {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  color: var(--pgui-text-muted);
+}
+
+.round-box-value {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--pgui-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Caixa "vez da equipe" — preenchimento sólido na cor da equipe (mesma
+   ideia do .team-chip-score), pra saltar aos olhos à distância. */
+.round-box--team {
+  background: var(--team-color, var(--pgui-color-primary));
+  border-color: var(--team-color, var(--pgui-color-primary));
+}
+
+.round-box--team .round-box-label {
+  color: rgba(11, 18, 32, .65);
+}
+
+.round-box--team .round-box-value {
+  color: #0B1220;
+}
+
+.round-box--team .round-box-icon {
+  color: #0B1220;
+}
+
+/* Nome da pessoa da vez (só quando a equipe tem participantes sorteados,
+   ver Teams.currentPlayer em assets/js/teams.js) — value e player
+   empilham verticalmente, label continua ao lado. */
+.round-box-team-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.round-box-player {
+  font-size: .72rem;
+  font-weight: 700;
+  color: rgba(11, 18, 32, .65);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.timer-wrap {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+}
+
+.timer-wrap .pgui-progress__track {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.timer-text {
+  flex: 0 0 auto;
+  font-weight: 800;
+  color: var(--pgui-color-primary);
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+/* Sem o nome da caixa no mobile (retrato ou paisagem) — só o ícone já
+   indica do que se trata, sobra mais espaço pro valor (mesmo critério
+   de assets/css/game-base.css). */
+@media (max-width: 640px), (max-height: 500px) and (orientation: landscape) {
+  .round-box-label {
+    font-size: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .round-box:not(.round-box--team) {
+    order: 1;
+  }
+
+  .round-box--team {
+    order: 2;
+    flex-basis: 100%;
+  }
+
+  .timer-card {
+    order: 3;
+    flex-basis: 100%;
+    width: 100%;
+    padding: 8px 14px;
+  }
+
+  .round-box {
+    padding: 6px 14px;
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .round-box,
+  .timer-card {
+    min-width: 0;
+    padding: 4px 10px;
+    gap: 6px;
+  }
+
+  .round-box-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .round-box-value {
+    font-size: .85rem;
+  }
+
+  .timer-wrap .pgui-progress__track {
+    display: none;
+  }
+
+  .timer-text {
+    font-size: .95rem;
+  }
+}
