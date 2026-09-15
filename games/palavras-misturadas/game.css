@@ -8,6 +8,19 @@
   font-size: clamp(36px, 8vw, 140px);
 }
 
+/* Mobile na vertical: "Mostrar resposta" primeiro, "Nova palavra" embaixo
+   — o .presenter-bottom empilha em coluna na ordem do HTML a partir daqui
+   (ver game-base.css), então só inverter a ordem visual já basta. */
+@media (max-width: 640px) {
+  #showAnswerBtn {
+    order: 1;
+  }
+
+  #newWordBtn {
+    order: 2;
+  }
+}
+
 /* Contagem "3, 2, 1" antes de cada palavra aparecer */
 @keyframes pm-countdown-pulse {
   0%, 100% { transform: scale(1); }
