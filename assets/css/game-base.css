@@ -322,9 +322,10 @@ body {
 }
 
 /* Cartão do timer — mesma cara das outras caixas de rodada (fundo,
-   borda, cantos), com o rótulo+ícone à esquerda numa linha só; só a
-   barrinha de progresso (bem fina) fica embaixo do número, dentro do
-   .timer-wrap à direita. */
+   borda, cantos), com o rótulo+ícone à esquerda numa linha só. Número e
+   barra de progresso ficam lado a lado (não um em cima do outro) dentro
+   do .timer-wrap à direita — uma linha só, no mesmo padrão das outras
+   caixas de rodada. */
 .timer-card {
   flex: 1 1 0;
   min-width: 130px;
@@ -340,18 +341,28 @@ body {
 .timer-wrap {
   flex: 1 1 auto;
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  gap: 10px;
   width: 100%;
   max-width: 100%;
   min-width: 0;
 }
 
 .timer-wrap .progress {
-  width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Cor padrão do site (dourado) em vez do azul padrão do Bootstrap — o
+   JS ainda pode trocar pra .bg-danger (vermelho) quando o tempo tá
+   acabando, que continua funcionando por cima (utilitário do Bootstrap
+   tem !important). */
+.timer-wrap .progress-bar {
+  background-color: var(--gold);
 }
 
 .timer-text {
+  flex: 0 0 auto;
   font-weight: 800;
   color: var(--gold);
   font-size: 1.05rem;
