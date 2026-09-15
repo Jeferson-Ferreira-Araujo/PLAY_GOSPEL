@@ -421,10 +421,45 @@ body {
 }
 
 /* ==============================
+   TELA CHEIA NO MOBILE (ver assets/js/fullscreen-ui.js)
+   Botão "fechar" flutuante — fica escondido por padrão; só aparece no
+   mobile com tela cheia ativa (ver media query abaixo), tomando o lugar
+   do header inteiro, que some nesse modo.
+================================= */
+.game-fullscreen-close {
+  display: none;
+  position: fixed;
+  top: max(10px, env(safe-area-inset-top));
+  right: max(10px, env(safe-area-inset-right));
+  z-index: 30;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .14);
+  background: rgba(11, 18, 32, .85);
+  backdrop-filter: blur(10px);
+  color: var(--text-main);
+}
+
+/* ==============================
    RESPONSIVO (mobile-first fixes)
 ================================= */
 
 @media (max-width: 640px) {
+  /* Header inteiro (marca, placar, som, tela cheia...) some — sobra só
+     os elementos do jogo em si (rodada/equipes, texto central, botões)
+     e o botão "fechar" flutuante acima. No desktop tela cheia não muda
+     o header, só o navegador ganha mais área útil (padrão do SO). */
+  body.is-fullscreen .game-topbar {
+    display: none;
+  }
+
+  body.is-fullscreen .game-fullscreen-close {
+    display: flex;
+  }
+
   .game-topbar {
     flex-direction: column;
     align-items: stretch;
