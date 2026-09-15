@@ -18,9 +18,12 @@
 }
 
 /* Contagem "3, 2, 1" antes de cada palavra aparecer — só destaque de cor,
-   sem animação (estático). */
+   sem animação (estático). Bem maior que uma palavra normal: é só um
+   dígito (sem risco de estourar a largura), e o jogo é pensado pra ser
+   jogado com o grupo olhando pra tela — vale aproveitar o espaço. */
 .scrambled.pm-countdown {
   color: var(--gold, #F5C518);
+  font-size: clamp(120px, 28vw, 340px);
 }
 
 /* Botão "Começar rodada" — ocupa o lugar da palavra no centro da tela
