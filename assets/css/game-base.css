@@ -486,6 +486,37 @@ body {
   }
 }
 
+/* Mobile deitado: altura é o recurso escasso (não largura), então aqui é
+   só encolher ao máximo — caixas sem sobra de espaço (min-width:130px
+   herdado faria cada caixa manter essa largura mesmo com ícone+número
+   cabendo em bem menos) e o relógio sem a barra de progresso (só o
+   número), que também economiza uma "linha" de altura dentro da caixa. */
+@media (max-height: 500px) and (orientation: landscape) {
+  .round-box,
+  .timer-card {
+    min-width: 0;
+    padding: 4px 10px;
+    gap: 6px;
+  }
+
+  .round-box-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .round-box-value {
+    font-size: .85rem;
+  }
+
+  .timer-wrap .progress {
+    display: none;
+  }
+
+  .timer-text {
+    font-size: .95rem;
+  }
+}
+
 @media (max-width: 640px) {
   .game-topbar {
     flex-direction: column;
