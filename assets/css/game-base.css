@@ -530,6 +530,16 @@ body {
     padding: 6px 14px;
   }
 
+  /* Sem o nome da caixa (CATEGORIA/RODADA/TEMPO/...) no mobile — só o
+     ícone (à esquerda) já indica do que se trata, sobra mais espaço pro
+     valor. font-size:0 esconde só o texto (nó de texto solto ao lado do
+     ícone dentro do .round-box-label); o ícone continua do tamanho normal
+     porque a largura/altura dele são em px, não em em. Texto continua no
+     HTML pra quem usa leitor de tela. */
+  .round-box-label {
+    font-size: 0;
+  }
+
   .round-box-value {
     font-size: .9rem;
   }
