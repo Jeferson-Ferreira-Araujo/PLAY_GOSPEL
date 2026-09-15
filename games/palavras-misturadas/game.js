@@ -227,7 +227,13 @@ function renderTeamScoreButtons() {
 function setRoundPhase(phase) {
   roundPhase = phase;
 
-  readyBtn.classList.toggle("d-none", phase !== "ready" || gameOver);
+  // "ready": o botão "Começar" ocupa o lugar da palavra no centro da
+  // tela (em vez de um texto + botão embaixo) — só um dos dois aparece
+  // por vez.
+  const isReady = phase === "ready" && !gameOver;
+  readyBtn.classList.toggle("d-none", !isReady);
+  scrambledWordEl.classList.toggle("d-none", isReady);
+
   newWordBtn.disabled = gameOver || phase === "countdown" || phase === "ready";
 
   renderTeamScoreButtons();
@@ -401,16 +407,17 @@ function nextWord() {
 /* ===== Espera a confirmação de "Pronto!" antes de começar a rodada —
    como as pessoas revezam (ver advancePair), sempre precisa de um
    momento pra quem vai jogar se posicionar antes da contagem começar.
-   O bloco do relógio mostra só o tempo (nada de texto de status nele);
-   avisos de "prepare-se"/"tempo esgotado" sempre vão no texto central. */
+   O botão "Começar" ocupa o lugar da palavra no centro da tela (ver
+   setRoundPhase). O bloco do relógio mostra só o tempo (nada de texto de
+   status nele); avisos de "prepare-se"/"tempo esgotado" vão no centro. */
 function showReadyState() {
   clearCountdown();
   stopTimer();
-  setRoundPhase("ready");
 
   showAnswerBtn.classList.add("d-none");
   scrambledWordEl.classList.remove("pm-countdown");
-  scrambledWordEl.textContent = "Toque em Pronto para começar";
+
+  setRoundPhase("ready");
 
   timerText.textContent = selectedDurationSec > 0 ? `${selectedDurationSec}s` : "Sem tempo";
   timerBar.style.width = "0%";
@@ -498,7 +505,7 @@ function endGame() {
   timerText.textContent = "--";
   timerBar.style.width = "0%";
 
-  scrambledWordEl.classList.remove("pm-countdown");
+  scrambledWordEl.classList.remove("pm-countdown", "d-none");
   scrambledWordEl.textContent = "FIM DE JOGO";
   setGameOverUI(true);
   renderPairRow();

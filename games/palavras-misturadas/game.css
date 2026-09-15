@@ -19,6 +19,25 @@
   animation: pm-countdown-pulse 1s ease-in-out infinite;
 }
 
+/* Botão "Começar rodada" — ocupa o lugar da palavra no centro da tela
+   enquanto espera quem vai jogar se organizar (ver setRoundPhase em
+   game.js), então precisa do mesmo destaque que ela teria. */
+.pm-ready-btn {
+  padding: 28px 48px;
+  border-radius: 18px;
+  font-size: clamp(22px, 4vw, 40px);
+  font-weight: 800;
+}
+
+@keyframes pm-ready-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+.pm-ready-btn:not(:disabled) {
+  animation: pm-ready-pulse 1.4s ease-in-out infinite;
+}
+
 /* Formato "disputa": um botão de pontuação por equipe ativa — todas as
    equipes veem a mesma palavra, e quem acertar primeiro ganha o ponto. */
 .team-score-row {

@@ -146,9 +146,11 @@
     </div>
   </div>
 
-  <!-- PALAVRA -->
+  <!-- PALAVRA (ou o botão "Começar", enquanto espera a confirmação de
+       quem vai jogar — só um dos dois aparece por vez, ver game.js) -->
   <div class="presenter-center">
     <div class="scrambled stage-text" id="scrambledWord">CARREGANDO</div>
+    <button id="readyBtn" class="btn btn-success pm-ready-btn d-none">✅ Começar rodada</button>
   </div>
 
   <!-- QUEM ACERTOU (um botão por equipe do par da vez) -->
@@ -156,7 +158,6 @@
 
   <!-- CONTROLES -->
   <div class="presenter-bottom">
-    <button id="readyBtn" class="btn btn-success d-none">✅ Pronto! Começar rodada</button>
     <button id="newWordBtn" class="btn btn-warning">Nova palavra</button>
     <button id="showAnswerBtn" class="btn btn-outline-light">Mostrar resposta</button>
 
