@@ -234,7 +234,10 @@ function setRoundPhase(phase) {
   readyBtn.classList.toggle("d-none", !isReady);
   scrambledWordEl.classList.toggle("d-none", isReady);
 
-  newWordBtn.disabled = gameOver || phase === "countdown" || phase === "ready";
+  // Enquanto não dá pra mostrar uma palavra nova (contagem rolando ou
+  // esperando quem vai jogar confirmar), o botão nem aparece — só
+  // desabilitar (cinza) deixava ele ocupando espaço à toa.
+  newWordBtn.classList.toggle("d-none", gameOver || phase === "countdown" || phase === "ready");
 
   renderTeamScoreButtons();
 }
@@ -572,7 +575,7 @@ function scrambleToken(token) {
 }
 
 function setGameOverUI(isOver) {
-  newWordBtn.disabled = isOver;
+  newWordBtn.classList.toggle("d-none", isOver);
   readyBtn.classList.toggle("d-none", isOver || roundPhase !== "ready");
   renderTeamScoreButtons();
 
