@@ -426,7 +426,9 @@ function showReadyState() {
   setRoundPhase("ready");
 
   timerText.textContent = selectedDurationSec > 0 ? `${selectedDurationSec}s` : "Sem tempo";
-  timerBar.style.width = "0%";
+  // Cheia aqui (não vazia) — a barra representa o tempo que AINDA resta,
+  // e antes da rodada começar o tempo todo ainda está disponível.
+  timerBar.style.width = selectedDurationSec > 0 ? "100%" : "0%";
 }
 
 /* ===== Contagem "3, 2, 1" antes de cada palavra — dá tempo das equipes
