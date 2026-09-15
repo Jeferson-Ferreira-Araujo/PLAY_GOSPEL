@@ -41,7 +41,7 @@ const STEPS = [
     selector: null,
     emoji: "🎉",
     title: "6. Divirta-se!",
-    text: "Agora é só reunir seus irmãos, aprender mais da Palavra e se divertir juntos. Deus abençoe!",
+    text: "Agora é só reunir seus irmãos, aprender mais da Palavra e se divertir juntos. Dica: durante as partidas, use o ícone de tela cheia no topo do jogo pra aproveitar melhor a tela, principalmente no celular. Deus abençoe!",
   },
 ];
 
