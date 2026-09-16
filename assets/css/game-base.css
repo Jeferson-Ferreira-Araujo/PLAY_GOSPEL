@@ -410,6 +410,18 @@ body {
   user-select: none;
 }
 
+/* Contagem "3, 2, 1" antes de cada rodada — padrão em TODOS os jogos:
+   só destaque de cor (dourado), sem animação/pulso, e bem maior que um
+   texto normal — é só um dígito (sem risco de estourar a largura), e o
+   jogo é pensado pra ser jogado com o grupo olhando pra mesma tela, vale
+   aproveitar o espaço. Cada jogo só precisa alternar essa classe no
+   elemento .stage-text durante a contagem (ver showReadyState/
+   startPrepareCountdown em cada game.js). */
+.stage-text.is-countdown {
+  color: var(--gold);
+  font-size: clamp(120px, 28vw, 340px);
+}
+
 /* Botão "Pronto"/"Chamar X" — ocupa o lugar do texto central enquanto
    espera a confirmação de quem vai responder (ver showReadyState nos
    jogos que usam esse fluxo). Mesmo destaque do texto que substitui. */

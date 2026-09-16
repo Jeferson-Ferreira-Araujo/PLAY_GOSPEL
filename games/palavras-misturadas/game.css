@@ -17,14 +17,8 @@
   }
 }
 
-/* Contagem "3, 2, 1" antes de cada palavra aparecer — só destaque de cor,
-   sem animação (estático). Bem maior que uma palavra normal: é só um
-   dígito (sem risco de estourar a largura), e o jogo é pensado pra ser
-   jogado com o grupo olhando pra tela — vale aproveitar o espaço. */
-.scrambled.pm-countdown {
-  color: var(--gold, #F5C518);
-  font-size: clamp(120px, 28vw, 340px);
-}
+/* Contagem "3, 2, 1" — estilo (cor + tamanho) compartilhado por todos os
+   jogos, ver .stage-text.is-countdown em assets/css/game-base.css. */
 
 /* Botão "Começar rodada" — ocupa o lugar da palavra no centro da tela
    enquanto espera quem vai jogar se organizar (ver setRoundPhase em
@@ -230,35 +224,49 @@
   }
 }
 
-/* Mobile/tablet: a grade de 3 colunas do desktop não cabe direito em
-   telas estreitas — vira uma linha só (flex) com os 3 blocos (categoria/
-   rodada, par de equipes, tempo) lado a lado, rolando na horizontal se
-   não couber tudo em vez de espremer ou quebrar. */
-@media (max-width: 1024px) {
+/* Tablet vertical: a grade de 3 colunas (pontas iguais) fica apertada
+   numa tela desse tamanho e precisava rolar de lado — 2 linhas fixas em
+   vez disso: 1ª categoria + rodada juntos, 2ª o par de equipes e o tempo
+   juntos (mesmo padrão usado em verdadeiro-ou-falso). */
+@media (min-width: 601px) and (max-width: 1024px) and (orientation: portrait) {
   .presenter-top {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "info info"
+      "pair timer";
     align-items: stretch;
-    gap: 14px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 6px;
+    row-gap: 10px;
   }
 
-  .round-topbar,
-  .timer-card,
+  .round-topbar {
+    grid-area: info;
+    justify-self: stretch;
+  }
+
   .pm-pair-row {
-    flex: 0 0 auto;
+    grid-area: pair;
+    justify-self: stretch;
+  }
+
+  .timer-card {
+    grid-area: timer;
+    justify-self: stretch;
   }
 
   .timer-wrap {
-    width: 140px;
+    width: auto;
   }
 
   .pm-pair-vs {
     display: flex;
     align-items: center;
+  }
+
+  /* Só ícone + valor nas caixas de categoria/rodada (sem o nome da
+     caixa) — sobra mais espaço pro valor nessa largura. */
+  .round-box-label {
+    font-size: 0;
   }
 }
 

@@ -24,11 +24,8 @@
   color: rgba(255,255,255,.85);
 }
 
-/* Contagem "3, 2, 1" depois do "Pronto" — só destaque de cor, estático
-   (sem pulsar), mesmo padrão do Palavras Embaralhadas. */
-.statement-display.vf-countdown {
-  color: var(--gold);
-}
+/* Contagem "3, 2, 1" — estilo (cor + tamanho) compartilhado por todos os
+   jogos, ver .stage-text.is-countdown em assets/css/game-base.css. */
 
 /* Topo do jogo (tablet/desktop): dificuldade/rodada à esquerda, equipe
    da vez centralizada na tela, tempo à direita — só faz sentido
@@ -88,6 +85,41 @@
 
 .round-box--team-centered .round-box-value {
   font-size: 1.15rem;
+}
+
+/* Tablet vertical: a grade de 3 colunas (pontas iguais) fica apertada
+   numa tela desse tamanho — 2 linhas fixas em vez disso: 1ª dificuldade
+   + rodada juntos, 2ª a equipe da vez e o tempo juntos (só 2 equipes se
+   enfrentam por vez nesse jogo, então cabem lado a lado numa boa). */
+@media (min-width: 641px) and (max-width: 1024px) and (orientation: portrait) {
+  .presenter-top {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "info info"
+      "team timer";
+    align-items: stretch;
+    row-gap: 10px;
+  }
+
+  .round-topbar {
+    grid-area: info;
+    justify-self: stretch;
+  }
+
+  #turnBanner {
+    grid-area: team;
+    justify-self: stretch;
+  }
+
+  .timer-card {
+    grid-area: timer;
+    justify-self: stretch;
+  }
+
+  .timer-wrap {
+    width: auto;
+  }
 }
 
 /* Mobile: volta a empilhar em coluna (o grid de 3 colunas acima não cabe

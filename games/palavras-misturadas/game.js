@@ -423,7 +423,7 @@ function showReadyState() {
   stopTimer();
 
   showAnswerBtn.classList.add("d-none");
-  scrambledWordEl.classList.remove("pm-countdown");
+  scrambledWordEl.classList.remove("is-countdown");
 
   setRoundPhase("ready");
 
@@ -441,7 +441,7 @@ function startCountdown() {
   setRoundPhase("countdown");
 
   showAnswerBtn.classList.add("d-none");
-  scrambledWordEl.classList.add("pm-countdown");
+  scrambledWordEl.classList.add("is-countdown");
 
   let n = 3;
   scrambledWordEl.textContent = String(n);
@@ -460,7 +460,7 @@ function startCountdown() {
 }
 
 function beginRound() {
-  scrambledWordEl.classList.remove("pm-countdown");
+  scrambledWordEl.classList.remove("is-countdown");
   scrambledWordEl.textContent = scrambleKeepSpaces(currentWord);
 
   showAnswerBtn.classList.remove("d-none");
@@ -515,7 +515,7 @@ function endGame() {
   timerText.textContent = "--";
   timerBar.style.width = "0%";
 
-  scrambledWordEl.classList.remove("pm-countdown", "d-none");
+  scrambledWordEl.classList.remove("is-countdown", "d-none");
   scrambledWordEl.textContent = "FIM DE JOGO";
   setGameOverUI(true);
   renderPairRow();
@@ -546,7 +546,7 @@ function createOrUpdateTimer() {
 
       timeExpired = true;
 
-      scrambledWordEl.classList.remove("pm-countdown");
+      scrambledWordEl.classList.remove("is-countdown");
       scrambledWordEl.textContent = "Tempo esgotado!";
       showAnswerBtn.classList.add("d-none");
 

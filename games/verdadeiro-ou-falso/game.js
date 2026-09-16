@@ -318,7 +318,7 @@ function clearCountdown() {
 function startPrepareCountdown(onDone) {
   clearCountdown();
   timerRow?.classList.add("d-none");
-  statementText.classList.add("vf-countdown");
+  statementText.classList.add("is-countdown");
 
   let n = 3;
   statementText.textContent = String(n);
@@ -333,7 +333,7 @@ function startPrepareCountdown(onDone) {
     }
     clearCountdown();
     playCountdownGo();
-    statementText.classList.remove("vf-countdown");
+    statementText.classList.remove("is-countdown");
     onDone();
   }, 1000);
 }
