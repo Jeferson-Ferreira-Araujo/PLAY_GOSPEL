@@ -254,6 +254,12 @@ function restartGame() {
 function nextStatement() {
   stopTimer();
 
+  // Só passa a vez pra próxima equipe agora — ao responder (ou o tempo
+  // acabar), o placar já foi ajustado na hora, mas a caixa da equipe
+  // continua mostrando quem acabou de responder até "Próxima Frase" ser
+  // clicado (ver choose() e o onEnd do timer).
+  if (Teams.isEnabled()) Teams.nextTurn();
+
   idx += 1;
   if (idx >= pool.length) {
     endGame("FIM DE JOGO");
@@ -366,10 +372,9 @@ function choose(choice) {
     score += 1;
   }
 
-  if (Teams.isEnabled()) {
-    if (correct) Teams.addPoint(1);
-    Teams.nextTurn();
-  }
+  // A vez só passa pra próxima equipe quando "Próxima Frase" é clicado
+  // (ver nextStatement) — aqui só o placar é ajustado na hora.
+  if (Teams.isEnabled() && correct) Teams.addPoint(1);
 
   showResult(correct, choice);
   showExplanation();
@@ -454,12 +459,11 @@ function createOrUpdateTimer() {
         setAnswerButtonsEnabled(false);
         timerRow?.classList.add("d-none");
 
-        // Ninguém respondeu a tempo — perde 1 ponto (diferente de errar
-        // escolhendo a opção errada, que não desconta).
-        if (Teams.isEnabled()) {
-          Teams.addPoint(-1);
-          Teams.nextTurn();
-        }
+        // Ninguém respondeu a tempo — perde 1 ponto na hora (diferente
+        // de errar escolhendo a opção errada, que não desconta). A vez
+        // só passa pra próxima equipe quando "Próxima Frase" é clicado
+        // (ver nextStatement).
+        if (Teams.isEnabled()) Teams.addPoint(-1);
 
         resultWrap.classList.remove("d-none");
         const expected = current.answer ? "VERDADEIRO" : "FALSO";
@@ -484,9 +488,14 @@ function stopTimer() {
 }
 
 /* ===== UI helpers ===== */
+// Verdadeiro/Falso somem depois de responder (ou o tempo acabar) — só
+// voltam quando a próxima frase é carregada (ver loadAtIndex), pra não
+// ficar com os botões parados na tela enquanto mostra o resultado.
 function setAnswerButtonsEnabled(enabled) {
   trueBtn.disabled = !enabled;
   falseBtn.disabled = !enabled;
+  trueBtn.classList.toggle("d-none", !enabled);
+  falseBtn.classList.toggle("d-none", !enabled);
 }
 
 function setGameOverUI(isOver) {

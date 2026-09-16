@@ -89,6 +89,8 @@
   }
 
   .round-box--team-centered {
+    width: 100%;
+    align-self: stretch;
     padding: 8px 14px;
   }
 }
