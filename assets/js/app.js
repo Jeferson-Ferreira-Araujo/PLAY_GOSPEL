@@ -108,14 +108,10 @@ let teamDraw = {};
 
 // Modal de Equipes: uma VISÃO RESUMO (quando já existem equipes — nomes,
 // participantes, excluir/zerar) e uma VISÃO ASSISTENTE de 2 passos pra
-// criar/editar (quantidade+nomes → participantes, só se pedir sorteio).
-// As ações de manutenção não aparecem durante a criação — não faz
-// sentido "excluir" ou "zerar placar" de algo que ainda nem existe.
+// criar/editar (quantidade+nomes → participantes, sob demanda). As ações
+// de manutenção não aparecem durante a criação — não faz sentido
+// "excluir" ou "zerar placar" de algo que ainda nem existe.
 let currentTeamsStep = 1;
-// "yes" | "no" | null — resposta de "Quer sortear as pessoas entre as
-// equipes?" no passo 1. Só libera Próximo (yes) ou Criar equipes (no)
-// depois de escolhida; reseta toda vez que a visão assistente é aberta.
-let drawChoice = null;
 
 const TEAMS_STEP_TITLES = {
   1: "Quantidade e equipes",
@@ -137,8 +133,6 @@ function showTeamsWizardView() {
   document.getElementById("teamsSummaryFooter")?.classList.add("d-none");
   document.getElementById("teamsWizardFooter")?.classList.remove("d-none");
   document.getElementById("teamsDeleteConfirm")?.classList.add("d-none");
-  drawChoice = null;
-  document.querySelectorAll("[data-ask]").forEach((btn) => btn.classList.remove("active"));
   goToTeamsStep(1);
 }
 
@@ -167,7 +161,6 @@ function goToTeamsStep(step) {
     updateTeamsStep1Cta();
   } else {
     btnBack?.classList.remove("d-none");
-    document.getElementById("btnTeamsNext")?.classList.add("d-none");
     renderDrawTeamsPreview();
     updateTeamsStep2Cta();
   }
@@ -176,9 +169,9 @@ function goToTeamsStep(step) {
 // Só libera "Criar equipes"/"Salvar alterações" no passo 2 depois que
 // TODAS as equipes têm participantes sorteados (ou já tinham de uma
 // edição anterior — ver teamDraw em buildTeamsForm) — sem isso dava pra
-// entrar no passo 2 (respondendo "Sim" pro sorteio) e salvar sem nunca
-// ter clicado em "Sortear agora", deixando as equipes sem ninguém apesar
-// de ter pedido o sorteio.
+// entrar nessa tela e salvar sem nunca ter clicado em "Sortear agora",
+// deixando alguma equipe sem ninguém apesar de estar na tela certa
+// pra isso.
 function updateTeamsStep2Cta() {
   if (currentTeamsStep !== 2) return;
   const countSel = document.getElementById("teamsCount");
@@ -193,14 +186,14 @@ function updateTeamsStep2Cta() {
   document.getElementById("btnTeamsSave")?.classList.toggle("d-none", !complete);
 }
 
-// Só libera avançar/criar depois que (a) os nomes estão válidos e (b) a
-// pergunta do sorteio foi respondida — Sim mostra "Próximo", Não mostra
-// "Criar equipes" direto, e sem responder nenhum dos dois aparece.
+// Libera "Criar equipes"/"Salvar alterações" assim que os nomes forem
+// válidos — participantes são opcionais e ficam num botão à parte
+// ("Sortear participantes" aqui, ou "Editar participantes" no resumo),
+// não bloqueiam mais criar/salvar as equipes.
 function updateTeamsStep1Cta() {
   if (currentTeamsStep !== 1) return;
   const valid = validateTeamsForm();
-  document.getElementById("btnTeamsNext")?.classList.toggle("d-none", !(valid && drawChoice === "yes"));
-  document.getElementById("btnTeamsSave")?.classList.toggle("d-none", !(valid && drawChoice === "no"));
+  document.getElementById("btnTeamsSave")?.classList.toggle("d-none", !valid);
 }
 
 // Categorias calculadas a partir das tags reais do games.json (case-insensitive).
@@ -1423,7 +1416,14 @@ function renderTeamsSummary() {
             ${escapeHtml(t.members.join(", "))}
           </span>
         </div>
-      ` : ""}
+      ` : `
+        <div class="pg-team-row-preview pg-team-row-preview-empty">
+          <span class="pg-team-row-preview-names">
+            ${icon("users", { size: 12 })}
+            Nenhum participante sorteado ainda
+          </span>
+        </div>
+      `}
     `;
   }).join("");
 
@@ -1456,14 +1456,16 @@ function buildTeamsForm(count, keepExisting = true) {
   // que estivesse em andamento também é descartado, já que os índices
   // podem não corresponder mais depois de trocar a quantidade.
   teamDraw = {};
+  const existingNames = [];
   for (let i = 0; i < count; i++) {
     if (Array.isArray(existing[i]?.members) && existing[i].members.length) {
       teamDraw[i] = existing[i].members;
+      existingNames.push(...existing[i].members);
     }
   }
   const drawLabel = document.getElementById("btnDrawPeopleLabel");
   if (drawLabel) drawLabel.textContent = "Sortear agora";
-  resetDrawNamesList();
+  resetDrawNamesList(existingNames);
 
   for (let i = 0; i < count; i++) {
     const prev = existing[i];
@@ -1616,14 +1618,8 @@ function collectTeamsFromForm() {
     const score = Number(existing[i]?.score ?? 0);
     // Participantes sorteados (opcional) — mantém o que já tinha sido
     // aceito antes se essa equipe não passou por um novo sorteio agora.
-    // Exceção: se a resposta desta edição foi "Não" (não quer sortear
-    // pessoas), limpa todo mundo — escolher "Não" é uma decisão
-    // deliberada de não ter participantes dessa vez, não deveria deixar
-    // gente de um sorteio antigo (de quando a equipe tinha outra
-    // composição) pendurada só porque a pessoa não repetiu o sorteio.
-    const members = drawChoice === "no"
-      ? []
-      : (Array.isArray(teamDraw[i]) ? teamDraw[i] : (existing[i]?.members ?? []));
+    // "Limpar" (ver clearAllNames) é o jeito deliberado de esvaziar isso.
+    const members = Array.isArray(teamDraw[i]) ? teamDraw[i] : (existing[i]?.members ?? []);
 
     teams.push({ id: `t${i}`, name, color, icon: iconName, score, members });
   }
@@ -1651,11 +1647,21 @@ function createDrawNameRow(value = "") {
   return row;
 }
 
-function resetDrawNamesList(count = DRAW_NAMES_INITIAL_ROWS) {
+// Sem nomes prévios, começa com DRAW_NAMES_INITIAL_ROWS campos em branco
+// (criação nova). Editando equipes que já têm participantes, começa com
+// o nome de cada um já preenchido — pra sortear de novo (ou só ajustar a
+// lista) sem precisar redigitar todo mundo do zero.
+function resetDrawNamesList(existingNames = []) {
   const list = document.getElementById("drawNamesList");
   if (!list) return;
   list.innerHTML = "";
-  for (let i = 0; i < count; i++) {
+
+  if (existingNames.length) {
+    existingNames.forEach((name) => list.appendChild(createDrawNameRow(name)));
+    return;
+  }
+
+  for (let i = 0; i < DRAW_NAMES_INITIAL_ROWS; i++) {
     list.appendChild(createDrawNameRow());
   }
 }
@@ -1842,7 +1848,8 @@ function wireTeamsModal() {
   const btnEdit = document.getElementById("btnTeamsEdit");
 
   const btnBack = document.getElementById("btnTeamsBack");
-  const btnNext = document.getElementById("btnTeamsNext");
+  const btnGoParticipants = document.getElementById("btnTeamsGoParticipants");
+  const btnEditMembers = document.getElementById("btnTeamsEditMembers");
 
   if (!countSel || !teamsModal || !btnSave || !btnReset || !btnDisable) return;
 
@@ -1890,28 +1897,6 @@ function wireTeamsModal() {
     });
   });
 
-  // ---- Pergunta "Quer sortear as pessoas entre as equipes?" ----
-  document.querySelectorAll("[data-ask]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      drawChoice = btn.dataset.ask;
-      document.querySelectorAll("[data-ask]").forEach((b) => b.classList.toggle("active", b === btn));
-      updateTeamsStep1Cta();
-
-      // Nomes ainda vazios/inválidos nesse ponto: nem "Próximo" nem
-      // "Criar equipes" aparecem depois de responder Sim/Não — sem
-      // avisar, o clique parece não ter feito nada. Rola até o erro
-      // (já mostrado por validateTeamsForm, ver updateTeamsStep1Cta) e
-      // leva o foco pro primeiro campo de nome vazio.
-      const nextHidden = document.getElementById("btnTeamsNext")?.classList.contains("d-none") ?? true;
-      const saveHidden = document.getElementById("btnTeamsSave")?.classList.contains("d-none") ?? true;
-      if (nextHidden && saveHidden) {
-        document.getElementById("teamsError")?.scrollIntoView({ block: "center", behavior: "smooth" });
-        const firstEmpty = [...document.querySelectorAll("[data-team-name]")].find((el) => !el.value.trim());
-        firstEmpty?.focus();
-      }
-    });
-  });
-
   // ---- Navegação entre os 2 passos do assistente ----
   btnBack?.addEventListener("click", () => {
     if (currentTeamsStep === 2) {
@@ -1922,15 +1907,33 @@ function wireTeamsModal() {
     showTeamsSummaryView();
   });
 
-  btnNext?.addEventListener("click", () => {
-    if (!validateTeamsForm() || drawChoice !== "yes") return;
+  // "Sortear participantes" no passo 1 — nomes das equipes precisam estar
+  // válidos antes (o sorteio de gente usa o nome/cor/ícone já digitados
+  // pra montar a prévia do passo 2). Sem avisar, um clique com campo
+  // vazio pareceria não ter feito nada — rola até o erro (já mostrado por
+  // validateTeamsForm) e foca o primeiro nome vazio.
+  btnGoParticipants?.addEventListener("click", () => {
+    if (!validateTeamsForm()) {
+      document.getElementById("teamsError")?.scrollIntoView({ block: "center", behavior: "smooth" });
+      const firstEmpty = [...document.querySelectorAll("[data-team-name]")].find((el) => !el.value.trim());
+      firstEmpty?.focus();
+      return;
+    }
     goToTeamsStep(2);
   });
 
-  // "Editar equipes" na visão resumo => entra no assistente
+  // "Editar equipes" na visão resumo => entra no assistente (passo 1)
   btnEdit?.addEventListener("click", () => {
     buildTeamsForm(Number(countSel.value || 2), true);
     showTeamsWizardView();
+  });
+
+  // "Editar participantes" na visão resumo => vai direto pro passo 2
+  // (as equipes já existem e são válidas, não precisa passar pelo passo 1).
+  btnEditMembers?.addEventListener("click", () => {
+    buildTeamsForm(Number(countSel.value || 2), true);
+    showTeamsWizardView();
+    goToTeamsStep(2);
   });
 
   // valida enquanto digita

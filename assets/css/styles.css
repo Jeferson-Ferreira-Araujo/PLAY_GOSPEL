@@ -1292,41 +1292,6 @@
   width: 100%;
 }
 
-/* ---- Pergunta "Quer sortear as pessoas entre as equipes?" ---- */
-
-.pg-teams-ask {
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, .08);
-}
-
-.pg-teams-ask-buttons {
-  display: flex;
-  gap: 8px;
-}
-
-.pg-teams-ask-btn {
-  flex: 1;
-  padding: 9px 0;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,.1);
-  background: var(--bg-main);
-  color: var(--text-main);
-  font-weight: 600;
-  cursor: pointer;
-  transition: background .2s ease, border-color .2s ease, color .2s ease;
-}
-
-.pg-teams-ask-btn:hover {
-  border-color: rgba(244,196,48,.5);
-}
-
-.pg-teams-ask-btn.active {
-  background: var(--gold);
-  border-color: var(--gold);
-  color: var(--bg-main);
-}
-
 /* Indicador de passo — bolinhas simples (sem números) ligadas por um
    traço. Sem números pra não confundir com a lista de quantidade de
    equipes (2/3/4) logo abaixo. Passo atual em dourado cheio e maior;
@@ -1506,6 +1471,17 @@
 
 .pg-team-row-preview-names svg {
   flex: 0 0 auto;
+}
+
+/* Sem participantes ainda — mesma linha, mas sem cor da equipe nem
+   cursor de clique (não tem lista pra abrir). */
+.pg-team-row-preview-empty {
+  cursor: default;
+}
+
+.pg-team-row-preview-empty .pg-team-row-preview-names {
+  color: var(--text-muted);
+  font-weight: 500;
 }
 
 /* Envolve o <input type="color"> num wrapper só pra poder colar um

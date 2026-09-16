@@ -404,7 +404,7 @@
             </div>
             <div id="teamsForm" class="pg-teams-form"></div>
 
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2 flex-wrap">
               <button type="button" class="pg-chip-btn" id="btnTeamsAutoNames">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <rect x="3" y="3" width="18" height="18" rx="4"/>
@@ -423,22 +423,21 @@
                 </svg>
                 Limpar
               </button>
+              <button type="button" class="pg-chip-btn" id="btnTeamsGoParticipants">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                Sortear participantes
+              </button>
             </div>
 
             <div id="teamsError" class="text-danger small mt-2 d-none"></div>
-
-            <!-- Pergunta obrigatória antes de liberar "Próximo"/"Criar
-                 equipes" — Sim leva pro sorteio, Não já libera criar. -->
-            <div class="pg-teams-ask">
-              <p class="pg-teams-section-label">Quer sortear as pessoas entre as equipes?</p>
-              <div class="pg-teams-ask-buttons" id="teamsAskButtons" role="group" aria-label="Quer sortear as pessoas entre as equipes?">
-                <button type="button" class="pg-teams-ask-btn" data-ask="yes">Sim</button>
-                <button type="button" class="pg-teams-ask-btn" data-ask="no">Não</button>
-              </div>
-            </div>
           </div>
 
-          <!-- PASSO 2: sortear participantes (só chega aqui quem respondeu "Sim") -->
+          <!-- PASSO 2: sortear participantes -->
           <div class="pg-teams-step-panel d-none" data-step-panel="2">
             <p class="pg-teams-draw-hint">Sorteie quem fica em cada equipe — distribuímos igualmente entre elas.</p>
 
@@ -485,7 +484,16 @@
             </svg>
             Zerar placar
           </button>
-          <button type="button" class="btn pg-btn-primary ms-auto" id="btnTeamsEdit">Editar equipes</button>
+          <button type="button" class="pg-chip-btn ms-auto" id="btnTeamsEditMembers">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            Editar participantes
+          </button>
+          <button type="button" class="btn pg-btn-primary" id="btnTeamsEdit">Editar equipes</button>
         </div>
 
         <div class="pg-teams-footer-confirm d-none" id="teamsDeleteConfirm">
@@ -504,7 +512,6 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M11 18 5 12l6-6"/></svg>
             Voltar
           </button>
-          <button type="button" class="btn pg-btn-primary ms-auto d-none" id="btnTeamsNext">Próximo</button>
           <button type="button" class="btn pg-btn-primary ms-auto d-none" id="btnTeamsSave">Criar equipes</button>
         </div>
       </div>
