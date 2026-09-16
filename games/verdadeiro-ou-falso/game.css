@@ -47,8 +47,31 @@
   justify-self: start;
 }
 
+/* justify-self:end faz a caixa encolher pro conteúdo mínimo (grid não
+   estica item nesse eixo) — sem uma largura explícita pro .timer-wrap, a
+   barra de progresso (flex:1 1 auto, min-width:0) encolhe até 0 e some.
+   Mesmo ajuste feito em palavras-misturadas: aproveita o espaço sobrando
+   nessa tela (tablet/desktop) pra mostrar a barra diminuindo também. */
 .timer-card {
   justify-self: end;
+  padding: 10px 20px;
+}
+
+.timer-wrap {
+  width: 220px;
+}
+
+.timer-card .round-box-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.timer-text {
+  font-size: 1.35rem;
+}
+
+.timer-card .progress {
+  height: 10px;
 }
 
 /* Sem ícone/rótulo ("Vez de responder") — só o nome da equipe (e da
@@ -81,6 +104,18 @@
     width: 100%;
     align-self: stretch;
     padding: 8px 14px;
+  }
+
+  .timer-card {
+    padding: 8px 14px;
+  }
+
+  .timer-wrap {
+    width: 100%;
+  }
+
+  .timer-text {
+    font-size: 1.1rem;
   }
 }
 
