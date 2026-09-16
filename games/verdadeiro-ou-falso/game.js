@@ -10,11 +10,15 @@ import { watchStageText } from "../../assets/js/fit-text.js";
 // Máximo de rodadas por partida (evita jogar todas as afirmações de uma vez).
 const ROUND_SIZE = 10;
 
+// Ícone do botão "Explicação" — o texto nunca muda, só o ícone (olho
+// aberto/fechado) indica se a explicação está visível ou não.
+const EYE_ICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>`;
+const EYE_OFF_ICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a20.7 20.7 0 0 1-3.22 4.44M6.06 6.06A20.7 20.7 0 0 0 1 12s4 8 11 8a10.94 10.94 0 0 0 5.94-1.76"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>`;
+
 const scoreBtn = document.getElementById("scoreBtn");
 const turnBanner = document.getElementById("turnBanner");
 const turnBannerTeam = document.getElementById("turnBannerTeam");
 const turnBannerPlayer = document.getElementById("turnBannerPlayer");
-const pointsBox = document.getElementById("pointsBox");
 
 /* ===== Elements (setup) ===== */
 const setupScreen = document.getElementById("setupScreen");
@@ -27,12 +31,13 @@ const timeSelect = document.getElementById("timeSelect");
 /* ===== Elements (presenter) ===== */
 const badgeDifficulty = document.getElementById("badgeDifficulty");
 const badgeProgress = document.getElementById("badgeProgress");
-const badgeScore = document.getElementById("badgeScore");
 
+const readyBtn = document.getElementById("readyBtn");
 const statementText = document.getElementById("statementText");
 
 const resultWrap = document.getElementById("resultWrap");
 const resultPill = document.getElementById("resultPill");
+const explainBox = document.getElementById("explainBox");
 const noteText = document.getElementById("noteText");
 const referenceText = document.getElementById("referenceText");
 
@@ -61,6 +66,12 @@ let idx = 0;
 
 let current = null; // { statement, answer(boolean), reference, note? }
 let answered = false;
+let explanationOpen = false;
+
+// Fases da rodada: "ready" (esperando confirmar quem vai responder),
+// "countdown" (3,2,1 antes da afirmação aparecer), "playing" (afirmação
+// visível, V/F liberados) e "ended" (respondeu ou o tempo acabou).
+let roundPhase = "idle";
 
 let score = 0;
 
@@ -97,13 +108,11 @@ function updateScoreBtn() {
 function renderTurnBanner() {
   if (!Teams.isEnabled()) {
     turnBanner?.classList.add("d-none");
-    pointsBox?.classList.add("d-none");
     return;
   }
 
   const t = Teams.currentTeam();
   turnBanner?.classList.toggle("d-none", !t);
-  pointsBox?.classList.toggle("d-none", !t);
   if (!t) return;
 
   if (turnBannerTeam) turnBannerTeam.textContent = t.name;
@@ -175,9 +184,17 @@ function wireUI() {
   trueBtn.addEventListener("click", () => choose(true));
   falseBtn.addEventListener("click", () => choose(false));
 
+  readyBtn.addEventListener("click", () => {
+    if (roundPhase !== "ready") return;
+    beginPrepareCountdown();
+  });
+
+  // Alterna mostrar/esconder a explicação — o texto do botão nunca muda
+  // ("Explicação"), só o ícone (olho aberto/fechado). Também funciona
+  // antes de responder ("modo ensino": dá uma espiada na explicação).
   revealBtn.addEventListener("click", () => {
     if (!current) return;
-    showExplanation(); // modo ensino
+    setExplanationVisible(!explanationOpen);
   });
 
   nextBtn.addEventListener("click", () => {
@@ -199,6 +216,15 @@ function wireUI() {
     if (gameScreen.classList.contains("d-none")) return;
 
     const k = e.key.toLowerCase();
+
+    if (k === " ") e.preventDefault();
+
+    // Na tela de "pronto", espaço/enter chama a pessoa da vez em vez de
+    // avançar — ainda não tem afirmação carregada pra ir pra próxima.
+    if (roundPhase === "ready" && (k === " " || k === "enter")) {
+      readyBtn.click();
+      return;
+    }
 
     // cuidado: Ctrl+F fica de boa (busca do browser), F sozinho = FALSO.
     if (k === "v") trueBtn.click();
@@ -231,7 +257,6 @@ function restartGame() {
   pool = shuffleArray(list).slice(0, ROUND_SIZE);
   idx = 0;
   score = 0;
-  updateScore();
 
   if (!pool.length) {
     endGame("SEM PERGUNTAS");
@@ -239,12 +264,7 @@ function restartGame() {
   }
 
   updateProgress();
-
-  startPrepareCountdown(() => {
-    loadAtIndex(idx);
-    timerRow?.classList.remove("d-none");
-    resetAndStartTimer();
-  });
+  showReadyState();
 }
 
 function nextStatement() {
@@ -257,11 +277,45 @@ function nextStatement() {
   }
 
   updateProgress();
+  showReadyState();
+}
+
+/* ===== Fase "pronto" — espera confirmar quem vai responder antes de
+   começar a contagem. Como as equipes/pessoas revezam, sempre precisa
+   desse momento pra "chamar" quem vai jogar antes da afirmação aparecer
+   (mesmo padrão de games/palavras-misturadas/game.js). ===== */
+function showReadyState() {
+  clearCountdown();
+  stopTimer();
+  timerRow?.classList.add("d-none");
+  resultWrap.classList.add("d-none");
+  setAnswerButtonsEnabled(false);
+  revealBtn.classList.add("d-none");
+
+  roundPhase = "ready";
+  statementText.classList.add("d-none");
+  readyBtn.classList.remove("d-none");
+  readyBtn.textContent = readyLabel();
+}
+
+function readyLabel() {
+  const t = Teams.currentTeam();
+  if (!t) return "Estou pronto";
+  const player = Teams.currentPlayer();
+  const who = player ? `${t.name} (${player})` : t.name;
+  return `Chamar ${who}`;
+}
+
+function beginPrepareCountdown() {
+  statementText.classList.remove("d-none");
+  readyBtn.classList.add("d-none");
+  roundPhase = "countdown";
 
   startPrepareCountdown(() => {
     loadAtIndex(idx);
     timerRow?.classList.remove("d-none");
     resetAndStartTimer();
+    roundPhase = "playing";
   });
 }
 
@@ -320,7 +374,10 @@ function loadAtIndex(i) {
   referenceText.textContent = "—";
 
   setAnswerButtonsEnabled(true);
-  revealBtn.textContent = "Mostrar explicação";
+  setExplanationVisible(false);
+  // Só pode ver a explicação depois de votar Verdadeiro/Falso (ou o
+  // tempo esgotar) — ver choose() e o onEnd do timer.
+  revealBtn.classList.add("d-none");
 }
 
 /* ===== Choose ===== */
@@ -328,6 +385,8 @@ function choose(choice) {
   if (!current || answered || gameOver) return;
 
   answered = true;
+  roundPhase = "ended";
+  revealBtn.classList.remove("d-none");
   // Resposta dada — não precisa mais contar. Esconde o timer até a
   // próxima afirmação começar.
   stopTimer();
@@ -337,7 +396,6 @@ function choose(choice) {
 
   if (correct) {
     score += 1;
-    updateScore();
   }
 
   if (Teams.isEnabled()) {
@@ -366,10 +424,12 @@ function showResult(correct, choice) {
   }
 }
 
-function showExplanation() {
+// Preenche o texto da explicação (nota + referência) sem mexer em
+// visibilidade — separado de setExplanationVisible pra poder popular o
+// conteúdo (ao responder/tempo esgotar) sem forçar o "olho" a abrir se a
+// pessoa já tinha escondido a explicação.
+function populateExplanation() {
   if (!current) return;
-
-  resultWrap.classList.remove("d-none");
 
   const expected = current.answer ? "VERDADEIRO" : "FALSO";
 
@@ -382,8 +442,33 @@ function showExplanation() {
 
   noteText.textContent = `${expected}: ${note}`;
   referenceText.textContent = current.reference ? `📖 ${current.reference}` : "—";
+}
 
-  revealBtn.textContent = "Explicação exibida";
+// Mostra a explicação automaticamente (ao responder ou o tempo acabar) —
+// sempre abre o "olho", já que é a primeira vez que ela aparece nessa
+// rodada.
+function showExplanation() {
+  if (!current) return;
+  resultWrap.classList.remove("d-none");
+  populateExplanation();
+  setExplanationVisible(true);
+}
+
+// Botão "Explicação" (ícone de olho) — o texto nunca muda, só o ícone.
+// Esconder a explicação não esconde o resultWrap inteiro se já houver um
+// resultado (acertou/errou) pra mostrar; só esconde de vez se ainda
+// estiver em "modo ensino" (antes de responder).
+function setExplanationVisible(visible) {
+  explanationOpen = visible;
+  explainBox.classList.toggle("d-none", !visible);
+  revealBtn.innerHTML = `${visible ? EYE_OFF_ICON : EYE_ICON} Explicação`;
+
+  if (visible) {
+    resultWrap.classList.remove("d-none");
+    populateExplanation();
+  } else if (!answered) {
+    resultWrap.classList.add("d-none");
+  }
 }
 
 /* ===== Progress / Score ===== */
@@ -391,10 +476,6 @@ function updateProgress() {
   const total = pool.length || 0;
   const done = Math.min(idx + 1, total);
   badgeProgress.textContent = total ? `${done}/${total}` : "0/0";
-}
-
-function updateScore() {
-  badgeScore.textContent = `${score}`;
 }
 
 /* ===== Timer ===== */
@@ -425,6 +506,8 @@ function createOrUpdateTimer() {
 
       if (!answered && current && !gameOver) {
         answered = true;
+        roundPhase = "ended";
+        revealBtn.classList.remove("d-none");
         setAnswerButtonsEnabled(false);
         timerRow?.classList.add("d-none");
 
@@ -463,6 +546,7 @@ function setGameOverUI(isOver) {
   trueBtn.disabled = isOver;
   falseBtn.disabled = isOver;
   revealBtn.disabled = isOver;
+  readyBtn.classList.toggle("d-none", isOver || roundPhase !== "ready");
 
   playAgainBtn.classList.toggle("d-none", !isOver);
   gameOverNotice.classList.toggle("d-none", !isOver);
@@ -472,15 +556,22 @@ function endGame(text) {
   stopTimer();
   clearCountdown();
   gameOver = true;
+  roundPhase = "ended";
   setGameOverUI(true);
   timerRow?.classList.add("d-none");
 
+  readyBtn.classList.add("d-none");
+  statementText.classList.remove("d-none");
   statementText.textContent = text;
 
   resultWrap.classList.remove("d-none");
   resultPill.textContent = `✅ Você fez ${score} acertos de ${pool.length}.`;
   resultPill.style.borderColor = "rgba(25,135,84,.55)";
 
+  explanationOpen = true;
+  explainBox.classList.remove("d-none");
+  revealBtn.classList.remove("d-none");
+  revealBtn.innerHTML = `${EYE_OFF_ICON} Explicação`;
   noteText.textContent = "Clique em Jogar novamente para reembaralhar as perguntas.";
   referenceText.textContent = "—";
 

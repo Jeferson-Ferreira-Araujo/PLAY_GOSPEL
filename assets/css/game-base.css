@@ -410,6 +410,16 @@ body {
   user-select: none;
 }
 
+/* Botão "Pronto"/"Chamar X" — ocupa o lugar do texto central enquanto
+   espera a confirmação de quem vai responder (ver showReadyState nos
+   jogos que usam esse fluxo). Mesmo destaque do texto que substitui. */
+.ready-btn {
+  padding: 28px 48px;
+  border-radius: 18px;
+  font-size: clamp(22px, 4vw, 40px);
+  font-weight: 800;
+}
+
 .presenter-bottom {
   flex: 0 0 auto;
   display: flex;

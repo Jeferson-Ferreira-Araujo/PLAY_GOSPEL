@@ -35,3 +35,67 @@
   color: rgba(255,255,255,.85);
 }
 
+/* Topo do jogo (tablet/desktop): dificuldade/rodada à esquerda, equipe
+   da vez centralizada na tela, tempo à direita — só faz sentido
+   centralizar aqui porque só uma equipe responde por vez (ver
+   Teams.currentTeam em game.js). Grid de 3 colunas iguais (1fr/auto/1fr):
+   como as pontas têm a mesma largura, a coluna do meio (a equipe) fica
+   sempre no centro exato da tela, não importa o que tem nas pontas. */
+.presenter-top {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: 14px;
+}
+
+.round-topbar {
+  justify-self: start;
+}
+
+.timer-card {
+  justify-self: end;
+}
+
+/* Sem ícone/rótulo ("Vez de responder") — só o nome da equipe (e da
+   pessoa, se sorteada) centralizados dentro da caixa colorida. */
+.round-box--team-centered {
+  justify-content: center;
+  text-align: center;
+  padding: 10px 22px;
+}
+
+.round-box--team-centered .round-box-team-info {
+  align-items: center;
+}
+
+.round-box--team-centered .round-box-value {
+  font-size: 1.15rem;
+}
+
+/* Mobile: volta a empilhar em coluna (o grid de 3 colunas acima não cabe
+   numa tela estreita) — precisa redeclarar display:flex aqui porque a
+   regra do grid tem a mesma especificidade e vem depois no arquivo;
+   align-items/text-align continuam vindo do game-base.css. */
+@media (max-width: 640px) {
+  .presenter-top {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .round-box--team-centered {
+    padding: 8px 14px;
+  }
+}
+
+/* Mobile: Verdadeiro/Falso lado a lado numa linha só (não empilhados
+   como os outros botões) — são a ação principal do jogo, faz sentido
+   caberem sempre na mesma linha, mesmo em tela estreita. IDs pesam mais
+   que a regra genérica ".presenter-bottom .btn { width:100% }" do
+   game-base.css, então isso vale sem precisar de !important. */
+@media (max-width: 640px) {
+  #trueBtn,
+  #falseBtn {
+    width: calc(50% - 4px);
+  }
+}
+
