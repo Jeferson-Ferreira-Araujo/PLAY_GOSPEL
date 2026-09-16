@@ -35,6 +35,12 @@
   color: rgba(255,255,255,.85);
 }
 
+/* Contagem "3, 2, 1" depois do "Pronto" — só destaque de cor, estático
+   (sem pulsar), mesmo padrão do Palavras Embaralhadas. */
+.statement-display.vf-countdown {
+  color: var(--gold);
+}
+
 /* Topo do jogo (tablet/desktop): dificuldade/rodada à esquerda, equipe
    da vez centralizada na tela, tempo à direita — só faz sentido
    centralizar aqui porque só uma equipe responde por vez (ver

@@ -10,11 +10,6 @@ import { watchStageText } from "../../assets/js/fit-text.js";
 // Máximo de rodadas por partida (evita jogar todas as afirmações de uma vez).
 const ROUND_SIZE = 10;
 
-// Ícone do botão "Explicação" — o texto nunca muda, só o ícone (olho
-// aberto/fechado) indica se a explicação está visível ou não.
-const EYE_ICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>`;
-const EYE_OFF_ICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a20.7 20.7 0 0 1-3.22 4.44M6.06 6.06A20.7 20.7 0 0 0 1 12s4 8 11 8a10.94 10.94 0 0 0 5.94-1.76"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>`;
-
 const scoreBtn = document.getElementById("scoreBtn");
 const turnBanner = document.getElementById("turnBanner");
 const turnBannerTeam = document.getElementById("turnBannerTeam");
@@ -46,7 +41,6 @@ const timerBar = document.getElementById("timerBar");
 
 const trueBtn = document.getElementById("trueBtn");
 const falseBtn = document.getElementById("falseBtn");
-const revealBtn = document.getElementById("revealBtn");
 const nextBtn = document.getElementById("nextBtn");
 const exitBtn = document.getElementById("exitBtn");
 const brandLink = document.getElementById("brandLink");
@@ -66,7 +60,6 @@ let idx = 0;
 
 let current = null; // { statement, answer(boolean), reference, note? }
 let answered = false;
-let explanationOpen = false;
 
 // Fases da rodada: "ready" (esperando confirmar quem vai responder),
 // "countdown" (3,2,1 antes da afirmação aparecer), "playing" (afirmação
@@ -189,14 +182,6 @@ function wireUI() {
     beginPrepareCountdown();
   });
 
-  // Alterna mostrar/esconder a explicação — o texto do botão nunca muda
-  // ("Explicação"), só o ícone (olho aberto/fechado). Também funciona
-  // antes de responder ("modo ensino": dá uma espiada na explicação).
-  revealBtn.addEventListener("click", () => {
-    if (!current) return;
-    setExplanationVisible(!explanationOpen);
-  });
-
   nextBtn.addEventListener("click", () => {
     if (gameOver) return;
     nextStatement();
@@ -230,7 +215,6 @@ function wireUI() {
     if (k === "v") trueBtn.click();
     if (k === "f" && !e.ctrlKey) falseBtn.click();
     if (k === "n" || k === " ") nextBtn.click();
-    if (k === "r") revealBtn.click();
   });
 }
 
@@ -290,20 +274,17 @@ function showReadyState() {
   timerRow?.classList.add("d-none");
   resultWrap.classList.add("d-none");
   setAnswerButtonsEnabled(false);
-  revealBtn.classList.add("d-none");
+  // "Próximo" só faz sentido depois de responder (ou o tempo esgotar) —
+  // ver choose() e o onEnd do timer.
+  nextBtn.classList.add("d-none");
 
   roundPhase = "ready";
   statementText.classList.add("d-none");
   readyBtn.classList.remove("d-none");
-  readyBtn.textContent = readyLabel();
-}
-
-function readyLabel() {
-  const t = Teams.currentTeam();
-  if (!t) return "Estou pronto";
-  const player = Teams.currentPlayer();
-  const who = player ? `${t.name} (${player})` : t.name;
-  return `Chamar ${who}`;
+  // O time (e a pessoa, se sorteada) já aparecem na caixa centralizada
+  // do topo — o botão só precisa confirmar que quem vai responder está
+  // pronto, sem repetir o nome de novo aqui.
+  readyBtn.textContent = "Pronto";
 }
 
 function beginPrepareCountdown() {
@@ -326,37 +307,28 @@ function clearCountdown() {
   }
 }
 
-// Anuncia a equipe (e, se sorteada, a pessoa) da vez junto com a
-// contagem — o aviso de que o jogo mostra "de quem é a vez" deixou de
-// ser um texto solto no modal de Equipes pra virar esse momento real,
-// bem no início de cada rodada.
-function prepareLabel(n) {
-  const t = Teams.currentTeam();
-  if (!t) return `Prepare-se! ${n}`;
-  const player = Teams.currentPlayer();
-  const who = player ? `${t.name} (${player})` : t.name;
-  return `Prepare-se, ${who}! ${n}`;
-}
-
-/* Contagem "3, 2, 1" antes de cada afirmação nova — dá tempo da equipe se
-   preparar antes do timer voltar a contar. */
+/* Contagem "3, 2, 1" antes de cada afirmação nova — quem vai responder já
+   apareceu na caixa centralizada do topo e confirmou no botão "Pronto",
+   então aqui é só a contagem mesmo (sem repetir "Prepare-se, Equipe!"). */
 function startPrepareCountdown(onDone) {
   clearCountdown();
   timerRow?.classList.add("d-none");
+  statementText.classList.add("vf-countdown");
 
   let n = 3;
-  statementText.textContent = prepareLabel(n);
+  statementText.textContent = String(n);
   playCountdownTick();
 
   countdownInterval = setInterval(() => {
     n -= 1;
     if (n > 0) {
-      statementText.textContent = prepareLabel(n);
+      statementText.textContent = String(n);
       playCountdownTick();
       return;
     }
     clearCountdown();
     playCountdownGo();
+    statementText.classList.remove("vf-countdown");
     onDone();
   }, 1000);
 }
@@ -374,10 +346,6 @@ function loadAtIndex(i) {
   referenceText.textContent = "—";
 
   setAnswerButtonsEnabled(true);
-  setExplanationVisible(false);
-  // Só pode ver a explicação depois de votar Verdadeiro/Falso (ou o
-  // tempo esgotar) — ver choose() e o onEnd do timer.
-  revealBtn.classList.add("d-none");
 }
 
 /* ===== Choose ===== */
@@ -386,7 +354,7 @@ function choose(choice) {
 
   answered = true;
   roundPhase = "ended";
-  revealBtn.classList.remove("d-none");
+  nextBtn.classList.remove("d-none");
   // Resposta dada — não precisa mais contar. Esconde o timer até a
   // próxima afirmação começar.
   stopTimer();
@@ -424,12 +392,14 @@ function showResult(correct, choice) {
   }
 }
 
-// Preenche o texto da explicação (nota + referência) sem mexer em
-// visibilidade — separado de setExplanationVisible pra poder popular o
-// conteúdo (ao responder/tempo esgotar) sem forçar o "olho" a abrir se a
-// pessoa já tinha escondido a explicação.
-function populateExplanation() {
+// Mostra a explicação (nota + referência) automaticamente assim que a
+// resposta é dada — pelo voto ou pelo tempo esgotar. Não tem mais botão
+// pra mostrar/esconder: a explicação faz parte do resultado.
+function showExplanation() {
   if (!current) return;
+
+  resultWrap.classList.remove("d-none");
+  explainBox.classList.remove("d-none");
 
   const expected = current.answer ? "VERDADEIRO" : "FALSO";
 
@@ -442,33 +412,6 @@ function populateExplanation() {
 
   noteText.textContent = `${expected}: ${note}`;
   referenceText.textContent = current.reference ? `📖 ${current.reference}` : "—";
-}
-
-// Mostra a explicação automaticamente (ao responder ou o tempo acabar) —
-// sempre abre o "olho", já que é a primeira vez que ela aparece nessa
-// rodada.
-function showExplanation() {
-  if (!current) return;
-  resultWrap.classList.remove("d-none");
-  populateExplanation();
-  setExplanationVisible(true);
-}
-
-// Botão "Explicação" (ícone de olho) — o texto nunca muda, só o ícone.
-// Esconder a explicação não esconde o resultWrap inteiro se já houver um
-// resultado (acertou/errou) pra mostrar; só esconde de vez se ainda
-// estiver em "modo ensino" (antes de responder).
-function setExplanationVisible(visible) {
-  explanationOpen = visible;
-  explainBox.classList.toggle("d-none", !visible);
-  revealBtn.innerHTML = `${visible ? EYE_OFF_ICON : EYE_ICON} Explicação`;
-
-  if (visible) {
-    resultWrap.classList.remove("d-none");
-    populateExplanation();
-  } else if (!answered) {
-    resultWrap.classList.add("d-none");
-  }
 }
 
 /* ===== Progress / Score ===== */
@@ -507,15 +450,20 @@ function createOrUpdateTimer() {
       if (!answered && current && !gameOver) {
         answered = true;
         roundPhase = "ended";
-        revealBtn.classList.remove("d-none");
+        nextBtn.classList.remove("d-none");
         setAnswerButtonsEnabled(false);
         timerRow?.classList.add("d-none");
 
-        if (Teams.isEnabled()) Teams.nextTurn();
+        // Ninguém respondeu a tempo — perde 1 ponto (diferente de errar
+        // escolhendo a opção errada, que não desconta).
+        if (Teams.isEnabled()) {
+          Teams.addPoint(-1);
+          Teams.nextTurn();
+        }
 
         resultWrap.classList.remove("d-none");
         const expected = current.answer ? "VERDADEIRO" : "FALSO";
-        resultPill.textContent = `⏰ Tempo! Resposta: ${expected}.`;
+        resultPill.textContent = `⏰ Tempo esgotado! -1 ponto. Resposta: ${expected}.`;
         resultPill.style.borderColor = "rgba(255,193,7,.55)";
         showExplanation();
       }
@@ -545,7 +493,6 @@ function setGameOverUI(isOver) {
   nextBtn.disabled = isOver;
   trueBtn.disabled = isOver;
   falseBtn.disabled = isOver;
-  revealBtn.disabled = isOver;
   readyBtn.classList.toggle("d-none", isOver || roundPhase !== "ready");
 
   playAgainBtn.classList.toggle("d-none", !isOver);
@@ -568,10 +515,7 @@ function endGame(text) {
   resultPill.textContent = `✅ Você fez ${score} acertos de ${pool.length}.`;
   resultPill.style.borderColor = "rgba(25,135,84,.55)";
 
-  explanationOpen = true;
   explainBox.classList.remove("d-none");
-  revealBtn.classList.remove("d-none");
-  revealBtn.innerHTML = `${EYE_OFF_ICON} Explicação`;
   noteText.textContent = "Clique em Jogar novamente para reembaralhar as perguntas.";
   referenceText.textContent = "—";
 
