@@ -4,18 +4,7 @@
   width: 100%;
 }
 
-.result-pill{
-  display: inline-block;
-  padding: 10px 16px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,.18);
-  background: rgba(0,0,0,.55);
-  font-weight: 900;
-  font-size: clamp(16px, 2vw, 24px);
-}
-
 .explain-box{
-  margin-top: 12px;
   padding: 14px 16px;
   border-radius: 16px;
   border: 1px solid rgba(255,255,255,.16);

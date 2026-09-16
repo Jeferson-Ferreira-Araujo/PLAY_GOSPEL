@@ -31,7 +31,6 @@ const readyBtn = document.getElementById("readyBtn");
 const statementText = document.getElementById("statementText");
 
 const resultWrap = document.getElementById("resultWrap");
-const resultPill = document.getElementById("resultPill");
 const explainBox = document.getElementById("explainBox");
 const noteText = document.getElementById("noteText");
 const referenceText = document.getElementById("referenceText");
@@ -347,7 +346,6 @@ function loadAtIndex(i) {
 
   // esconder resultado/explicação
   resultWrap.classList.add("d-none");
-  resultPill.textContent = "—";
   noteText.textContent = "—";
   referenceText.textContent = "—";
 
@@ -376,31 +374,15 @@ function choose(choice) {
   // (ver nextStatement) — aqui só o placar é ajustado na hora.
   if (Teams.isEnabled() && correct) Teams.addPoint(1);
 
-  showResult(correct, choice);
   showExplanation();
 
   setAnswerButtonsEnabled(false);
 }
 
-function showResult(correct, choice) {
-  resultWrap.classList.remove("d-none");
-
-  const expected = current.answer ? "VERDADEIRO" : "FALSO";
-  const chosen = choice ? "VERDADEIRO" : "FALSO";
-
-  if (correct) {
-    resultPill.textContent = `✅ Acertou! (${chosen})`;
-    resultPill.style.borderColor = "rgba(25,135,84,.55)";
-  } else {
-    resultPill.textContent = `❌ Errou! Você marcou ${chosen}. Resposta: ${expected}.`;
-    resultPill.style.borderColor = "rgba(220,53,69,.55)";
-  }
-}
-
 // Mostra a explicação (nota + referência) automaticamente assim que a
 // resposta é dada — pelo voto ou pelo tempo esgotar. Não tem mais botão
 // pra mostrar/esconder: a explicação faz parte do resultado.
-function showExplanation() {
+function showExplanation(prefix) {
   if (!current) return;
 
   resultWrap.classList.remove("d-none");
@@ -415,7 +397,7 @@ function showExplanation() {
       : "A afirmação é falsa; confira a referência para entender o detalhe/pegadinha.";
   }
 
-  noteText.textContent = `${expected}: ${note}`;
+  noteText.textContent = `${prefix ? `${prefix} ` : ""}${expected}: ${note}`;
   referenceText.textContent = current.reference ? `📖 ${current.reference}` : "—";
 }
 
@@ -465,11 +447,7 @@ function createOrUpdateTimer() {
         // (ver nextStatement).
         if (Teams.isEnabled()) Teams.addPoint(-1);
 
-        resultWrap.classList.remove("d-none");
-        const expected = current.answer ? "VERDADEIRO" : "FALSO";
-        resultPill.textContent = `⏰ Tempo esgotado! -1 ponto. Resposta: ${expected}.`;
-        resultPill.style.borderColor = "rgba(255,193,7,.55)";
-        showExplanation();
+        showExplanation("⏰ Tempo esgotado! -1 ponto.");
       }
     }
   });
@@ -521,11 +499,8 @@ function endGame(text) {
   statementText.textContent = text;
 
   resultWrap.classList.remove("d-none");
-  resultPill.textContent = `✅ Você fez ${score} acertos de ${pool.length}.`;
-  resultPill.style.borderColor = "rgba(25,135,84,.55)";
-
   explainBox.classList.remove("d-none");
-  noteText.textContent = "Clique em Jogar novamente para reembaralhar as perguntas.";
+  noteText.textContent = `Você fez ${score} acertos de ${pool.length}. Clique em Jogar novamente para reembaralhar as perguntas.`;
   referenceText.textContent = "—";
 
   badgeProgress.textContent = `${pool.length}/${pool.length}`;
