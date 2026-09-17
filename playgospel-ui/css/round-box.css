@@ -113,6 +113,35 @@
   min-width: 0;
 }
 
+/* Variante sem ícone/rótulo ("Vez de") — só o nome da equipe (e da
+   pessoa, se sorteada) centralizados dentro da caixa colorida. Mesmo
+   padrão adotado nos jogos que usam .presenter-top (ver
+   assets/css/game-base.css e cada game.css) — aqui portado pro
+   round-topbar em flex-wrap dos jogos com .pgui-game-layout. */
+.round-box--team-centered {
+  justify-content: center;
+  text-align: center;
+  padding: 10px 22px;
+  /* Linha própria, sempre — em vez de ficar espremida ao lado das outras
+     caixas na mesma fileira (flex-wrap comum), fica centralizada numa
+     linha só pra ela mesma, do jeito que o design das outras telas
+     (.presenter-top em grid) já deixa. */
+  flex-basis: 100%;
+  order: 2;
+}
+
+.round-box--team-centered .round-box-label {
+  display: none;
+}
+
+.round-box--team-centered .round-box-team-info {
+  align-items: center;
+}
+
+.round-box--team-centered .round-box-value {
+  font-size: 1.05rem;
+}
+
 .round-box-player {
   font-size: .72rem;
   font-weight: 700;

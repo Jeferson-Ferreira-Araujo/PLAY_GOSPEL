@@ -25,3 +25,126 @@
   transition: all 0.25s ease;
   transform: scale(1.05);
 }
+
+/* Topo do jogo (tablet/desktop): dificuldade/rodada/pontos à esquerda,
+   equipe da vez centralizada na tela, tempo à direita — mesmo padrão de
+   verdadeiro-ou-falso/game.css. Grid de 3 colunas iguais (1fr/auto/1fr):
+   como as pontas têm a mesma largura, a coluna do meio (a equipe) fica
+   sempre no centro exato da tela, não importa o que tem nas pontas. */
+.presenter-top {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: 14px;
+}
+
+.round-topbar {
+  justify-self: start;
+}
+
+.timer-card {
+  justify-self: end;
+  padding: 10px 20px;
+}
+
+.timer-wrap {
+  width: 220px;
+}
+
+.timer-card .round-box-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.timer-text {
+  font-size: 1.35rem;
+}
+
+.timer-card .progress {
+  height: 10px;
+}
+
+/* Sem ícone/rótulo ("Vez de responder") — só o nome da equipe centralizado
+   dentro da caixa colorida. */
+.round-box--team-centered {
+  justify-content: center;
+  text-align: center;
+  padding: 10px 22px;
+}
+
+.round-box--team-centered .round-box-team-info {
+  align-items: center;
+}
+
+.round-box--team-centered .round-box-value {
+  font-size: 1.15rem;
+}
+
+/* Tablet vertical: a grade de 3 colunas (pontas iguais) fica apertada
+   numa tela desse tamanho — 2 linhas fixas em vez disso: 1ª dificuldade/
+   rodada/pontos juntos, 2ª a equipe da vez e o tempo juntos. */
+@media (min-width: 641px) and (max-width: 1024px) and (orientation: portrait) {
+  .presenter-top {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "info info"
+      "team timer";
+    align-items: stretch;
+    row-gap: 10px;
+  }
+
+  .round-topbar {
+    grid-area: info;
+    justify-self: stretch;
+  }
+
+  #turnBanner {
+    grid-area: team;
+    justify-self: stretch;
+  }
+
+  .timer-card {
+    grid-area: timer;
+    justify-self: stretch;
+  }
+
+  .timer-wrap {
+    width: auto;
+  }
+}
+
+/* Mobile: volta a empilhar em coluna. */
+@media (max-width: 640px) {
+  .presenter-top {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .round-box--team-centered {
+    width: 100%;
+    align-self: stretch;
+    padding: 8px 14px;
+  }
+
+  .timer-card {
+    padding: 8px 14px;
+  }
+
+  .timer-wrap {
+    width: 100%;
+  }
+
+  .timer-text {
+    font-size: 1.1rem;
+  }
+}
+
+/* Mobile deitado: mesma correção aplicada nos outros jogos por turno —
+   o timer com largura fixa (220px) não cabia junto com dificuldade/
+   rodada/pontos e a equipe da vez, sobrepondo os blocos. */
+@media (max-height: 500px) and (orientation: landscape) {
+  .timer-wrap {
+    width: 90px;
+  }
+}
