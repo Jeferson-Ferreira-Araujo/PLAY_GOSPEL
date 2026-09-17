@@ -5,7 +5,6 @@ import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
 import { showTeamsBlockFocus } from "../../assets/js/game-focus-tour.js";
 import { buildFairSchedule, applyScheduleEntry } from "../../assets/js/turn-fairness.js";
 import { BibleVersion } from "../../assets/js/bible-version.js";
-import { mountBibleVersionPicker } from "../../assets/js/bible-version-ui.js";
 import { playCountdownTick, playCountdownGo } from "../../assets/js/countdown-sound.js";
 import { mountSoundMuteButton } from "../../assets/js/sound-mute-ui.js";
 import { mountFullscreenButton } from "../../assets/js/fullscreen-ui.js";
@@ -258,7 +257,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   wireUI();
   updateScoreBtn();
   window.addEventListener("bibflix:teams:change", updateScoreBtn);
-  mountBibleVersionPicker(document.querySelector(".game-topbar-actions"));
+  // O seletor de tradução só existe no header da tela inicial (ver
+  // wireHeaderControls em app.js) — dentro do jogo ninguém deve trocar a
+  // versão no meio de uma rodada. A escolha feita lá continua valendo
+  // aqui (BibleVersion.resolveText lê a preferência salva).
   window.addEventListener("bibflix:bible-version:change", reloadCurrentVerseText);
   mountFullscreenButton(document.querySelector(".game-topbar-actions"));
   watchStageText(document.querySelector(".presenter-center"));
