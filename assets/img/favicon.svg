@@ -5,10 +5,9 @@
       <stop offset="1" stop-color="#F4A814"/>
     </linearGradient>
   </defs>
-  <!-- botão de "play" arredondado -->
-  <path d="M17 13 Q17 9 21 11 L53 29 Q57 32 53 35 L21 53 Q17 55 17 51 Z"
-        fill="url(#pg-gold)" stroke="#7a4e00" stroke-width="3" stroke-linejoin="round"/>
+  <!-- anel do botao de "play" (vazado, igual ao logo) -->
+  <path d="M15 11 Q15 7 19 9 L54 30 Q58 32 54 34 L19 55 Q15 57 15 53 Z"
+        fill="none" stroke="url(#pg-gold)" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
   <!-- cruz -->
-  <path d="M23 19 h5 v6 h6 v5 h-6 v15 h-5 v-15 h-6 v-5 h6 z"
-        fill="#FFFFFF" stroke="#7a4e00" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M23 19 h5 v6 h6 v5 h-6 v15 h-5 v-15 h-6 v-5 h6 z" fill="url(#pg-gold)"/>
 </svg>
