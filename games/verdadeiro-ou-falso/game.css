@@ -151,6 +151,19 @@
   }
 }
 
+/* Mobile deitado: largura sobra (não cai no max-width:640px acima), mas
+   os 220px fixos do timer somados à equipe da vez e dificuldade/rodada
+   não cabiam numa linha só — o timer chegava a sobrepor a equipe.
+   Mantém tudo numa linha só (altura é o recurso escasso aqui, ver
+   game-base.css) e só encolhe o timer ao mínimo necessário (a barra de
+   progresso já some nesse breakpoint, via game-base.css — sobra só o
+   número). */
+@media (max-height: 500px) and (orientation: landscape) {
+  .timer-wrap {
+    width: 90px;
+  }
+}
+
 /* Mobile: Verdadeiro/Falso lado a lado numa linha só (não empilhados
    como os outros botões) — são a ação principal do jogo, faz sentido
    caberem sempre na mesma linha, mesmo em tela estreita. IDs pesam mais

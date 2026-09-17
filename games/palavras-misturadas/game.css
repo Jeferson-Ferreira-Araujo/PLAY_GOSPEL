@@ -322,3 +322,16 @@
     min-width: 0;
   }
 }
+
+/* Mobile deitado: largura sobra (não cai no max-width:600px acima), mas
+   os 220px fixos do timer somados ao par de equipes e categoria/rodada
+   não cabiam numa linha só — o timer chegava a sobrepor o par de
+   equipes. Mantém tudo numa linha só (altura é o recurso escasso aqui,
+   ver game-base.css) e só encolhe o timer ao mínimo necessário (a barra
+   de progresso já some nesse breakpoint, via game-base.css — sobra só
+   o número). */
+@media (max-height: 500px) and (orientation: landscape) {
+  .timer-wrap {
+    width: 90px;
+  }
+}
