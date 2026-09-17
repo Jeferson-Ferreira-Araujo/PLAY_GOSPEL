@@ -2052,9 +2052,17 @@
      último card sozinho. */
   .pg-draw-btn {
     position: fixed;
-    left: 50%;
+    /* Centralizar com left:50% + transform:translateX(-50%) quebra o
+       toque no Android Chrome: depois de rolar a tela, a área clicável
+       do elemento "fixed" com transform fica desalinhada da posição
+       pintada (só a metade direita do botão respondia ao toque — bug
+       conhecido). left:0/right:0 + margin:auto centraliza sem transform,
+       evitando o bug. */
+    left: 0;
+    right: 0;
+    width: fit-content;
+    margin: 0 auto;
     bottom: 22px;
-    transform: translateX(-50%);
     z-index: 30;
     box-shadow: 0 8px 22px rgba(0, 0, 0, .45);
     transition: opacity .2s ease;
