@@ -99,16 +99,16 @@ function clearCountdown() {
   }
 }
 
-// Anuncia a equipe (e, se sorteada, a pessoa) da vez junto com a
-// contagem — o aviso de que o jogo mostra "de quem é a vez" deixou de
-// ser um texto solto no modal de Equipes pra virar esse momento real,
-// bem no início de cada rodada.
+// Anuncia a equipe da vez junto com a contagem — o aviso de que o jogo
+// mostra "de quem é a vez" deixou de ser um texto solto no modal de
+// Equipes pra virar esse momento real, bem no início de cada rodada.
+// Diferente dos outros jogos por turno, aqui NÃO restringe a resposta a
+// 1 pessoa da equipe (ver renderTeamUI) — é um jogo difícil de saber a
+// resposta de cara, então qualquer um da equipe pode responder.
 function prepareLabel(n) {
   const t = Teams.currentTeam();
   if (!t) return `Prepare-se! ${n}`;
-  const player = Teams.currentPlayer();
-  const who = player ? `${t.name} (${player})` : t.name;
-  return `Prepare-se, ${who}! ${n}`;
+  return `Prepare-se, ${t.name}! ${n}`;
 }
 
 /* Contagem "3, 2, 1" antes de cada rodada nova — dá tempo da equipe se
@@ -164,10 +164,14 @@ function renderTeamUI() {
   if (turnBannerTeam) turnBannerTeam.textContent = t.name;
   turnBanner?.style.setProperty("--team-color", t.color || "#F4C430");
 
-  const player = Teams.currentPlayer();
+  // Diferente dos outros jogos por turno: não mostra uma pessoa
+  // específica (ver prepareLabel) — com participantes sorteados, avisa
+  // que qualquer um da equipe pode responder, já que é difícil saber a
+  // resposta de cara e não faria sentido travar numa pessoa só.
   if (turnBannerPlayer) {
-    turnBannerPlayer.textContent = player || "";
-    turnBannerPlayer.classList.toggle("d-none", !player);
+    const anyoneCanAnswer = Array.isArray(t.members) && t.members.length > 0;
+    turnBannerPlayer.textContent = anyoneCanAnswer ? "Qualquer um pode responder" : "";
+    turnBannerPlayer.classList.toggle("d-none", !anyoneCanAnswer);
   }
 
   if (correctBtn) correctBtn.textContent = `Acertou (+${passCount + 1})`;
@@ -339,11 +343,12 @@ function resetGame() {
   index = 0;
   gameOver = false;
 
-  // Escala justa primeiro (ver assets/js/turn-fairness.js): com gente
-  // sorteada, pode precisar de mais que ROUND_SIZE rodadas pra todo mundo
-  // jogar 1 vez — o pool de versículos acompanha esse tamanho (nunca o
-  // contrário, senão sobraria gente sem jogar).
-  schedule = buildFairSchedule(ROUND_SIZE);
+  // Escala justa primeiro (ver assets/js/turn-fairness.js) — só a ordem
+  // das EQUIPES (forceTeamOnly: diferente dos outros jogos por turno,
+  // aqui a resposta não fica restrita a 1 pessoa sorteada, então não faz
+  // sentido esticar as rodadas pra cobrir todo mundo individualmente —
+  // ver renderTeamUI/prepareLabel, "Qualquer um pode responder").
+  schedule = buildFairSchedule(ROUND_SIZE, { forceTeamOnly: true });
   const roundCount = schedule.length || ROUND_SIZE;
 
   // Cada partida sorteia até roundCount versículos (evita jogar todos de

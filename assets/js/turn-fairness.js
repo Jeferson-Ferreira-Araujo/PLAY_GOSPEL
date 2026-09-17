@@ -20,15 +20,20 @@ import { shuffleArray } from "./utils.js";
 /**
  * @param {number} minRounds - rodadas mínimas do jogo (ex: 10 — tamanho
  *   padrão do pool de perguntas). Se houver gente sorteada, a escala pode
- *   ficar maior que isso (uma rodada por pessoa), nunca menor.
+ *   ficar maior que isso (uma rodada por pessoa), nunca menor — a menos
+ *   que forceTeamOnly esteja ligado (ver abaixo).
+ * @param {{ forceTeamOnly?: boolean }} [opts] - forceTeamOnly: ignora os
+ *   participantes sorteados e usa só a ordem das equipes, mesmo que haja
+ *   gente cadastrada — pros jogos onde a resposta não deve ficar restrita
+ *   a 1 pessoa só (ex: Qual a Passagem, "qualquer um pode responder").
  * @returns {{ teamIndex: number, playerName: string|null }[]}
  */
-export function buildFairSchedule(minRounds) {
+export function buildFairSchedule(minRounds, opts = {}) {
   const state = Teams.getState();
   const teams = state.teams || [];
   if (!teams.length) return [];
 
-  const hasMembers = teams.some((t) => Array.isArray(t.members) && t.members.length);
+  const hasMembers = !opts.forceTeamOnly && teams.some((t) => Array.isArray(t.members) && t.members.length);
 
   if (!hasMembers) {
     // Sem participantes sorteados — só a ordem das equipes importa. Uma
