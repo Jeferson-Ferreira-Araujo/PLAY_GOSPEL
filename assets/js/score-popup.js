@@ -78,24 +78,6 @@ function isDrawStep() {
 function buildScorePopupBody(teams, highlightId) {
   const wrap = document.createElement("div");
   wrap.className = "pgui-score-popup";
-  const sorted = [...(teams || [])].sort((a, b) => (b.score || 0) - (a.score || 0));
-  const leader = sorted[0];
-
-  if (leader) {
-    const iconName = Teams.teamIconNames.includes(leader.icon) ? leader.icon : "star";
-    const banner = document.createElement("div");
-    banner.className = "pgui-ranking-leader";
-    banner.style.setProperty("--team-color", leader.color || "#FFC107");
-    const pts = Number(leader.score) || 0;
-    banner.innerHTML = `
-      <span class="pgui-ranking-leader__trophy" aria-hidden="true">🏆</span>
-      <span class="pgui-ranking-leader__icon">${icon(iconName, { size: 24 })}</span>
-      <span class="pgui-ranking-leader__label">Na frente</span>
-      <span class="pgui-ranking-leader__name">${escapeHtml(leader.name)}</span>
-      <span class="pgui-ranking-leader__points">${pts} ${pts === 1 ? "ponto" : "pontos"}</span>
-    `;
-    wrap.appendChild(banner);
-  }
 
   if ((teams || []).length > 1) {
     const columns = document.createElement("div");
@@ -108,8 +90,27 @@ function buildScorePopupBody(teams, highlightId) {
   rankingEl.className = "pgui-ranking";
   wrap.appendChild(rankingEl);
   renderRanking(rankingEl, teams, highlightId);
+  markLeaderRow(rankingEl, teams);
 
   return wrap;
+}
+
+// Coroa na linha da 1ª equipe — só quando ela lidera sozinha (sem
+// empate, senão não daria pra saber qual das equipes empatadas
+// "escolher"). Feito por fora do renderRanking (componente compartilhado
+// com outras telas, ver playgospel-ui/js/ranking.js) pra não afetar
+// nada além do popup de placar.
+function markLeaderRow(rankingEl, teams) {
+  const sorted = [...(teams || [])].sort((a, b) => (b.score || 0) - (a.score || 0));
+  const top = sorted[0];
+  if (!top || (Number(top.score) || 0) <= (Number(sorted[1]?.score) || 0)) return;
+
+  const nameEl = rankingEl.querySelector(`[data-team-id="${CSS.escape(top.id)}"] .pgui-ranking__name`);
+  if (!nameEl) return;
+  // Span irmão (não dentro do nome) — o nome já trunca com "..." se for
+  // comprido (max-width:40%), o que cortaria a coroa junto se ela
+  // estivesse dentro do mesmo elemento.
+  nameEl.insertAdjacentHTML("afterend", `<span class="pgui-ranking__crown" title="Na frente">👑</span>`);
 }
 
 /**

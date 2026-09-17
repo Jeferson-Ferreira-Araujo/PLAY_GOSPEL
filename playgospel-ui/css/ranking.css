@@ -63,6 +63,13 @@
   max-width: 40%;
 }
 
+.pgui-ranking__crown {
+  flex: 0 0 auto;
+  margin-left: var(--pgui-space-4);
+  font-size: .85em;
+  line-height: 1;
+}
+
 .pgui-ranking__line {
   flex: 1;
   border-bottom: 2px dotted var(--pgui-border-strong);
