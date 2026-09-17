@@ -1059,6 +1059,20 @@
   color: var(--gold);
 }
 
+/* Ilustração do formato do jogo (equipe/disputa/rodada — ver
+   assets/js/match-type.js) — mesma imagem de fundo preto nas 3, então
+   não precisa de moldura extra pra não destoar do tema escuro. */
+.pg-gm-howto-image {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  margin: 10px auto 0;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
 .pg-gm-howto {
   list-style: none;
   margin: 8px 0 0;

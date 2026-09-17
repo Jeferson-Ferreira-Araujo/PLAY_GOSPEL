@@ -42,7 +42,7 @@
       "controls": ["D: mostrar dica", "N: próximo"],
       "version": "0.1.0",
       "route": "games/quem-sou-eu/index.html",
-      "matchType": "rodada",
+      "matchType": "disputa",
 
       "teams": { "required": true }
     },
@@ -56,7 +56,7 @@
       "controls": ["Escolha dificuldade", "Timer opcional", "Botões na tela"],
       "version": "0.1.0",
       "route": "games/complete-o-versiculo/index.html",
-      "matchType": "rodada",
+      "matchType": "equipe",
 
       "teams": { "required": true }
     },
@@ -95,7 +95,7 @@
   "cover": "assets/img/covers/qual-a-passagem.webp",
   "duration": "10-15 min",
   "route": "games/qual-a-passagem/index.html",
-  "matchType": "rodada",
+  "matchType": "equipe",
   "version": "1.0.0",
   "tags": ["Grupo", "Versículos", "Referências", "Memorização"],
   "controls": ["R: revelar", "N: próximo", "T: reiniciar tempo"],
@@ -127,7 +127,7 @@
       "controls": ["Escolha categoria e tempo", "Acertou / Passou", "Reiniciar / Encerrar"],
       "version": "0.1.0",
       "route": "games/tem-na-biblia/index.html",
-      "matchType": "rodada",
+      "matchType": "equipe",
 
       "teams": { "required": true }
     },

@@ -14,14 +14,7 @@
 import { GameDraw } from "./game-draw.js";
 import { openModal, closeModal } from "../../playgospel-ui/js/playgospel-ui.js";
 import { icon } from "../../playgospel-ui/js/core.js";
-
-// Mesmo mapa de rótulo/ícone usado no selo do card do catálogo (ver
-// MATCH_TYPE_META em assets/js/app.js) + a frase que explica a mecânica
-// de turno — dado que não existe em lugar nenhum ainda, só o rótulo.
-const MATCH_TYPE_INFO = {
-  rodada: { icon: "refresh", label: "Rodada", text: "as equipes jogam uma de cada vez, em turnos." },
-  disputa: { icon: "flame", label: "Disputa", text: "as equipes respondem juntas ao mesmo tempo — quem acertar primeiro leva o ponto." },
-};
+import { MATCH_TYPES } from "./match-type.js";
 
 function escapeHtml(str) {
   return String(str ?? "").replace(/[&<>"']/g, (c) => ({
@@ -51,12 +44,13 @@ function buildBody(entry) {
   const wrap = document.createElement("div");
 
   const howTo = Array.isArray(entry?.howTo) ? entry.howTo : [];
-  const format = MATCH_TYPE_INFO[entry?.matchType];
+  const format = MATCH_TYPES[entry?.matchType];
 
   let html = `<div class="pgui-intro-section-label">Como jogar</div>`;
 
   if (format) {
     html += `
+      ${format.image ? `<img class="pgui-intro-image" src="${escapeHtml(format.image)}" alt="Formato ${escapeHtml(format.label)}">` : ""}
       <div class="pgui-intro-format">
         ${icon(format.icon, { size: 14 })}
         <span><b>${format.label}</b> — ${escapeHtml(format.text)}</span>

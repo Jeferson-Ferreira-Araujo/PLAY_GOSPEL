@@ -6,6 +6,7 @@ import { confirmDialog } from "../../playgospel-ui/js/modal.js";
 import { startOnboardingTour } from "./onboarding-tour.js";
 import { mountBibleVersionPicker } from "./bible-version-ui.js";
 import { mountCityAutocomplete } from "./city-autocomplete.js";
+import { MATCH_TYPES } from "./match-type.js";
 
 // PWA: registra o service worker (permite "Adicionar à tela inicial" e dá
 // resiliência offline básica) — feito aqui porque toda sessão passa pelo
@@ -22,15 +23,10 @@ if ("serviceWorker" in navigator) {
 const DEFAULT_COVER = "assets/img/cover-placeholder.svg";
 
 // Formato do jogo (games.json "matchType") — mostrado como selo no canto
-// da capa no catálogo. "disputa": todas as equipes competem pela mesma
-// pergunta/desafio ao mesmo tempo, quem responder primeiro pontua (ex:
-// Palavras Embaralhadas). "rodada": as equipes jogam uma de cada vez, em
-// turnos (indicador "Vez de..." dentro do jogo). Jogos sem o campo ainda
-// não foram classificados — não mostra selo nesse caso.
-const MATCH_TYPE_META = {
-  disputa: { label: "Disputa", icon: "flame", sub: "2 equipes respondem juntas" },
-  rodada: { label: "Rodada", icon: "refresh", sub: "Uma equipe por vez, em turnos" },
-};
+// da capa no catálogo e no modal de detalhes. Ver assets/js/match-type.js
+// pra a lista de formatos (ícone/rótulo/imagem) — fonte única, também
+// usada pelo modal "como jogar" de disputa sorteada (game-intro.js).
+const MATCH_TYPE_META = MATCH_TYPES;
 
 // Modal de boas-vindas (nome/igreja) — some depois da primeira vez que o
 // visitante fecha (de qualquer jeito: X, Enter, Esc, clique fora). Fica em
@@ -1062,7 +1058,7 @@ async function openGameModal(game) {
 
   // carrega config.json e renderiza as seções (só as que existirem de fato)
   const cfg = await loadGameConfig(game);
-  renderModalHowTo(cfg);
+  renderModalHowTo(cfg, game);
   await renderModalSettings(cfg, game);
 
   // botão jogar => URL com querystring
@@ -1149,17 +1145,25 @@ async function resolveDynamicOptions(game, dynamicKey, sourceFile) {
    RENDER CONFIG (async) — só renderiza as seções que o config.json do
    jogo realmente declara (nada de campo/feature inventado).
 ========================= */
-function renderModalHowTo(cfg) {
+function renderModalHowTo(cfg, game) {
   const section = document.getElementById("modalHowToSection");
   const list = document.getElementById("modalHowTo");
+  const image = document.getElementById("modalHowToImage");
   const columns = document.getElementById("modalColumns");
   const items = Array.isArray(cfg?.howTo) ? cfg.howTo : [];
+  const format = MATCH_TYPES[game?.matchType];
 
-  if (!items.length) {
-    section.classList.add("d-none");
-    list.innerHTML = "";
-    columns?.classList.add("pg-gm-columns--no-right");
-    return;
+  // Imagem do formato (equipe/disputa/rodada) — independe de o jogo ter
+  // texto de "como jogar" no config.json ou não: um jogo novo já mostra a
+  // imagem certa assim que ganha um "matchType" válido em games.json, sem
+  // precisar de mais nada.
+  if (format?.image) {
+    image.src = format.image;
+    image.alt = `Formato ${format.label}: ${format.sub}`;
+    image.classList.remove("d-none");
+  } else {
+    image.removeAttribute("src");
+    image.classList.add("d-none");
   }
 
   list.innerHTML = items.map((text, i) => `
@@ -1168,8 +1172,10 @@ function renderModalHowTo(cfg) {
       <span>${escapeHtml(text)}</span>
     </li>
   `).join("");
-  section.classList.remove("d-none");
-  columns?.classList.remove("pg-gm-columns--no-right");
+
+  const hasContent = Boolean(items.length || format?.image);
+  section.classList.toggle("d-none", !hasContent);
+  columns?.classList.toggle("pg-gm-columns--no-right", !hasContent);
 }
 
 async function renderModalSettings(cfg, game) {

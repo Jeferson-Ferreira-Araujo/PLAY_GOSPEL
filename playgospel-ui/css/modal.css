@@ -187,6 +187,18 @@
 /* Linha "Rodada"/"Disputa" — explica se as equipes jogam em turnos ou
    todas ao mesmo tempo (pedido explícito do usuário: deixar isso claro
    antes de começar). */
+/* Ilustração do formato (equipe/disputa/rodada — ver assets/js/match-type.js). */
+.pgui-intro-image {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  margin: 0 auto var(--pgui-space-12);
+  border-radius: var(--pgui-radius-md);
+  object-fit: cover;
+}
+
 .pgui-intro-format {
   display: flex;
   align-items: flex-start;
