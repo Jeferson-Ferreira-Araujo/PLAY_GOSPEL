@@ -3,6 +3,7 @@ import { Teams } from "../../assets/js/teams.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
 import { showTeamsBlockFocus } from "../../assets/js/game-focus-tour.js";
+import { buildFairSchedule, applyScheduleEntry } from "../../assets/js/turn-fairness.js";
 import { playCountdownTick, playCountdownGo } from "../../assets/js/countdown-sound.js";
 import { mountSoundMuteButton } from "../../assets/js/sound-mute-ui.js";
 import { mountFullscreenButton } from "../../assets/js/fullscreen-ui.js";
@@ -57,6 +58,7 @@ let durationSec = 20;
 
 let pool = [];
 let idx = 0;
+let schedule = []; // escala justa da partida (ver assets/js/turn-fairness.js)
 
 let current = null; // { statement, answer(boolean), reference, note? }
 let answered = false;
@@ -237,9 +239,17 @@ function restartGame() {
   badgeDifficulty.textContent = difficultyLabel(currentDifficulty);
 
   const list = (data?.[currentDifficulty] ?? []).filter(Boolean);
-  // Cada partida sorteia até ROUND_SIZE afirmações (evita jogar todas de
-  // uma vez).
-  pool = shuffleArray(list).slice(0, ROUND_SIZE);
+
+  // Escala justa primeiro (ver assets/js/turn-fairness.js): com gente
+  // sorteada, pode precisar de mais que ROUND_SIZE rodadas pra todo
+  // mundo jogar 1 vez — o pool de perguntas acompanha esse tamanho (nunca
+  // o contrário, senão sobraria gente sem jogar). Se não houver
+  // afirmações suficientes pra cobrir todo mundo, os dois cortam juntos
+  // no que der (não tem como inventar pergunta).
+  schedule = buildFairSchedule(ROUND_SIZE);
+  const roundCount = schedule.length || ROUND_SIZE;
+  pool = shuffleArray(list).slice(0, roundCount);
+  schedule = schedule.slice(0, pool.length);
   idx = 0;
   score = 0;
 
@@ -248,6 +258,7 @@ function restartGame() {
     return;
   }
 
+  applyScheduleEntry(schedule[0]);
   updateProgress();
   showReadyState();
 }
@@ -255,17 +266,17 @@ function restartGame() {
 function nextStatement() {
   stopTimer();
 
-  // Só passa a vez pra próxima equipe agora — ao responder (ou o tempo
-  // acabar), o placar já foi ajustado na hora, mas a caixa da equipe
-  // continua mostrando quem acabou de responder até "Próxima Frase" ser
-  // clicado (ver choose() e o onEnd do timer).
-  if (Teams.isEnabled()) Teams.nextTurn();
-
   idx += 1;
   if (idx >= pool.length) {
     endGame("FIM DE JOGO");
     return;
   }
+
+  // Só passa a vez pra próxima posição da escala agora — ao responder (ou
+  // o tempo acabar), o placar já foi ajustado na hora, mas a caixa da
+  // equipe continua mostrando quem acabou de responder até "Próxima
+  // Frase" ser clicado (ver choose() e o onEnd do timer).
+  if (Teams.isEnabled()) applyScheduleEntry(schedule[idx]);
 
   updateProgress();
   showReadyState();

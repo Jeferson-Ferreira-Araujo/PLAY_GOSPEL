@@ -4,6 +4,7 @@ import { renderRanking, confirmDialog } from '../../playgospel-ui/js/playgospel-
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from '../../assets/js/score-popup.js';
 import { maybeShowDrawIntro } from '../../assets/js/game-intro.js';
 import { showTeamsBlockFocus } from '../../assets/js/game-focus-tour.js';
+import { buildMemberQueues, advanceMemberForTeam } from '../../assets/js/turn-fairness.js';
 
 /* Alfabeto do jogo: todas as letras menos as difíceis (H, K, Q, W, X, Y, Z). */
 const LETTERS_ALL = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'I', 'J', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'V'];
@@ -64,6 +65,7 @@ let roundActive = false;
 let processing = false;
 
 let answerTimerCtl = null;
+let memberQueues = {}; // fila embaralhada de integrantes por equipe (ver assets/js/turn-fairness.js)
 
 /* ===== Categoria / tempo (tela de setup) ===== */
 function selectCategory(cat) {
@@ -170,6 +172,8 @@ function startTimerForTurn() {
 function startRoundState() {
   initLetterPool();
   drawNextLetter();
+  memberQueues = buildMemberQueues();
+  advanceMemberForTeam(memberQueues, Teams.getState().turn);
   attemptedThisLetter.add(Teams.currentTeam()?.id);
 
   updateBadgeProgress();
@@ -228,6 +232,7 @@ function onCorrect() {
   }
 
   Teams.nextTurn();
+  advanceMemberForTeam(memberQueues, Teams.getState().turn);
   attemptedThisLetter.add(Teams.currentTeam()?.id);
 
   updateBadgeProgress();
@@ -243,6 +248,7 @@ function onCorrect() {
  * falou palavra errada). */
 function advanceTurnSameLetter() {
   Teams.nextTurn();
+  advanceMemberForTeam(memberQueues, Teams.getState().turn);
   const newTeamId = Teams.currentTeam()?.id;
 
   if (attemptedThisLetter.has(newTeamId)) {

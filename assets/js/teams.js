@@ -274,6 +274,18 @@ export const Teams = {
     return st;
   },
 
+  // Aponta o "ponteiro" de integrante de uma equipe direto pro índice
+  // certo (em vez de só avançar 1) — usado pela escala justa (ver
+  // assets/js/turn-fairness.js), que decide de antemão a ordem
+  // embaralhada de quem joga a cada rodada.
+  setMemberIndex(teamIndex, index) {
+    const st = load();
+    const team = st.teams[teamIndex];
+    if (team) team.memberTurn = index;
+    save(st);
+    return st;
+  },
+
   addPoint(points = 1) {
     const st = load();
     clampTurn(st);

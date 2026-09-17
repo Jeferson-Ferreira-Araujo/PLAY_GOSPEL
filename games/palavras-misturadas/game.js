@@ -3,6 +3,7 @@ import { Teams } from "../../assets/js/teams.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
 import { showTeamsBlockFocus } from "../../assets/js/game-focus-tour.js";
+import { buildMemberQueues, advanceMemberForTeam } from "../../assets/js/turn-fairness.js";
 import { icon } from "../../playgospel-ui/js/core.js";
 import { playCorrectSound } from "../../assets/js/countdown-sound.js";
 import { mountSoundMuteButton } from "../../assets/js/sound-mute-ui.js";
@@ -62,6 +63,7 @@ let gameOver = false;
 let pairOrder = [];
 let pairCursor = -1;
 let currentPair = null; // [índiceEquipeA, índiceEquipeB] ou null antes da 1ª rodada
+let memberQueues = {}; // fila embaralhada de integrantes por equipe (ver assets/js/turn-fairness.js)
 
 function shuffledIndices(n) {
   const arr = Array.from({ length: n }, (_, i) => i);
@@ -73,18 +75,20 @@ function initPairing() {
   pairOrder = shuffledIndices(n);
   pairCursor = -1;
   currentPair = null;
+  memberQueues = buildMemberQueues();
 }
 
-// Chamada no início de cada rodada nova: fecha a rodada anterior (avança
-// quem representa cada equipe do par que acabou de jogar) e decide o
-// próximo par pelo rodízio.
+// Chamada no início de cada rodada nova: fecha a rodada anterior (troca
+// quem representa cada equipe do par que acabou de jogar, em ordem
+// embaralhada — sem repetir ninguém da equipe até todo mundo dela ter
+// jogado) e decide o próximo par pelo rodízio.
 function advancePair() {
   const n = Teams.getState().teams.length;
   if (pairOrder.length !== n) initPairing();
 
   if (currentPair) {
-    Teams.advanceMemberTurnFor(currentPair[0]);
-    Teams.advanceMemberTurnFor(currentPair[1]);
+    advanceMemberForTeam(memberQueues, currentPair[0]);
+    advanceMemberForTeam(memberQueues, currentPair[1]);
   }
 
   pairCursor = (pairCursor + 1) % n;

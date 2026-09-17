@@ -7,6 +7,7 @@ import { mountSoundMuteButton } from "../../assets/js/sound-mute-ui.js";
 import { mountFullscreenButton } from "../../assets/js/fullscreen-ui.js";
 import { watchStageText } from "../../assets/js/fit-text.js";
 import { showTeamsBlockFocus } from "../../assets/js/game-focus-tour.js";
+import { buildFairSchedule, applyScheduleEntry } from "../../assets/js/turn-fairness.js";
 
 // Máximo de rodadas por partida (evita jogar todas as palavras de uma vez).
 const ROUND_SIZE = 10;
@@ -47,6 +48,7 @@ let baseWords = [];       // vem do words.json (fixo)
 let roundWords = [];      // base + custom (só desta rodada)
 let pool = [];            // pool embaralhado da rodada
 let idx = 0;
+let schedule = [];        // escala justa da partida (ver assets/js/turn-fairness.js)
 let gameOver = false;
 
 let durationSec = 30;
@@ -147,10 +149,12 @@ function resetPassChain() {
 
 // Avança a rotação a partir de quem INICIOU a palavra (não de quem cantou
 // depois de um "passar a vez"), assim cada time mantém sua vez de começar.
+// A próxima equipe/pessoa vem da escala justa — idx já aponta pra rodada
+// seguinte nesse ponto (nextWord() incrementa antes de qualquer botão de
+// pontuação poder ser clicado).
 function advanceFromWordStart() {
-  const n = Teams.getState().teams.length;
-  if (!n) return;
-  Teams.setTurn((wordStartTurn + 1) % n);
+  if (!Teams.getState().teams.length) return;
+  applyScheduleEntry(schedule[idx]);
 }
 
 function passTurn() {
@@ -404,11 +408,19 @@ function restartGame() {
   gameOver = false;
   setGameOverUI(false);
 
-  // embaralha a ordem a cada reinício, sorteando até ROUND_SIZE palavras
+  // Escala justa primeiro (ver assets/js/turn-fairness.js): com gente
+  // sorteada, pode precisar de mais que ROUND_SIZE rodadas pra todo mundo
+  // jogar 1 vez — o pool de palavras acompanha esse tamanho.
+  schedule = buildFairSchedule(ROUND_SIZE);
+  const roundCount = schedule.length || ROUND_SIZE;
+
+  // embaralha a ordem a cada reinício, sorteando até roundCount palavras
   // (evita jogar todas de uma vez)
-  pool = shuffleArray(roundWords).slice(0, ROUND_SIZE);
+  pool = shuffleArray(roundWords).slice(0, roundCount);
+  schedule = schedule.slice(0, pool.length);
   idx = 0;
 
+  if (Teams.isEnabled()) applyScheduleEntry(schedule[0]);
   nextWord();
 }
 

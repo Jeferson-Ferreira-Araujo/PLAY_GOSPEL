@@ -3,6 +3,7 @@ import { Teams } from "../../assets/js/teams.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
 import { showTeamsBlockFocus } from "../../assets/js/game-focus-tour.js";
+import { buildFairSchedule, applyScheduleEntry } from "../../assets/js/turn-fairness.js";
 import { BibleVersion } from "../../assets/js/bible-version.js";
 import { mountBibleVersionPicker } from "../../assets/js/bible-version-ui.js";
 import { playCountdownTick, playCountdownGo } from "../../assets/js/countdown-sound.js";
@@ -61,6 +62,7 @@ let durationSec = 30;
 
 let pool = [];
 let idx = 0;
+let schedule = []; // escala justa da partida (ver assets/js/turn-fairness.js)
 
 let current = null; // { text, reference }
 let timer = null;
@@ -170,10 +172,11 @@ function resetPassChain() {
 
 // Avança a rotação a partir de quem INICIOU a frase (não de quem respondeu
 // depois de um "passar a vez"), assim cada time mantém sua vez de começar.
+// A próxima equipe/pessoa vem da escala justa da rodada seguinte (idx+1
+// — chamado antes de nextVerse() incrementar o idx de verdade).
 function advanceFromVerseStart() {
-  const n = Teams.getState().teams.length;
-  if (!n) return;
-  Teams.setTurn((verseStartTurn + 1) % n);
+  if (!Teams.getState().teams.length) return;
+  applyScheduleEntry(schedule[idx + 1]);
 }
 
 function passTurn() {
@@ -372,9 +375,17 @@ function restartGame() {
   badgeDifficulty.textContent = difficultyLabel(currentDifficulty);
 
   const list = (data?.[currentDifficulty] ?? []).filter(Boolean);
-  // Cada partida sorteia até ROUND_SIZE versículos (evita jogar todos de
+
+  // Escala justa primeiro (ver assets/js/turn-fairness.js): com gente
+  // sorteada, pode precisar de mais que ROUND_SIZE rodadas pra todo mundo
+  // jogar 1 vez — o pool de versículos acompanha esse tamanho.
+  schedule = buildFairSchedule(ROUND_SIZE);
+  const roundCount = schedule.length || ROUND_SIZE;
+
+  // Cada partida sorteia até roundCount versículos (evita jogar todos de
   // uma vez).
-  pool = shuffleArray(list).slice(0, ROUND_SIZE);
+  pool = shuffleArray(list).slice(0, roundCount);
+  schedule = schedule.slice(0, pool.length);
   idx = 0;
 
   if (!pool.length) {
@@ -382,6 +393,7 @@ function restartGame() {
     return;
   }
 
+  if (Teams.isEnabled()) applyScheduleEntry(schedule[0]);
   updateProgress();
   renderTeamUI();
   // Esconde os botões de pontuação enquanto conta "Prepare-se!" — só
