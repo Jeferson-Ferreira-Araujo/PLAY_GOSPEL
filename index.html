@@ -11,6 +11,13 @@
   <link rel="icon" href="assets/img/favicon-96.png" sizes="96x96" type="image/png" />
   <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
 
+  <!-- PWA: permite "Adicionar à tela inicial" (Android/iOS/desktop) -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Avivaplay" />
+
   <!-- Preview ao compartilhar (WhatsApp, Instagram, etc.) -->
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Avivaplay" />
@@ -43,6 +50,26 @@
       window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
     </script>
     <script defer src="/_vercel/insights/script.js"></script>
+
+    <!-- Dados estruturados (SEO): ajuda o Google a entender do que se
+         trata o site nos resultados de busca. Mantido simples de
+         propósito — sem listar os jogos individualmente (isso viveria em
+         games.json e ficaria desatualizado aqui). -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Avivaplay",
+      "url": "https://www.avivaplay.com.br/",
+      "description": "Jogos bíblicos rápidos pra jogar em grupo, célula ou ministério — de graça, sem cadastro, em equipes.",
+      "inLanguage": "pt-BR",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Avivaplay",
+        "logo": "https://www.avivaplay.com.br/assets/img/avivaplay-logo.webp"
+      }
+    }
+    </script>
   </head>
 
 <body class="pg-body">

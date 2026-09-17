@@ -11,6 +11,44 @@ import { renderRanking, openModal, closeModal, icon } from "../../playgospel-ui/
 
 export { closeModal };
 
+// Monta o texto de compartilhamento (ranking ordenado por pontos, com
+// medalhas) — reaproveitado pelo botão "Compartilhar" tanto no fim de
+// jogo quanto no fim da disputa sorteada.
+function buildShareText(teams, headline) {
+  const sorted = [...(teams || [])].sort((a, b) => (b.score || 0) - (a.score || 0));
+  const medals = ["🥇", "🥈", "🥉"];
+  const lines = sorted.map((t, i) => {
+    const pts = Number(t.score) || 0;
+    return `${medals[i] || "🏅"} ${t.name}: ${pts} ${pts === 1 ? "ponto" : "pontos"}`;
+  });
+  return `🎮 ${headline}\n\n${lines.join("\n")}\n\nJogue também, é grátis: https://www.avivaplay.com.br`;
+}
+
+// Web Share API (abre o menu nativo de compartilhamento no celular) com
+// fallback pro link do WhatsApp Web quando não suportada (a maioria dos
+// desktops) ou se o usuário cancelar o compartilhamento.
+async function shareResult(teams, headline) {
+  const text = buildShareText(teams, headline);
+  if (navigator.share) {
+    try {
+      await navigator.share({ text });
+      return;
+    } catch (err) {
+      if (err?.name === "AbortError") return;
+    }
+  }
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener");
+}
+
+function buildShareButton(teams, headline) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "pgui-btn pgui-btn-outline";
+  btn.innerHTML = `${icon("share", { size: 15 })} Compartilhar`;
+  btn.addEventListener("click", () => shareResult(teams, headline));
+  return btn;
+}
+
 function escapeHtml(str) {
   return String(str ?? "").replace(/[&<>"']/g, (c) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
@@ -163,6 +201,7 @@ export function buildPlayAgainFooter(onPlayAgain) {
     <a class="pgui-btn pgui-btn-ghost" href="../../index.html#catalogo">Voltar ao catálogo</a>
     <button type="button" class="pgui-btn pgui-btn-primary" data-role="again">🔁 Jogar novamente</button>
   `;
+  footer.prepend(buildShareButton(Teams.getState().teams, "Acabamos de jogar no Avivaplay!"));
   footer.querySelector('[data-role="again"]').addEventListener("click", () => {
     closeModal();
     onPlayAgain();
@@ -187,7 +226,7 @@ export function showTournamentFinalPopup() {
   openModal({
     title: "🎉 Disputa encerrada!",
     body: buildTournamentFinalBody(withDelta),
-    footer: buildTournamentFinalFooter(),
+    footer: buildTournamentFinalFooter(withDelta),
   });
 }
 
@@ -236,12 +275,13 @@ function buildTournamentFinalBody(teamsWithDelta) {
   return wrap;
 }
 
-function buildTournamentFinalFooter() {
+function buildTournamentFinalFooter(teamsWithDelta) {
   const footer = document.createElement("div");
   footer.className = "pgui-modal__actions";
   footer.innerHTML = `
     <a class="pgui-btn pgui-btn-ghost" href="../../index.html#catalogo">Voltar ao catálogo</a>
     <a class="pgui-btn pgui-btn-primary" href="../../index.html?sortear=1#catalogo">🎲 Sortear novos jogos</a>
   `;
+  footer.prepend(buildShareButton(teamsWithDelta, "Acabamos de jogar uma disputa sorteada no Avivaplay!"));
   return footer;
 }

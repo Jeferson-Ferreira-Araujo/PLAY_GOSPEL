@@ -7,6 +7,16 @@ import { startOnboardingTour } from "./onboarding-tour.js";
 import { mountBibleVersionPicker } from "./bible-version-ui.js";
 import { mountCityAutocomplete } from "./city-autocomplete.js";
 
+// PWA: registra o service worker (permite "Adicionar à tela inicial" e dá
+// resiliência offline básica) — feito aqui porque toda sessão passa pelo
+// catálogo antes de entrar num jogo, e o SW registrado cobre o site
+// inteiro (scope "/" no manifest.json), não só essa página.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  });
+}
+
 // Capa compartilhada: usada quando um jogo não tem capa própria (games.json
 // sem "cover") e como fallback se a imagem informada falhar ao carregar.
 const DEFAULT_COVER = "assets/img/cover-placeholder.svg";
