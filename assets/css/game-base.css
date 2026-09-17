@@ -14,16 +14,15 @@
 }
 
 /* html precisa de height:100% pra 100vh/100dvh do body calcularem contra
-   a altura real da tela — sem isso, instalado como PWA (modo "standalone"
-   no Android) sobrava alguns px que abriam uma barra de rolagem da
-   página inteira mesmo sem nada pra rolar (o app instalado não tem a
-   barra de endereço do Chrome como referência de viewport, então o
-   cálculo de altura fica mais sensível a essa cadeia estar completa —
-   no navegador normal isso não aparecia). overflow:hidden aqui garante
-   que só .presenter-center (ver mais abaixo) rola, nunca a página toda. */
+   a altura real da tela. NUNCA usar overflow:hidden aqui — testado num
+   Android real e travava a rolagem por completo quando o conteúdo do
+   jogo (nesse PWA especificamente, a área visível real fica menor que o
+   100dvh calculado) não cabia numa tela só, escondendo os botões sem
+   nenhum jeito de alcançá-los. overflow-y:auto deixa a página rolar
+   como último recurso sempre que precisar, sem nunca prender o usuário. */
 html {
   height: 100%;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 /* body vira uma coluna flex de altura travada em 100vh: o .game-topbar
