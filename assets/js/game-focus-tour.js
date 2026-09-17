@@ -36,7 +36,7 @@ export function showTeamsBlockFocus() {
   root.innerHTML = `
     <div class="pg-game-focus-spotlight" aria-hidden="true"></div>
     <div class="pg-game-focus-card" role="dialog" aria-modal="true" aria-label="Dica">
-      <p class="pg-game-focus-text">👀 Fique de olho aqui: é onde aparece de quem é a vez (ou quem está disputando) e o placar da rodada.</p>
+      <p class="pg-game-focus-text">Fique de olho aqui: é onde aparece de quem é a vez (ou quem está disputando) e os detalhes da rodada.</p>
       <button type="button" class="pgui-btn pgui-btn-primary pgui-btn-sm" data-focus-ok>Entendi</button>
     </div>
   `;
