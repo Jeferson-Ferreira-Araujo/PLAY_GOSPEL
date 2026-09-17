@@ -860,6 +860,19 @@
   color: var(--text-muted);
 }
 
+.pg-support-share {
+  margin-top: 14px;
+}
+
+.pg-support-share .pg-support-pix-label {
+  margin-bottom: 8px;
+}
+
+.pg-support-share-btn {
+  width: 100%;
+  justify-content: center;
+}
+
 /* ==============================
    MODAL DE DETALHES DO JOGO
 ================================= */

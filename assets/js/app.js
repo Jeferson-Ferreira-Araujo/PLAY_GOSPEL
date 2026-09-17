@@ -389,6 +389,23 @@ function wireSupportModal() {
       if (label) label.textContent = original;
     }, 2000);
   });
+
+  // "Compartilhar o Avivaplay" — indicar o site pra outros grupos é outro
+  // jeito de ajudar, sem custar nada (mesmo padrão de compartilhamento do
+  // placar em score-popup.js: Web Share API com fallback pro WhatsApp).
+  const shareBtn = document.getElementById("btnShareSite");
+  shareBtn?.addEventListener("click", async () => {
+    const text = "🎮 Conheça o Avivaplay — jogos bíblicos grátis pra jogar em grupo, célula ou ministério!\n\nhttps://www.avivaplay.com.br";
+    if (navigator.share) {
+      try {
+        await navigator.share({ text });
+        return;
+      } catch (err) {
+        if (err?.name === "AbortError") return;
+      }
+    }
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener");
+  });
 }
 
 /* =========================
