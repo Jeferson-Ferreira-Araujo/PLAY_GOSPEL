@@ -123,6 +123,12 @@ let teamDraw = {};
 // "excluir" ou "zerar placar" de algo que ainda nem existe.
 let currentTeamsStep = 1;
 
+// Resposta da pergunta obrigatória "Quer sortear as pessoas entre as
+// equipes?" no passo 1 ("yes"|"no"|null) — nenhum CTA de avançar aparece
+// até isso ser respondido (ver updateTeamsStep1Cta). Reseta pra null
+// sempre que o assistente é (re)aberto do zero (ver showTeamsWizardView).
+let drawChoice = null;
+
 const TEAMS_STEP_TITLES = {
   1: "Quantidade e equipes",
   2: "Participantes",
@@ -143,7 +149,17 @@ function showTeamsWizardView() {
   document.getElementById("teamsSummaryFooter")?.classList.add("d-none");
   document.getElementById("teamsWizardFooter")?.classList.remove("d-none");
   document.getElementById("teamsDeleteConfirm")?.classList.add("d-none");
+  drawChoice = null;
+  syncTeamsAskButtons();
   goToTeamsStep(1);
+}
+
+// Reflete drawChoice nos botões Sim/Não (estado "active") — chamado ao
+// (re)abrir o assistente e a cada clique num dos dois.
+function syncTeamsAskButtons() {
+  document.querySelectorAll(".pg-teams-ask-btn").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.ask === drawChoice);
+  });
 }
 
 function goToTeamsStep(step) {
@@ -171,6 +187,9 @@ function goToTeamsStep(step) {
     updateTeamsStep1Cta();
   } else {
     btnBack?.classList.remove("d-none");
+    // "Próximo" é só do passo 1 — sem isso ficava visível junto com
+    // "Criar equipes" ao entrar no passo 2.
+    document.getElementById("btnTeamsNext")?.classList.add("d-none");
     renderDrawTeamsPreview();
     updateTeamsStep2Cta();
   }
@@ -196,14 +215,19 @@ function updateTeamsStep2Cta() {
   document.getElementById("btnTeamsSave")?.classList.toggle("d-none", !complete);
 }
 
-// Libera "Criar equipes"/"Salvar alterações" assim que os nomes forem
-// válidos — participantes são opcionais e ficam num botão à parte
-// ("Sortear participantes" aqui, ou "Editar participantes" no resumo),
-// não bloqueiam mais criar/salvar as equipes.
+// Só libera um CTA de avançar (Próximo ou Criar equipes/Salvar alterações
+// — nunca os dois) depois que os nomes estiverem válidos E a pergunta do
+// sorteio ("Quer sortear as pessoas entre as equipes?") tiver sido
+// respondida — Sim leva pro passo 2, Não pula direto pra criar/salvar.
+// Sem essa resposta, nenhum dos dois aparece: evita criar equipes sem
+// ninguém dentro sem querer.
 function updateTeamsStep1Cta() {
   if (currentTeamsStep !== 1) return;
   const valid = validateTeamsForm();
-  document.getElementById("btnTeamsSave")?.classList.toggle("d-none", !valid);
+  const showNext = valid && drawChoice === "yes";
+  const showSave = valid && drawChoice === "no";
+  document.getElementById("btnTeamsNext")?.classList.toggle("d-none", !showNext);
+  document.getElementById("btnTeamsSave")?.classList.toggle("d-none", !showSave);
 }
 
 // Categorias calculadas a partir das tags reais do games.json (case-insensitive).
@@ -1875,7 +1899,8 @@ function wireTeamsModal() {
   const btnEdit = document.getElementById("btnTeamsEdit");
 
   const btnBack = document.getElementById("btnTeamsBack");
-  const btnGoParticipants = document.getElementById("btnTeamsGoParticipants");
+  const btnNext = document.getElementById("btnTeamsNext");
+  const askButtons = document.querySelectorAll(".pg-teams-ask-btn");
   const btnEditMembers = document.getElementById("btnTeamsEditMembers");
 
   if (!countSel || !teamsModal || !btnSave || !btnReset || !btnDisable) return;
@@ -1934,12 +1959,23 @@ function wireTeamsModal() {
     showTeamsSummaryView();
   });
 
-  // "Sortear participantes" no passo 1 — nomes das equipes precisam estar
-  // válidos antes (o sorteio de gente usa o nome/cor/ícone já digitados
-  // pra montar a prévia do passo 2). Sem avisar, um clique com campo
-  // vazio pareceria não ter feito nada — rola até o erro (já mostrado por
-  // validateTeamsForm) e foca o primeiro nome vazio.
-  btnGoParticipants?.addEventListener("click", () => {
+  // Pergunta "Quer sortear as pessoas entre as equipes?" — Sim/Não são
+  // mutuamente exclusivos (um clique liga um e desliga o outro) e revelam
+  // o CTA certo (ver updateTeamsStep1Cta).
+  askButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      drawChoice = btn.dataset.ask;
+      syncTeamsAskButtons();
+      updateTeamsStep1Cta();
+    });
+  });
+
+  // "Próximo" (só aparece com drawChoice "yes") — nomes das equipes
+  // precisam estar válidos antes (o sorteio de gente usa o nome/cor/ícone
+  // já digitados pra montar a prévia do passo 2). Sem avisar, um clique
+  // com campo vazio pareceria não ter feito nada — rola até o erro (já
+  // mostrado por validateTeamsForm) e foca o primeiro nome vazio.
+  btnNext?.addEventListener("click", () => {
     if (!validateTeamsForm()) {
       document.getElementById("teamsError")?.scrollIntoView({ block: "center", behavior: "smooth" });
       const firstEmpty = [...document.querySelectorAll("[data-team-name]")].find((el) => !el.value.trim());
