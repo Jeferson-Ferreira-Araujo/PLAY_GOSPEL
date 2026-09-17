@@ -2,6 +2,7 @@ import { createCountdownTimer, shuffleArray, pointsLabel } from "../../assets/js
 import { Teams } from "../../assets/js/teams.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
+import { showTeamsBlockFocus } from "../../assets/js/game-focus-tour.js";
 import { BibleVersion } from "../../assets/js/bible-version.js";
 import { mountBibleVersionPicker } from "../../assets/js/bible-version-ui.js";
 import { playCountdownTick, playCountdownGo } from "../../assets/js/countdown-sound.js";
@@ -376,6 +377,7 @@ function startFromSettings() {
   setBadgeDifficulty(settings.difficulty);
   showScreen(true);
   updateScoreBtn();
+  showTeamsBlockFocus();
   resetGame();
 }
 

@@ -3,6 +3,7 @@ import { shuffleArray, createCountdownTimer } from '../../assets/js/utils.js';
 import { renderRanking, confirmDialog } from '../../playgospel-ui/js/playgospel-ui.js';
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from '../../assets/js/score-popup.js';
 import { maybeShowDrawIntro } from '../../assets/js/game-intro.js';
+import { showTeamsBlockFocus } from '../../assets/js/game-focus-tour.js';
 
 /* Alfabeto do jogo: todas as letras menos as difíceis (H, K, Q, W, X, Y, Z). */
 const LETTERS_ALL = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'I', 'J', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'V'];
@@ -183,6 +184,7 @@ function startGame() {
   setupScreen.classList.add('d-none');
   gameScreen.classList.remove('d-none');
   scoreBtn.classList.remove('d-none');
+  showTeamsBlockFocus();
   updateStickyOffsets();
 
   badgeCategory.textContent = CATEGORY_LABELS[selectedCategory];

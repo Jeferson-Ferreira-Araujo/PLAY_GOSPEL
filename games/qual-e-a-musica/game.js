@@ -6,6 +6,7 @@ import { buildEmbedUrl } from '../../assets/js/youtube-embed.js';
 import { renderPianoKeyboard } from '../../assets/js/piano-keyboard.js';
 import { renderRanking, confirmDialog, showToast } from '../../playgospel-ui/js/playgospel-ui.js';
 import { showScorePopup, buildExitFooter } from '../../assets/js/score-popup.js';
+import { showTeamsBlockFocus } from '../../assets/js/game-focus-tour.js';
 
 const MAX_PLAYS = 2;      // cliques em "Ouvir" por tentativa (equipe + notas atuais)
 const MIN_DRAW_N = 1;     // sorteio inicial: entre 1 e 5 notas
@@ -298,6 +299,7 @@ function startGame() {
   gameScreen.classList.remove('d-none');
   scoreBtn.classList.remove('d-none');
   updateStickyOffsets();
+  showTeamsBlockFocus();
   startRound();
 }
 

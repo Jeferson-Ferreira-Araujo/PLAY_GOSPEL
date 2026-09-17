@@ -6,6 +6,7 @@ import { playCountdownTick, playCountdownGo } from "../../assets/js/countdown-so
 import { mountSoundMuteButton } from "../../assets/js/sound-mute-ui.js";
 import { mountFullscreenButton } from "../../assets/js/fullscreen-ui.js";
 import { watchStageText } from "../../assets/js/fit-text.js";
+import { showTeamsBlockFocus } from "../../assets/js/game-focus-tour.js";
 
 // Máximo de rodadas por partida (evita jogar todas as palavras de uma vez).
 const ROUND_SIZE = 10;
@@ -361,6 +362,7 @@ function startGame() {
   setupScreen.classList.add("d-none");
   gameScreen.classList.remove("d-none");
   updateScoreBtn();
+  showTeamsBlockFocus();
 
   restartGame();
 }

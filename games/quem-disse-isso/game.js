@@ -3,6 +3,7 @@ import { Teams } from "../../assets/js/teams.js";
 import { icon } from "../../playgospel-ui/js/core.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
+import { showTeamsBlockFocus } from "../../assets/js/game-focus-tour.js";
 import { BibleVersion } from "../../assets/js/bible-version.js";
 import { mountBibleVersionPicker } from "../../assets/js/bible-version-ui.js";
 import { playCountdownTick, playCountdownGo } from "../../assets/js/countdown-sound.js";
@@ -227,6 +228,7 @@ function startGame() {
   setupScreen.classList.add("d-none");
   gameScreen.classList.remove("d-none");
   updateScoreBtn();
+  showTeamsBlockFocus();
 
   answerBox.classList.add("d-none");
   revealBtn.textContent = "Revelar";

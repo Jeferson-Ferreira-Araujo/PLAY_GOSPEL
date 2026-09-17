@@ -3,6 +3,7 @@ import { Teams } from "../../assets/js/teams.js";
 import { icon } from "../../playgospel-ui/js/core.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
+import { showTeamsBlockFocus } from "../../assets/js/game-focus-tour.js";
 
 // Máximo de rodadas por partida (evita jogar todos os personagens de uma vez).
 const ROUND_SIZE = 10;
@@ -207,6 +208,7 @@ function startGame() {
   setupScreen.classList.add("d-none");
   gameScreen.classList.remove("d-none");
   updateScoreBtn();
+  showTeamsBlockFocus();
   restartGame();
 }
 

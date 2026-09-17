@@ -2,6 +2,7 @@ import { shuffleArray, createCountdownTimer } from "../../assets/js/utils.js";
 import { Teams } from "../../assets/js/teams.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
+import { showTeamsBlockFocus } from "../../assets/js/game-focus-tour.js";
 import { playCountdownTick, playCountdownGo } from "../../assets/js/countdown-sound.js";
 import { mountSoundMuteButton } from "../../assets/js/sound-mute-ui.js";
 import { mountFullscreenButton } from "../../assets/js/fullscreen-ui.js";
@@ -222,6 +223,7 @@ function startGame() {
   setupScreen.classList.add("d-none");
   gameScreen.classList.remove("d-none");
   updateScoreBtn();
+  showTeamsBlockFocus();
   restartGame();
 }
 

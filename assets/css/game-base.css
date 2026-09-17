@@ -728,3 +728,43 @@ body {
     min-height: 40px;
   }
 }
+
+/* =====================================================
+   DESTAQUE DO BLOCO DE EQUIPE/RODADA (assets/js/game-focus-tour.js) —
+   spotlight recortado (mesma técnica do tour de primeiro acesso do
+   catálogo, ver .pg-tour-* em assets/css/styles.css) sobre .presenter-top,
+   mostrado só na primeiríssima vez que alguém abre um jogo qualquer.
+   ===================================================== */
+.pg-game-focus-root {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+}
+
+.pg-game-focus-spotlight {
+  position: fixed;
+  border-radius: 14px;
+  box-shadow: 0 0 0 9999px rgba(6, 10, 20, .72);
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  pointer-events: none;
+  transition: top .25s ease, left .25s ease, width .25s ease, height .25s ease;
+}
+
+.pg-game-focus-card {
+  position: fixed;
+  width: min(300px, calc(100vw - 32px));
+  background: var(--bg-secondary);
+  border: 1px solid rgba(244, 196, 48, .3);
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .45);
+  transition: top .25s ease, left .25s ease;
+}
+
+.pg-game-focus-text {
+  font-size: .88rem;
+  color: var(--text-main);
+  line-height: 1.5;
+  margin: 0 0 14px;
+}
