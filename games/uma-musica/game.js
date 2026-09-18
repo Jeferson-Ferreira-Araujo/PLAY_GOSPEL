@@ -7,18 +7,15 @@ import { mountSoundMuteButton } from "../../assets/js/sound-mute-ui.js";
 import { mountFullscreenButton } from "../../assets/js/fullscreen-ui.js";
 import { watchStageText } from "../../assets/js/fit-text.js";
 import { showTeamsBlockFocus } from "../../assets/js/game-focus-tour.js";
-import { buildFairSchedule, applyScheduleEntry } from "../../assets/js/turn-fairness.js";
+import { buildMemberQueues, advanceMemberForTeam } from "../../assets/js/turn-fairness.js";
 import { icon } from "../../playgospel-ui/js/core.js";
 
 // Máximo de rodadas por partida (evita jogar todas as palavras de uma vez).
 const ROUND_SIZE = 10;
 
 const scoreBtn = document.getElementById("scoreBtn");
-
-const turnBanner = document.getElementById("turnBanner");
-const turnBannerIcon = document.getElementById("turnBannerIcon");
-const turnBannerTeam = document.getElementById("turnBannerTeam");
-const turnBannerPlayer = document.getElementById("turnBannerPlayer");
+const pairRow = document.getElementById("pairRow");
+const teamScoreButtons = document.getElementById("teamScoreButtons");
 
 const setupScreen = document.getElementById("setupScreen");
 const gameScreen = document.getElementById("gameScreen");
@@ -33,7 +30,6 @@ const timerText = document.getElementById("timerText");
 const timerBar = document.getElementById("timerBar");
 
 const newWordBtn = document.getElementById("newWordBtn");
-const correctBtn = document.getElementById("correctBtn");
 const exitBtn = document.getElementById("exitBtn");
 const brandLink = document.getElementById("brandLink");
 const playAgainBtn = document.getElementById("playAgainBtn");
@@ -44,7 +40,6 @@ let baseWords = [];       // vem do words.json (fixo)
 let roundWords = [];      // baseWords sem duplicados
 let pool = [];            // pool embaralhado da rodada
 let idx = 0;
-let schedule = [];        // escala justa da partida (ver assets/js/turn-fairness.js)
 let gameOver = false;
 
 // Tempo fixo (sem opção de escolha, pra evitar excesso de configurações —
@@ -53,22 +48,148 @@ const durationSec = 10;
 let timer = null;
 let countdownInterval = null;
 
-let currentWord = "";    // palavra sorteada pra rodada atual (mostrada só depois do "Começar")
-let pointGiven = false;  // ponto já dado nesta rodada — evita clique duplo em "Acertou?"
+let currentWord = "";    // palavra sorteada pra rodada atual (mostrada só depois do "Começar rodada")
+let pointGiven = false;  // ponto já dado nesta rodada — evita clique duplo nos botões de equipe
+
+// ===== Rodízio de pares (2 equipes por rodada) =====
+// Formato "disputa": as 2 equipes do par veem a mesma palavra ao mesmo
+// tempo, e quem cantar uma música com ela primeiro marca o ponto (ver
+// teamScoreButtons). Com só 2 equipes ativas, o par é sempre o mesmo. Com
+// 3+, a ordem é embaralhada uma vez no início da partida e o par avança
+// uma posição a cada rodada (A x B, B x C, C x A, repete...) — mesmo
+// padrão de games/palavras-misturadas/game.js e games/quem-disse-isso/game.js.
+let pairOrder = [];
+let pairCursor = -1;
+let currentPair = null; // [índiceEquipeA, índiceEquipeB] ou null antes da 1ª rodada
+let memberQueues = {};  // fila embaralhada de integrantes por equipe (ver assets/js/turn-fairness.js)
+
+function shuffledIndices(n) {
+  const arr = Array.from({ length: n }, (_, i) => i);
+  return shuffleArray(arr);
+}
+
+function initPairing() {
+  const n = Teams.getState().teams.length;
+  pairOrder = shuffledIndices(n);
+  pairCursor = -1;
+  currentPair = null;
+  memberQueues = buildMemberQueues();
+}
+
+// Chamada no início de cada rodada nova: fecha a rodada anterior (troca
+// quem representa cada equipe do par que acabou de jogar, em ordem
+// embaralhada — sem repetir ninguém da equipe até todo mundo dela ter
+// jogado) e decide o próximo par pelo rodízio.
+function advancePair() {
+  const n = Teams.getState().teams.length;
+  if (pairOrder.length !== n) initPairing();
+
+  if (currentPair) {
+    advanceMemberForTeam(memberQueues, currentPair[0]);
+    advanceMemberForTeam(memberQueues, currentPair[1]);
+  }
+
+  pairCursor = (pairCursor + 1) % n;
+  const a = pairOrder[pairCursor % n];
+  const b = pairOrder[(pairCursor + 1) % n];
+  currentPair = [a, b];
+}
+
+function escapeHtml(str) {
+  return String(str ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
+}
+
+function teamIconName(team) {
+  return Teams.teamIconNames.includes(team.icon) ? team.icon : "star";
+}
+
+function renderPairRow() {
+  if (!pairRow) return;
+  if (!currentPair || gameOver) {
+    pairRow.classList.add("d-none");
+    pairRow.innerHTML = "";
+    return;
+  }
+
+  const state = Teams.getState();
+  pairRow.classList.remove("d-none");
+  pairRow.innerHTML = currentPair.map((teamIndex) => {
+    const team = state.teams[teamIndex];
+    if (!team) return "";
+    const player = Teams.playerOf(teamIndex);
+    return `
+      <div class="um-pair-team" style="--team-color:${escapeHtml(team.color)}">
+        <span class="um-pair-team-icon">${icon(teamIconName(team), { size: 18 })}</span>
+        <span class="um-pair-team-text">
+          <span class="um-pair-team-name">${escapeHtml(team.name)}</span>
+          ${player ? `<span class="um-pair-team-player">${escapeHtml(player)}</span>` : ""}
+        </span>
+      </div>
+    `;
+  }).join(`<div class="um-pair-vs">×</div>`);
+}
+
+/* ===== Formato "disputa": um botão de pontuação por equipe do par ativo —
+   quem administra clica na equipe que cantou uma música com a palavra
+   primeiro. Aparecem assim que a palavra é revelada (não tem resposta
+   escondida pra revelar antes, como em outros jogos de disputa). ===== */
+function renderTeamScoreButtons() {
+  if (!teamScoreButtons) return;
+
+  if (!Teams.isEnabled() || !currentPair || gameOver || pointGiven) {
+    teamScoreButtons.innerHTML = "";
+    teamScoreButtons.classList.add("d-none");
+    return;
+  }
+
+  const state = Teams.getState();
+  teamScoreButtons.classList.remove("d-none");
+
+  teamScoreButtons.innerHTML = currentPair.map((index) => {
+    const team = state.teams[index];
+    if (!team) return "";
+    return `
+    <button
+      type="button"
+      class="um-team-btn"
+      data-index="${index}"
+      style="--team-color:${escapeHtml(team.color)}"
+    >
+      <span class="um-team-btn-icon">${icon(teamIconName(team), { size: 16 })}</span>
+      <span>${escapeHtml(team.name)} cantou</span>
+    </button>
+  `;
+  }).join("");
+
+  teamScoreButtons.querySelectorAll(".um-team-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (gameOver || pointGiven) return;
+
+      const index = Number(btn.dataset.index);
+      const team = state.teams[index];
+      Teams.addPoint(1);
+
+      pointGiven = true;
+      showPointGiven(team);
+    });
+  });
+}
 
 document.addEventListener("DOMContentLoaded", async () => {
   await loadWords();
   wireUI();
-  renderTeamUI();
+  renderTeamScoreButtons();
   updateScoreBtn();
   window.addEventListener("bibflix:teams:change", () => {
-    renderTeamUI();
+    renderTeamScoreButtons();
     updateScoreBtn();
   });
   mountFullscreenButton(document.querySelector(".game-topbar-actions"));
   watchStageText(document.querySelector(".presenter-center"));
   mountSoundMuteButton(document.querySelector(".game-topbar-actions"));
-  checkAutoStartFromURL(); // ✅ novo fluxo
+  checkAutoStartFromURL();
 });
 
 // Placar sob demanda (padrão do site): um botão no cabeçalho que abre o
@@ -80,52 +201,6 @@ function updateScoreBtn() {
   scoreBtn.classList.toggle("d-none", !show);
 }
 
-/* =========================
-   TEAMS UI (placar + vez da equipe + botão de pontuação)
-   Uma equipe por vez tem o tempo do timer pra cantar uma música com a
-   palavra. "✅ Acertou?" marca 1 ponto fixo e passa a vez pra próxima
-   equipe (escala justa); sem acerto, "Nova palavra" segue sem pontuar
-   (a vez passa do mesmo jeito, pra rotação continuar justa).
-========================= */
-function setTeamsControlsVisible(visible) {
-  if (correctBtn) correctBtn.style.display = visible && !pointGiven ? "inline-block" : "none";
-}
-
-function renderTeamUI() {
-  const enabled = Teams.isEnabled();
-  setTeamsControlsVisible(enabled);
-
-  if (!enabled) {
-    turnBanner?.classList.add("d-none");
-    return;
-  }
-
-  const t = Teams.currentTeam();
-  turnBanner?.classList.toggle("d-none", !t);
-  if (!t) return;
-
-  if (turnBannerIcon) turnBannerIcon.innerHTML = icon(t.icon || "star", { size: 18 });
-  if (turnBannerTeam) turnBannerTeam.textContent = t.name;
-  turnBanner?.style.setProperty("--team-color", t.color || "#F4C430");
-
-  const player = Teams.currentPlayer();
-  if (turnBannerPlayer) {
-    turnBannerPlayer.textContent = player ? `— ${player}` : "";
-    turnBannerPlayer.classList.toggle("d-none", !player);
-  }
-}
-
-window.addEventListener("bibflix:teams:change", renderTeamUI);
-
-// Avança a rotação da escala justa (ver assets/js/turn-fairness.js) pra
-// quem deve começar a PRÓXIMA palavra — idx já aponta pra rodada seguinte
-// nesse ponto (nextWord() incrementa antes de qualquer botão poder ser
-// clicado). Roda sempre uma vez por rodada, acertando ou não.
-function advanceFromWordStart() {
-  if (!Teams.getState().teams.length) return;
-  applyScheduleEntry(schedule[idx]);
-}
-
 function clearCountdown() {
   if (countdownInterval) {
     clearInterval(countdownInterval);
@@ -133,26 +208,19 @@ function clearCountdown() {
   }
 }
 
-/* ===== Fase "pronto" — espera confirmar que a equipe da vez está pronta
-   antes de começar a contagem (mesmo padrão dos outros jogos por turno).
-   A equipe (e a pessoa, se sorteada) já aparece no bloco centralizado do
-   topo — o botão só ocupa o lugar da palavra. */
+/* ===== Fase "pronto" — espera confirmar que as equipes do par estão
+   prontas antes de começar a contagem (mesmo padrão dos outros jogos por
+   rodízio). O par já aparece no bloco centralizado do topo (ver
+   renderPairRow) — o botão só ocupa o lugar da palavra. */
 function showReadyState() {
   clearCountdown();
   stopTimer();
   timerRow?.classList.add("d-none");
   newWordBtn.classList.add("d-none");
+  teamScoreButtons?.classList.add("d-none");
 
   wordText.classList.add("d-none");
   readyBtn.classList.toggle("d-none", gameOver);
-
-  // Já dava pra saber quem ganhou o ponto (ver showPointGiven) — o bloco
-  // "vez da equipe" só volta a aparecer agora, com a equipe já avançada
-  // pra rodada nova. Chamado ANTES de setTeamsControlsVisible(false):
-  // renderTeamUI() reexibe "Acertou?" (a equipe ativa), mas nessa fase
-  // de espera ele ainda não deve aparecer — só depois da contagem.
-  renderTeamUI();
-  setTeamsControlsVisible(false);
 }
 
 function beginPrepareCountdown() {
@@ -164,7 +232,7 @@ function beginPrepareCountdown() {
     timerRow?.classList.remove("d-none");
     startTimer();
     pointGiven = false;
-    setTeamsControlsVisible(Teams.isEnabled());
+    renderTeamScoreButtons();
     newWordBtn.classList.remove("d-none");
   });
 }
@@ -206,24 +274,18 @@ async function loadWords() {
   updateProgress();
 }
 
-function escapeHtml(str) {
-  return String(str ?? "").replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-  }[c]));
-}
-
-// Ponto dado: some a palavra, os botões de pontuação e o bloco "vez da
-// equipe" do topo (já mostra o badge da equipe vencedora aqui embaixo,
-// não faz sentido repetir lá em cima) — só resta o anúncio de quem
-// ganhou (badge colorido com ícone, não texto em branco) e "Nova
-// palavra" esperando o clique. O bloco do topo só volta quando a
-// próxima rodada estiver pronta pra começar (ver showReadyState).
+// Ponto dado: some a palavra, os botões de pontuação e o bloco do par do
+// topo (já mostra o badge da equipe vencedora aqui embaixo, não faz
+// sentido repetir lá em cima) — só resta o anúncio de quem ganhou (badge
+// colorido com ícone, não texto em branco) e "Nova palavra" esperando o
+// clique. O bloco do topo só volta quando a próxima rodada estiver
+// pronta pra começar (ver showReadyState).
 function showPointGiven(team) {
   stopTimer();
   timerRow?.classList.add("d-none");
   wordText.classList.remove("is-countdown");
-  turnBanner?.classList.add("d-none");
-  if (correctBtn) correctBtn.style.display = "none";
+  pairRow?.classList.add("d-none");
+  renderTeamScoreButtons();
 
   if (team) {
     wordText.innerHTML = `
@@ -261,6 +323,7 @@ async function checkAutoStartFromURL() {
 /* ===== Sair (confirma antes de deixar o jogo, com ou sem equipes) ===== */
 function confirmExit() {
   stopTimer();
+  clearCountdown();
   const goToCatalog = () => { window.location.href = "../../index.html#catalogo"; };
   const shown = showScorePopup({
     title: "👋 Sair do jogo?",
@@ -277,26 +340,10 @@ function wireUI() {
   readyBtn.addEventListener("click", () => beginPrepareCountdown());
 
   // "Nova palavra": sem acerto (ou já acertou e só quer seguir) — a
-  // escala justa continua avançando do mesmo jeito (ver correctBtn).
+  // rotação de pares continua avançando do mesmo jeito.
   newWordBtn.addEventListener("click", () => {
     if (gameOver) return;
-    if (!pointGiven && Teams.isEnabled()) advanceFromWordStart();
     nextWord();
-  });
-
-  // "✅ Acertou?" marca o ponto fixo (1) da equipe da vez e já avança a
-  // escala justa pra quem começa a próxima palavra.
-  correctBtn?.addEventListener("click", () => {
-    if (gameOver || pointGiven) return;
-
-    const team = Teams.currentTeam();
-    if (Teams.isEnabled()) {
-      Teams.addPoint(1);
-      advanceFromWordStart();
-    }
-
-    pointGiven = true;
-    showPointGiven(team);
   });
 
   playAgainBtn.addEventListener("click", () => {
@@ -356,19 +403,13 @@ function restartGame() {
   gameOver = false;
   setGameOverUI(false);
 
-  // Escala justa primeiro (ver assets/js/turn-fairness.js): com gente
-  // sorteada, pode precisar de mais que ROUND_SIZE rodadas pra todo mundo
-  // jogar 1 vez — o pool de palavras acompanha esse tamanho.
-  schedule = buildFairSchedule(ROUND_SIZE);
-  const roundCount = schedule.length || ROUND_SIZE;
+  initPairing();
 
-  // embaralha a ordem a cada reinício, sorteando até roundCount palavras
-  // (evita jogar todas de uma vez)
-  pool = shuffleArray(roundWords).slice(0, roundCount);
-  schedule = schedule.slice(0, pool.length);
+  // Cada partida sorteia até ROUND_SIZE palavras (evita jogar todas de
+  // uma vez).
+  pool = shuffleArray(roundWords).slice(0, ROUND_SIZE);
   idx = 0;
 
-  if (Teams.isEnabled()) applyScheduleEntry(schedule[0]);
   nextWord();
 }
 
@@ -389,6 +430,9 @@ function nextWord() {
   currentWord = pool[idx];
   idx += 1;
   updateProgress();
+
+  advancePair();
+  renderPairRow();
 
   showReadyState();
 }
@@ -411,7 +455,8 @@ function endGame(text) {
   setGameOverUI(true);
   updateProgress();
 
-  turnBanner?.classList.add("d-none");
+  renderPairRow();
+  renderTeamScoreButtons();
   timerText.textContent = "--";
   timerBar.style.width = "0%";
 
@@ -423,7 +468,6 @@ function endGame(text) {
 
 function setGameOverUI(isOver) {
   newWordBtn.disabled = isOver;
-  if (correctBtn) correctBtn.disabled = isOver;
 
   playAgainBtn.classList.toggle("d-none", !isOver);
   gameOverNotice.classList.toggle("d-none", !isOver);
@@ -451,7 +495,7 @@ function createOrUpdateTimer() {
     onEnd: () => {
       timerText.textContent = "Tempo!";
       timerBar.style.width = "0%";
-      // quando zera, para; a rodada continua (admin decide acertou/passou)
+      // quando zera, para; a rodada continua (admin decide quem cantou/segue)
     },
   });
 }

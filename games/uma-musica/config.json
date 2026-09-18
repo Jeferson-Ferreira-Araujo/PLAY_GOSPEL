@@ -1,9 +1,9 @@
 {
   "settings": [],
   "howTo": [
-    "Uma palavra aparece na tela.",
-    "A equipe da vez canta uma música com essa palavra, dentro do tempo.",
-    "Acertou marca ponto, errou desconta — passar dobra a pontuação da próxima equipe."
+    "Duas equipes disputam cada rodada — clique em Começar rodada quando estiverem prontas.",
+    "A mesma palavra aparece pras duas ao mesmo tempo.",
+    "Quem cantar uma música com essa palavra primeiro marca 1 ponto."
   ],
   "tips": [
     "Atalho: Espaço = nova palavra",

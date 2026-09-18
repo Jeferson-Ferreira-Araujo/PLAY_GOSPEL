@@ -53,9 +53,9 @@
         <div class="p-4 rounded-4 bg-black border border-secondary">
           <h1 class="h4 mb-2">Como jogar</h1>
           <p class="text-secondary mb-0">
-            Clique em "Começar" quando a equipe estiver pronta. Uma palavra aparece na tela e a equipe tem o tempo
-            do timer pra cantar uma música que tenha essa palavra. <b>✅ Acertou?</b> marca 1 ponto; sem acerto,
-            siga com <b>Nova palavra</b>. As palavras não se repetem até o jogo ser reiniciado.
+            Duas equipes disputam cada rodada. Clique em "Começar rodada" quando estiverem prontas — a mesma
+            palavra aparece pras duas ao mesmo tempo, e quem cantar uma música com essa palavra primeiro marca
+            1 ponto. Sem acerto, siga com <b>Nova palavra</b>. As palavras não se repetem até o jogo ser reiniciado.
           </p>
         </div>
 
@@ -94,11 +94,8 @@
         </div>
       </div>
 
-      <div class="round-box round-box--team round-box--team-centered d-none" id="turnBanner">
-        <span class="round-box-team-icon" id="turnBannerIcon" aria-hidden="true"></span>
-        <span class="round-box-value" id="turnBannerTeam">—</span>
-        <span class="round-box-player d-none" id="turnBannerPlayer"></span>
-      </div>
+      <!-- PAR DA RODADA (2 equipes disputam por vez — rodízio em game.js) -->
+      <div class="um-pair-row d-none" id="pairRow"></div>
 
       <div class="timer-card" id="presenterTimerRow">
         <div class="round-box-label"><svg class="round-box-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Tempo</div>
@@ -112,14 +109,15 @@
     </div>
 
     <div class="presenter-center">
-      <button id="readyBtn" class="btn btn-warning ready-btn d-none" type="button">Começar</button>
+      <button id="readyBtn" class="btn btn-warning ready-btn d-none" type="button">Começar rodada</button>
       <div class="word stage-text" id="wordText">CARREGANDO</div>
     </div>
 
+    <!-- QUEM CANTOU PRIMEIRO (um botão por equipe do par da vez) -->
+    <div class="team-score-row d-none" id="teamScoreButtons"></div>
+
     <div class="presenter-bottom">
       <div class="d-flex gap-2 flex-wrap justify-content-center">
-        <!-- Pontuação (equipe da vez) -->
-        <button id="correctBtn" class="btn btn-success fw-semibold" style="display:none">✅ Acertou?</button>
         <button id="newWordBtn" class="btn btn-warning fw-semibold d-none">Nova palavra</button>
 
         <button id="playAgainBtn" class="btn btn-warning fw-semibold d-none">Jogar novamente</button>
