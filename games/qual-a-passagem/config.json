@@ -29,10 +29,10 @@
   "howTo": [
     "Um versículo aparece na tela.",
     "O grupo diz a passagem bíblica correta (ex: João 3:16).",
-    "Clique em “Revelar” pra conferir e “Próximo” pra seguir."
+    "Acertou? marca o ponto e revela a referência; sem acerto, siga com Próximo versículo."
   ],
   "tips": [
     "Excelente para jogar em grupo (célula/culto).",
-    "Atalhos: N (próximo), R (revelar), T (reiniciar tempo)."
+    "Atalhos: A (acertou/revelar), N (próximo), T (reiniciar tempo)."
   ]
 }

@@ -1,4 +1,4 @@
-import { createCountdownTimer, shuffleArray, pointsLabel } from "../../assets/js/utils.js";
+import { createCountdownTimer, shuffleArray } from "../../assets/js/utils.js";
 import { Teams } from "../../assets/js/teams.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
@@ -21,13 +21,10 @@ const turnBanner = $("turnBanner");
 const turnBannerTeam = $("turnBannerTeam");
 const turnBannerPlayer = $("turnBannerPlayer");
 
-const pointsBox = $("pointsBox");
-const pointsValue = $("pointsValue");
-
 const correctBtn = $("correctBtn");
-const wrongBtn = $("wrongBtn");
-const passTurnBtn = $("passTurnBtn");
 const timerRow = $("presenterTimerRow");
+const readyBtn = $("readyBtn");
+const verseText = $("verseText");
 
 let DATA = [];
 let pool = [];
@@ -43,15 +40,9 @@ let timer = null;
 let gameOver = false;
 let countdownInterval = null;
 
-// Passar a vez: quantas vezes a vez já passou nesta rodada, e quem já tentou
-let passCount = 0;
-let triedTeamIds = new Set();
-let verseStartTurn = 0; // time que iniciou a rodada (base da rotação p/ a próxima)
-
-// Resposta revelada nesta rodada — Acertou/Errou (dão ponto) só aparecem
-// depois de "Revelar", pra evitar cliques sem querer que pontuem a equipe
-// errada por engano. "Passar a vez" continua disponível antes, já que
-// passar não exige (nem deveria exigir) mostrar a resposta.
+// Resposta revelada nesta rodada — "✅ Acertou?" tanto marca o ponto quanto
+// revela a passagem, então isso também serve pra saber se o ponto desta
+// rodada já foi dado (evita clique duplo — ver setTeamsControlsVisible).
 let answerRevealed = false;
 
 function getParams() {
@@ -98,166 +89,34 @@ function clearCountdown() {
   }
 }
 
-// Anuncia a equipe da vez junto com a contagem — o aviso de que o jogo
-// mostra "de quem é a vez" deixou de ser um texto solto no modal de
-// Equipes pra virar esse momento real, bem no início de cada rodada.
-// Diferente dos outros jogos por turno, aqui NÃO restringe a resposta a
-// 1 pessoa da equipe (ver renderTeamUI) — é um jogo difícil de saber a
-// resposta de cara, então qualquer um da equipe pode responder.
-function prepareLabel(n) {
-  const t = Teams.currentTeam();
-  if (!t) return `Prepare-se! ${n}`;
-  return `Prepare-se, ${t.name}! ${n}`;
-}
-
-/* Contagem "3, 2, 1" antes de cada rodada nova — dá tempo da equipe se
-   preparar antes do timer voltar a contar. */
-function startPrepareCountdown(onDone) {
+/* ===== Fase "pronto" — espera confirmar que a equipe da vez está pronta
+   antes de começar a contagem, mesmo padrão dos outros jogos por turno
+   (ver games/verdadeiro-ou-falso/game.js). A equipe (e "Qualquer um pode
+   responder") já aparece no bloco centralizado do topo — o botão só
+   ocupa o lugar do versículo, sem repetir o nome de novo aqui. */
+function showReadyState() {
   clearCountdown();
+  stopTimer();
   timerRow?.classList.add("d-none");
+  $("nextBtn").disabled = true;
 
-  let n = 3;
-  $("verseText").textContent = prepareLabel(n);
-  playCountdownTick();
-
-  countdownInterval = setInterval(() => {
-    n -= 1;
-    if (n > 0) {
-      $("verseText").textContent = prepareLabel(n);
-      playCountdownTick();
-      return;
-    }
-    clearCountdown();
-    playCountdownGo();
-    onDone();
-  }, 1000);
+  verseText.classList.add("d-none");
+  readyBtn.classList.remove("d-none");
 }
 
-/* =========================
-   TEAMS UI (placar + vez da equipe + botões de pontuação)
-========================= */
-function setTeamsControlsVisible(visible) {
-  // Acertou/Errou dão ponto — só depois de revelar a resposta.
-  const showScoring = visible && answerRevealed;
-  if (correctBtn) correctBtn.style.display = showScoring ? "inline-block" : "none";
-  if (wrongBtn) wrongBtn.style.display = showScoring ? "inline-block" : "none";
-  // Passar não dá ponto nem exige revelar — some só sem equipes.
-  if (passTurnBtn) passTurnBtn.style.display = visible ? "inline-block" : "none";
-}
-
-function renderTeamUI() {
-  const enabled = Teams.isEnabled();
-  setTeamsControlsVisible(enabled);
-
-  if (!enabled) {
-    turnBanner?.classList.add("d-none");
-    pointsBox?.classList.add("d-none");
-    return;
-  }
-
-  const t = Teams.currentTeam();
-  turnBanner?.classList.toggle("d-none", !t);
-  pointsBox?.classList.toggle("d-none", !t);
-  if (!t) return;
-
-  if (turnBannerTeam) turnBannerTeam.textContent = t.name;
-  turnBanner?.style.setProperty("--team-color", t.color || "#F4C430");
-
-  // Diferente dos outros jogos por turno: não mostra uma pessoa
-  // específica (ver prepareLabel) — com participantes sorteados, avisa
-  // que qualquer um da equipe pode responder, já que é difícil saber a
-  // resposta de cara e não faria sentido travar numa pessoa só.
-  if (turnBannerPlayer) {
-    const anyoneCanAnswer = Array.isArray(t.members) && t.members.length > 0;
-    turnBannerPlayer.textContent = anyoneCanAnswer ? "Qualquer um pode responder" : "";
-    turnBannerPlayer.classList.toggle("d-none", !anyoneCanAnswer);
-  }
-
-  if (correctBtn) correctBtn.textContent = `Acertou (+${passCount + 1})`;
-  if (wrongBtn) wrongBtn.textContent = `Errou (-${passCount + 1})`;
-  if (pointsValue) pointsValue.textContent = pointsLabel(passCount + 1);
-
-  const state = Teams.getState();
-  const canPass = state.teams.length > triedTeamIds.size;
-  if (passTurnBtn) passTurnBtn.disabled = gameOver || !canPass;
-}
-
-window.addEventListener("bibflix:teams:change", renderTeamUI);
-
-/* =========================
-   PASSAR A VEZ
-========================= */
-function resetPassChain() {
-  passCount = 0;
-  triedTeamIds = new Set();
-  verseStartTurn = Teams.getState().turn;
-  answerRevealed = false;
-
-  const t = Teams.currentTeam();
-  if (t) triedTeamIds.add(t.id);
-
-  renderTeamUI();
-}
-
-// Avança a rotação a partir de quem INICIOU a rodada (não de quem respondeu
-// depois de um "passar a vez"), assim cada time mantém sua vez de começar.
-// A próxima equipe/pessoa vem da escala justa da rodada seguinte (index+1
-// — chamado antes do nextCard() incrementar o index de verdade).
-function advanceFromVerseStart() {
-  if (!Teams.getState().teams.length) return;
-  applyScheduleEntry(schedule[index + 1]);
-}
-
-function passTurn() {
-  if (!Teams.isEnabled()) return;
-
-  const state = Teams.getState();
-  const n = state.teams.length;
-
-  if (n === 2) {
-    Teams.nextTurn();
-  } else {
-    const candidates = state.teams
-      .map((_, i) => i)
-      .filter((i) => !triedTeamIds.has(state.teams[i].id));
-
-    if (!candidates.length) return; // botão já deveria estar desabilitado
-
-    const pick = candidates[Math.floor(Math.random() * candidates.length)];
-    Teams.setTurn(pick);
-  }
-
-  passCount += 1;
-
-  const t = Teams.currentTeam();
-  if (t) triedTeamIds.add(t.id);
-
-  renderTeamUI();
-  timerRow?.classList.remove("d-none");
-  startTimer(settings.time);
-}
-
-function shuffle(arr) {
-  return shuffleArray(arr);
-}
-
-function renderCard() {
-  if (!pool.length) return;
-
-  const item = pool[index];
-
-  showAnswer(false);
-  updateProgress();
-  // Esconde os botões de pontuação enquanto conta "Prepare-se!" — só
-  // voltam (com o passCount certo) quando resetPassChain roda lá embaixo,
-  // pra ninguém clicar Passar a vez antes da rodada realmente começar.
-  setTeamsControlsVisible(false);
+function beginPrepareCountdown() {
+  verseText.classList.remove("d-none");
+  readyBtn.classList.add("d-none");
 
   startPrepareCountdown(async () => {
+    const item = pool[index];
     $("answerText").textContent = item.reference || "—";
     timerRow?.classList.remove("d-none");
     startTimer(settings.time);
-    resetPassChain();
+    $("nextBtn").disabled = false;
+
+    answerRevealed = false;
+    renderTeamUI();
 
     // Busca a tradução ANTES de escrever o texto na tela — escrever o
     // original e trocar pelo traduzido logo em seguida (como era antes)
@@ -267,8 +126,97 @@ function renderCard() {
     const reqId = ++verseRequestId;
     const text = await BibleVersion.resolveText(item.verse, item.reference);
     if (reqId !== verseRequestId) return; // já foi pra outra carta enquanto buscava
-    $("verseText").textContent = text || "—";
+    verseText.textContent = text || "—";
   });
+}
+
+/* Contagem "3, 2, 1" antes de cada rodada nova — mesmo padrão visual de
+   TODOS os jogos (destaque dourado, .stage-text.is-countdown em
+   assets/css/game-base.css) e o mesmo som de tick/"vai" dos demais. */
+function startPrepareCountdown(onDone) {
+  clearCountdown();
+  timerRow?.classList.add("d-none");
+  verseText.classList.add("is-countdown");
+
+  let n = 3;
+  verseText.textContent = String(n);
+  playCountdownTick();
+
+  countdownInterval = setInterval(() => {
+    n -= 1;
+    if (n > 0) {
+      verseText.textContent = String(n);
+      playCountdownTick();
+      return;
+    }
+    clearCountdown();
+    playCountdownGo();
+    verseText.classList.remove("is-countdown");
+    onDone();
+  }, 1000);
+}
+
+/* =========================
+   TEAMS UI (placar + vez da equipe + botões de pontuação)
+========================= */
+function setTeamsControlsVisible(visible) {
+  // "✅ Acertou?" já revela a resposta — some depois de usado (evita
+  // marcar ponto de novo) ou se não houver equipes.
+  if (correctBtn) correctBtn.style.display = visible && !answerRevealed ? "inline-block" : "none";
+}
+
+function renderTeamUI() {
+  const enabled = Teams.isEnabled();
+  setTeamsControlsVisible(enabled);
+
+  if (!enabled) {
+    turnBanner?.classList.add("d-none");
+    return;
+  }
+
+  const t = Teams.currentTeam();
+  turnBanner?.classList.toggle("d-none", !t);
+  if (!t) return;
+
+  if (turnBannerTeam) turnBannerTeam.textContent = t.name;
+  turnBanner?.style.setProperty("--team-color", t.color || "#F4C430");
+
+  // Diferente dos outros jogos por turno: não mostra uma pessoa
+  // específica — com participantes sorteados, avisa que qualquer um da
+  // equipe pode responder, já que é difícil saber a resposta de cara e
+  // não faria sentido travar numa pessoa só.
+  if (turnBannerPlayer) {
+    const anyoneCanAnswer = Array.isArray(t.members) && t.members.length > 0;
+    turnBannerPlayer.textContent = anyoneCanAnswer ? "Qualquer um pode responder" : "";
+    turnBannerPlayer.classList.toggle("d-none", !anyoneCanAnswer);
+  }
+}
+
+window.addEventListener("bibflix:teams:change", renderTeamUI);
+
+// Avança a rotação da escala justa (ver assets/js/turn-fairness.js) pra
+// quem deve começar a PRÓXIMA rodada (index+1 — chamado antes do
+// nextCard() incrementar o index de verdade). Roda sempre uma vez por
+// rodada, acertando ou não (ver correctBtn/nextBtn em wireEvents).
+function advanceFromVerseStart() {
+  if (!Teams.getState().teams.length) return;
+  applyScheduleEntry(schedule[index + 1]);
+}
+
+function shuffle(arr) {
+  return shuffleArray(arr);
+}
+
+function renderCard() {
+  if (!pool.length) return;
+
+  showAnswer(false);
+  updateProgress();
+  // Esconde "✅ Acertou?" enquanto espera o "Pronto" e conta — só volta
+  // quando a rodada realmente começa (dentro de beginPrepareCountdown).
+  setTeamsControlsVisible(false);
+
+  showReadyState();
 }
 
 // Incrementado a cada carta nova/troca de tradução — busca de texto que
@@ -286,7 +234,7 @@ async function reloadCurrentVerseText() {
   const reqId = ++verseRequestId;
   const text = await BibleVersion.resolveText(item.verse, item.reference);
   if (reqId !== verseRequestId) return;
-  $("verseText").textContent = text || "—";
+  verseText.textContent = text || "—";
 }
 
 // Avança pra próxima carta — quem chama decide o que acontece com a vez
@@ -308,14 +256,15 @@ function gameOverScreen() {
   clearCountdown();
   gameOver = true;
 
-  $("verseText").textContent = "FIM! ✅";
+  readyBtn.classList.add("d-none");
+  verseText.classList.remove("d-none", "is-countdown");
+  verseText.textContent = "FIM! ✅";
   $("answerText").textContent = "";
   showAnswer(false);
 
   $("playAgainBtn").classList.remove("d-none");
   $("gameOverNotice").classList.remove("d-none");
 
-  $("revealBtn").disabled = true;
   $("nextBtn").disabled = true;
   setGameOverButtons(true);
 
@@ -334,8 +283,6 @@ function gameOverScreen() {
 
 function setGameOverButtons(isOver) {
   if (correctBtn) correctBtn.disabled = isOver;
-  if (wrongBtn) wrongBtn.disabled = isOver;
-  if (passTurnBtn) passTurnBtn.disabled = isOver;
 }
 
 function resetGame() {
@@ -346,7 +293,7 @@ function resetGame() {
   // das EQUIPES (forceTeamOnly: diferente dos outros jogos por turno,
   // aqui a resposta não fica restrita a 1 pessoa sorteada, então não faz
   // sentido esticar as rodadas pra cobrir todo mundo individualmente —
-  // ver renderTeamUI/prepareLabel, "Qualquer um pode responder").
+  // ver renderTeamUI, "Qualquer um pode responder").
   schedule = buildFairSchedule(ROUND_SIZE, { forceTeamOnly: true });
   const roundCount = schedule.length || ROUND_SIZE;
 
@@ -359,12 +306,13 @@ function resetGame() {
   $("playAgainBtn").classList.add("d-none");
   $("gameOverNotice").classList.add("d-none");
 
-  $("revealBtn").disabled = false;
   $("nextBtn").disabled = false;
   setGameOverButtons(false);
 
   if (!pool.length) {
-    $("verseText").textContent = "Sem versículos para esta dificuldade.";
+    readyBtn.classList.add("d-none");
+    verseText.classList.remove("d-none", "is-countdown");
+    verseText.textContent = "Sem versículos para esta dificuldade.";
     $("answerText").textContent = "";
     showAnswer(false);
     $("badgeProgress").textContent = "0/0";
@@ -410,46 +358,29 @@ function confirmExit() {
 }
 
 function wireEvents() {
-  $("revealBtn").addEventListener("click", () => showAnswer(true));
+  readyBtn.addEventListener("click", () => beginPrepareCountdown());
 
-  // "Próximo" pula a rodada sem ninguém responder — mantém quem a iniciou
-  // (desfaz qualquer "passar a vez" que tenha acontecido nela).
-  $("nextBtn").addEventListener("click", () => {
-    if (Teams.isEnabled()) Teams.setTurn(verseStartTurn);
-    nextCard();
-  });
-
-  // Pontuação (equipes)
+  // "✅ Acertou?" marca o ponto da equipe da vez E revela a passagem —
+  // a rodada fica na tela (não avança sozinha) pra dar tempo de ler a
+  // referência antes de "Próximo versículo".
   correctBtn?.addEventListener("click", () => {
-    if (gameOver) return;
+    if (gameOver || answerRevealed) return;
 
     if (Teams.isEnabled()) {
-      Teams.addPoint(passCount + 1);
       advanceFromVerseStart();
+      Teams.addPoint(1);
     }
 
-    renderTeamUI();
-    nextCard();
+    showAnswer(true);
   });
 
-  // Errou: desconta os mesmos pontos que estavam em jogo (o valor cresce a
-  // cada "Passar a vez", igual ao acerto) e encerra a tentativa desta rodada.
-  wrongBtn?.addEventListener("click", () => {
+  // "Próximo versículo": não sabiam (ou já acertaram e só querem seguir) —
+  // sem resposta ainda revelada, ainda precisa avançar a escala justa pra
+  // próxima rodada (o acerto já faz isso sozinho, ver correctBtn acima).
+  $("nextBtn").addEventListener("click", () => {
     if (gameOver) return;
-
-    if (Teams.isEnabled()) {
-      Teams.addPoint(-(passCount + 1));
-      advanceFromVerseStart();
-    }
-
-    renderTeamUI();
+    if (!answerRevealed && Teams.isEnabled()) advanceFromVerseStart();
     nextCard();
-  });
-
-  // Time atual não sabe: passa a vez, mesma rodada continua
-  passTurnBtn?.addEventListener("click", () => {
-    if (gameOver) return;
-    passTurn();
   });
 
   scoreBtn?.addEventListener("click", () => showScorePopup());
@@ -459,7 +390,6 @@ function wireEvents() {
   // só o botão "Sair" explícito pergunta antes (ver exitBtn acima).
 
   $("playAgainBtn").addEventListener("click", () => {
-    $("revealBtn").disabled = false;
     $("nextBtn").disabled = false;
     resetGame();
   });
@@ -476,7 +406,7 @@ function wireEvents() {
     // atalhos só no modo jogo
     if ($("gameScreen").classList.contains("d-none")) return;
 
-    if (k === "r") showAnswer(true);
+    if (k === "a") correctBtn?.click();
     if (k === "n") $("nextBtn").click();
     if (k === "t") startTimer(settings.time);
   });
