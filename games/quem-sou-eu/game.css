@@ -49,6 +49,14 @@
   letter-spacing: 0.3em;
 }
 
+/* Dica da vez (a que acabou de ser revelada) em destaque — mesmo
+   amarelo usado no resto do site (var(--gold), game-base.css). Só uma
+   por vez (ver revealHintAt no game.js); as anteriores voltam ao branco
+   normal. */
+.hints li.hint-active {
+  color: var(--gold);
+}
+
 .answer{
   margin-top: 10px;
   padding: 10px 14px;

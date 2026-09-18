@@ -270,6 +270,11 @@ function revealHintAt(i) {
     li.classList.remove("hint-pending");
   }
 
+  // A dica da vez (a que acabou de aparecer) fica em destaque — as
+  // anteriores voltam ao tom normal, só uma por vez em amarelo.
+  Array.from(hintsList.children).forEach((el) => el.classList.remove("hint-active"));
+  li?.classList.add("hint-active");
+
   // Esse jogo não tem contagem "3,2,1" (não é por turno cronometrado) —
   // o mesmo som de tick marca o momento de cada dica nova aparecendo.
   playCountdownTick();
@@ -331,7 +336,11 @@ function finishRound() {
   // antes) e a resposta já precisam estar na tela primeiro.
   nextBtn.classList.remove("d-none");
 
-  renderTurnBanner();
+  // A equipe da vez já mudou por baixo (Teams.nextTurn() em onCorrect/
+  // onPass) — mas essa próxima equipe só começa a valer na rodada
+  // seguinte, não faz sentido mostrar o bloco dela em cima da resposta
+  // do personagem que acabou de terminar.
+  turnBanner?.classList.add("d-none");
 }
 
 function nextItem() {
