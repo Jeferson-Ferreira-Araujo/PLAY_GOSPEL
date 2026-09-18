@@ -27,8 +27,8 @@ export const MATCH_TYPES = {
   rodada: {
     label: "Rodada",
     icon: "refresh",
-    sub: "Uma equipe por vez, em turnos",
-    text: "as equipes jogam uma de cada vez, em turnos.",
+    sub: "Uma pessoa da equipe por vez",
+    text: "uma pessoa da equipe por vez — o revezamento passa de pessoa em pessoa, em turnos.",
     image: "/assets/img/match-type/rodada.webp",
   },
 };
