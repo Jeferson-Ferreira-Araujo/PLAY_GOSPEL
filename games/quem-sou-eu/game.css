@@ -59,17 +59,25 @@
 
 .answer{
   margin-top: 10px;
-  padding: 10px 14px;
+  padding: 14px 18px;
   border-radius: 14px;
   border: 1px solid rgba(255,255,255,.14);
   background: rgba(0,0,0,.35);
+}
+
+.answer .text-secondary.small{
+  font-size: clamp(14px, 2vw, 20px);
 }
 
 .answer-text{
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: clamp(20px, 3.4vw, 48px);
+  font-size: clamp(28px, 5.5vw, 72px);
   line-height: 1.1;
+}
+
+.reference-text{
+  font-size: clamp(14px, 2.2vw, 24px) !important;
 }
 
