@@ -1,4 +1,4 @@
-import { shuffleArray, createCountdownTimer, pointsLabel } from "../../assets/js/utils.js";
+import { shuffleArray, createCountdownTimer } from "../../assets/js/utils.js";
 import { Teams } from "../../assets/js/teams.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
@@ -19,14 +19,13 @@ const turnBanner = document.getElementById("turnBanner");
 const turnBannerIcon = document.getElementById("turnBannerIcon");
 const turnBannerTeam = document.getElementById("turnBannerTeam");
 const turnBannerPlayer = document.getElementById("turnBannerPlayer");
-const pointsBox = document.getElementById("pointsBox");
-const pointsValue = document.getElementById("pointsValue");
 
 const setupScreen = document.getElementById("setupScreen");
 const gameScreen = document.getElementById("gameScreen");
 
 const startBtn = document.getElementById("startBtn");
 
+const readyBtn = document.getElementById("readyBtn");
 const wordText = document.getElementById("wordText");
 const badgeProgress = document.getElementById("badgeProgress");
 
@@ -35,8 +34,6 @@ const timerBar = document.getElementById("timerBar");
 
 const newWordBtn = document.getElementById("newWordBtn");
 const correctBtn = document.getElementById("correctBtn");
-const wrongBtn = document.getElementById("wrongBtn");
-const passTurnBtn = document.getElementById("passTurnBtn");
 const exitBtn = document.getElementById("exitBtn");
 const brandLink = document.getElementById("brandLink");
 const playAgainBtn = document.getElementById("playAgainBtn");
@@ -56,10 +53,8 @@ const durationSec = 10;
 let timer = null;
 let countdownInterval = null;
 
-// Passar a vez: quantas vezes a vez já passou nesta palavra, e quem já tentou
-let passCount = 0;
-let triedTeamIds = new Set();
-let wordStartTurn = 0; // time que iniciou a palavra (base da rotação p/ a próxima)
+let currentWord = "";    // palavra sorteada pra rodada atual (mostrada só depois do "Começar")
+let pointGiven = false;  // ponto já dado nesta rodada — evita clique duplo em "Acertou?"
 
 document.addEventListener("DOMContentLoaded", async () => {
   await loadWords();
@@ -86,17 +81,14 @@ function updateScoreBtn() {
 }
 
 /* =========================
-   TEAMS UI (placar + vez da equipe + botões de pontuação)
-   Uma equipe por vez: ela tem o tempo do timer pra cantar uma música com a
-   palavra. Acertou soma ponto (dobra a cada "Passar a vez") e vai pra
-   próxima palavra; Errou desconta o mesmo valor (também vai pra próxima
-   palavra); Passar a vez chama a próxima equipe pra tentar a mesma
-   palavra, sem gastar uma tentativa de ninguém mais de uma vez.
+   TEAMS UI (placar + vez da equipe + botão de pontuação)
+   Uma equipe por vez tem o tempo do timer pra cantar uma música com a
+   palavra. "✅ Acertou?" marca 1 ponto fixo e passa a vez pra próxima
+   equipe (escala justa); sem acerto, "Nova palavra" segue sem pontuar
+   (a vez passa do mesmo jeito, pra rotação continuar justa).
 ========================= */
 function setTeamsControlsVisible(visible) {
-  if (correctBtn) correctBtn.style.display = visible ? "inline-block" : "none";
-  if (wrongBtn) wrongBtn.style.display = visible ? "inline-block" : "none";
-  if (passTurnBtn) passTurnBtn.style.display = visible ? "inline-block" : "none";
+  if (correctBtn) correctBtn.style.display = visible && !pointGiven ? "inline-block" : "none";
 }
 
 function renderTeamUI() {
@@ -105,13 +97,11 @@ function renderTeamUI() {
 
   if (!enabled) {
     turnBanner?.classList.add("d-none");
-    pointsBox?.classList.add("d-none");
     return;
   }
 
   const t = Teams.currentTeam();
   turnBanner?.classList.toggle("d-none", !t);
-  pointsBox?.classList.toggle("d-none", !t);
   if (!t) return;
 
   if (turnBannerIcon) turnBannerIcon.innerHTML = icon(t.icon || "star", { size: 18 });
@@ -123,78 +113,17 @@ function renderTeamUI() {
     turnBannerPlayer.textContent = player ? `— ${player}` : "";
     turnBannerPlayer.classList.toggle("d-none", !player);
   }
-
-  if (correctBtn) correctBtn.textContent = `Acertou? (+${passCount + 1})`;
-  if (wrongBtn) wrongBtn.textContent = `Errou (-${passCount + 1})`;
-  if (pointsValue) pointsValue.textContent = pointsLabel(passCount + 1);
-
-  const state = Teams.getState();
-  const canPass = state.teams.length > triedTeamIds.size;
-  if (passTurnBtn) passTurnBtn.disabled = gameOver || !canPass;
 }
 
 window.addEventListener("bibflix:teams:change", renderTeamUI);
 
-/* =========================
-   PASSAR A VEZ
-========================= */
-function resetPassChain() {
-  passCount = 0;
-  triedTeamIds = new Set();
-  wordStartTurn = Teams.getState().turn;
-
-  const t = Teams.currentTeam();
-  if (t) triedTeamIds.add(t.id);
-
-  renderTeamUI();
-}
-
-// Avança a rotação a partir de quem INICIOU a palavra (não de quem cantou
-// depois de um "passar a vez"), assim cada time mantém sua vez de começar.
-// A próxima equipe/pessoa vem da escala justa — idx já aponta pra rodada
-// seguinte nesse ponto (nextWord() incrementa antes de qualquer botão de
-// pontuação poder ser clicado).
+// Avança a rotação da escala justa (ver assets/js/turn-fairness.js) pra
+// quem deve começar a PRÓXIMA palavra — idx já aponta pra rodada seguinte
+// nesse ponto (nextWord() incrementa antes de qualquer botão poder ser
+// clicado). Roda sempre uma vez por rodada, acertando ou não.
 function advanceFromWordStart() {
   if (!Teams.getState().teams.length) return;
   applyScheduleEntry(schedule[idx]);
-}
-
-function passTurn() {
-  if (!Teams.isEnabled()) return;
-
-  const state = Teams.getState();
-  const n = state.teams.length;
-
-  if (n === 2) {
-    Teams.nextTurn();
-  } else {
-    const candidates = state.teams
-      .map((_, i) => i)
-      .filter((i) => !triedTeamIds.has(state.teams[i].id));
-
-    if (!candidates.length) return; // botão já deveria estar desabilitado
-
-    const pick = candidates[Math.floor(Math.random() * candidates.length)];
-    Teams.setTurn(pick);
-  }
-
-  passCount += 1;
-
-  const t = Teams.currentTeam();
-  if (t) triedTeamIds.add(t.id);
-
-  renderTeamUI();
-  // Esconde os botões de pontuação enquanto conta "Prepare-se!" — só
-  // voltam quando a próxima tentativa realmente começar.
-  setTeamsControlsVisible(false);
-
-  const w = wordText.textContent;
-  startPrepareCountdown(() => {
-    wordText.textContent = w;
-    timerRow?.classList.remove("d-none");
-    startTimer();
-    renderTeamUI();
-  });
 }
 
 function clearCountdown() {
@@ -204,38 +133,58 @@ function clearCountdown() {
   }
 }
 
-// Anuncia a equipe (e, se sorteada, a pessoa) da vez junto com a
-// contagem — o aviso de que o jogo mostra "de quem é a vez" deixou de
-// ser um texto solto no modal de Equipes pra virar esse momento real,
-// bem no início de cada rodada.
-function prepareLabel(n) {
-  const t = Teams.currentTeam();
-  if (!t) return `Prepare-se! ${n}`;
-  const player = Teams.currentPlayer();
-  const who = player ? `${t.name} (${player})` : t.name;
-  return `Prepare-se, ${who}! ${n}`;
+/* ===== Fase "pronto" — espera confirmar que a equipe da vez está pronta
+   antes de começar a contagem (mesmo padrão dos outros jogos por turno).
+   A equipe (e a pessoa, se sorteada) já aparece no bloco centralizado do
+   topo — o botão só ocupa o lugar da palavra. */
+function showReadyState() {
+  clearCountdown();
+  stopTimer();
+  timerRow?.classList.add("d-none");
+  setTeamsControlsVisible(false);
+  newWordBtn.classList.add("d-none");
+
+  wordText.classList.add("d-none");
+  readyBtn.classList.toggle("d-none", gameOver);
 }
 
-/* Contagem "3, 2, 1" antes de cada palavra/vez nova — dá tempo da equipe
-   se preparar antes do timer voltar a contar. */
+function beginPrepareCountdown() {
+  wordText.classList.remove("d-none");
+  readyBtn.classList.add("d-none");
+
+  startPrepareCountdown(() => {
+    wordText.textContent = currentWord;
+    timerRow?.classList.remove("d-none");
+    startTimer();
+    pointGiven = false;
+    setTeamsControlsVisible(Teams.isEnabled());
+    newWordBtn.classList.remove("d-none");
+  });
+}
+
+/* Contagem "3, 2, 1" antes de cada palavra — mesmo padrão visual de todos
+   os jogos (dígito grande dourado, .stage-text.is-countdown em
+   assets/css/game-base.css) e o mesmo som de tick/"vai". */
 function startPrepareCountdown(onDone) {
   clearCountdown();
   stopTimer();
   timerRow?.classList.add("d-none");
+  wordText.classList.add("is-countdown");
 
   let n = 3;
-  wordText.textContent = prepareLabel(n);
+  wordText.textContent = String(n);
   playCountdownTick();
 
   countdownInterval = setInterval(() => {
     n -= 1;
     if (n > 0) {
-      wordText.textContent = prepareLabel(n);
+      wordText.textContent = String(n);
       playCountdownTick();
       return;
     }
     clearCountdown();
     playCountdownGo();
+    wordText.classList.remove("is-countdown");
     onDone();
   }, 1000);
 }
@@ -248,6 +197,16 @@ async function loadWords() {
   // setup inicial
   roundWords = [...baseWords];
   updateProgress();
+}
+
+// Ponto dado: some a palavra e os botões de pontuação — só resta o
+// anúncio de quem ganhou e "Nova palavra" esperando o clique pra seguir.
+function showPointGiven(team) {
+  stopTimer();
+  timerRow?.classList.add("d-none");
+  wordText.classList.remove("is-countdown");
+  wordText.textContent = team ? `Equipe ${team.name} ganhou 1 ponto` : "";
+  renderTeamUI();
 }
 
 /* =========================
@@ -284,45 +243,29 @@ function wireUI() {
     startGame();
   });
 
-  // "Nova palavra" pula sem ninguém acertar — mantém quem iniciou a
-  // palavra (desfaz qualquer "passar a vez" que tenha acontecido nela).
+  readyBtn.addEventListener("click", () => beginPrepareCountdown());
+
+  // "Nova palavra": sem acerto (ou já acertou e só quer seguir) — a
+  // escala justa continua avançando do mesmo jeito (ver correctBtn).
   newWordBtn.addEventListener("click", () => {
     if (gameOver) return;
-    if (Teams.isEnabled()) Teams.setTurn(wordStartTurn);
+    if (!pointGiven && Teams.isEnabled()) advanceFromWordStart();
     nextWord();
   });
 
-  // Pontuação (equipes)
+  // "✅ Acertou?" marca o ponto fixo (1) da equipe da vez e já avança a
+  // escala justa pra quem começa a próxima palavra.
   correctBtn?.addEventListener("click", () => {
-    if (gameOver) return;
+    if (gameOver || pointGiven) return;
 
+    const team = Teams.currentTeam();
     if (Teams.isEnabled()) {
-      Teams.addPoint(passCount + 1);
+      Teams.addPoint(1);
       advanceFromWordStart();
     }
 
-    renderTeamUI();
-    nextWord();
-  });
-
-  // Errou: desconta os mesmos pontos que estavam em jogo (o valor cresce a
-  // cada "Passar a vez", igual ao acerto) e encerra a tentativa desta palavra.
-  wrongBtn?.addEventListener("click", () => {
-    if (gameOver) return;
-
-    if (Teams.isEnabled()) {
-      Teams.addPoint(-(passCount + 1));
-      advanceFromWordStart();
-    }
-
-    renderTeamUI();
-    nextWord();
-  });
-
-  // Time atual não sabe: passa a vez, mesma palavra continua
-  passTurnBtn?.addEventListener("click", () => {
-    if (gameOver) return;
-    passTurn();
+    pointGiven = true;
+    showPointGiven(team);
   });
 
   playAgainBtn.addEventListener("click", () => {
@@ -412,17 +355,11 @@ function nextWord() {
     return;
   }
 
-  const w = pool[idx];
+  currentWord = pool[idx];
   idx += 1;
   updateProgress();
-  setTeamsControlsVisible(false);
 
-  startPrepareCountdown(() => {
-    wordText.textContent = w;
-    timerRow?.classList.remove("d-none");
-    startTimer();
-    resetPassChain();
-  });
+  showReadyState();
 }
 
 function updateProgress() {
@@ -433,7 +370,12 @@ function updateProgress() {
 
 function endGame(text) {
   stopTimer();
+  clearCountdown();
   gameOver = true;
+
+  readyBtn.classList.add("d-none");
+  newWordBtn.classList.add("d-none");
+  wordText.classList.remove("is-countdown", "d-none");
   wordText.textContent = text;
   setGameOverUI(true);
   updateProgress();
@@ -451,8 +393,6 @@ function endGame(text) {
 function setGameOverUI(isOver) {
   newWordBtn.disabled = isOver;
   if (correctBtn) correctBtn.disabled = isOver;
-  if (wrongBtn) wrongBtn.disabled = isOver;
-  if (passTurnBtn) passTurnBtn.disabled = isOver;
 
   playAgainBtn.classList.toggle("d-none", !isOver);
   gameOverNotice.classList.toggle("d-none", !isOver);

@@ -53,9 +53,9 @@
         <div class="p-4 rounded-4 bg-black border border-secondary">
           <h1 class="h4 mb-2">Como jogar</h1>
           <p class="text-secondary mb-0">
-            Uma palavra aparece na tela. Uma equipe por vez tem o tempo do timer pra cantar uma música que tenha essa palavra.
-            Acertou marca ponto e passa a palavra; Errou desconta o mesmo valor. Se não souber, pode <b>Passar a vez</b> pra próxima equipe tentar (o valor do ponto dobra).
-            As palavras não se repetem até o jogo ser reiniciado.
+            Clique em "Começar" quando a equipe estiver pronta. Uma palavra aparece na tela e a equipe tem o tempo
+            do timer pra cantar uma música que tenha essa palavra. <b>✅ Acertou?</b> marca 1 ponto; sem acerto,
+            siga com <b>Nova palavra</b>. As palavras não se repetem até o jogo ser reiniciado.
           </p>
         </div>
 
@@ -92,10 +92,6 @@
           <div class="round-box-label"><svg class="round-box-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4"/><path d="M5 4h13l-3 4 3 4H5"/></svg>Rodada</div>
           <div class="round-box-value" id="badgeProgress">0/0</div>
         </div>
-        <div class="round-box d-none" id="pointsBox">
-          <div class="round-box-label"><svg class="round-box-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4Z"/><path d="M8 5H5a2 2 0 0 0 0 4h1"/><path d="M16 5h3a2 2 0 0 1 0 4h-1"/><path d="M9 20h6"/><path d="M12 13v4"/></svg>Pontos em jogo</div>
-          <div class="round-box-value" id="pointsValue">Vale 1 ponto</div>
-        </div>
       </div>
 
       <div class="round-box round-box--team round-box--team-centered d-none" id="turnBanner">
@@ -116,18 +112,15 @@
     </div>
 
     <div class="presenter-center">
+      <button id="readyBtn" class="btn btn-warning ready-btn d-none" type="button">Começar</button>
       <div class="word stage-text" id="wordText">CARREGANDO</div>
     </div>
 
     <div class="presenter-bottom">
       <div class="d-flex gap-2 flex-wrap justify-content-center">
-        <button id="newWordBtn" class="btn btn-warning fw-semibold">Nova palavra</button>
-
-        <!-- Pontuação (equipes) -->
-        <button id="correctBtn" class="btn btn-success fw-semibold" style="display:none">Acertou? (+1)</button>
-        <button id="wrongBtn" class="btn btn-danger fw-semibold" style="display:none">Errou (-1)</button>
-        <button id="passTurnBtn" class="btn btn-outline-light" style="display:none">Passar a vez</button>
-
+        <!-- Pontuação (equipe da vez) -->
+        <button id="correctBtn" class="btn btn-success fw-semibold" style="display:none">✅ Acertou?</button>
+        <button id="newWordBtn" class="btn btn-warning fw-semibold d-none">Nova palavra</button>
 
         <button id="playAgainBtn" class="btn btn-warning fw-semibold d-none">Jogar novamente</button>
       </div>
