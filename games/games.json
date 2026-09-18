@@ -42,7 +42,7 @@
       "controls": ["D: mostrar dica", "N: próximo"],
       "version": "0.1.0",
       "route": "games/quem-sou-eu/index.html",
-      "matchType": "disputa",
+      "matchType": "rodada",
 
       "teams": { "required": true }
     },

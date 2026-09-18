@@ -53,10 +53,9 @@
         <div class="p-4 rounded-4 bg-black border border-secondary">
           <h1 class="h4 mb-2">Como jogar</h1>
           <p class="text-secondary mb-0">
-            Um personagem bíblico deve ser acertado.
-            O nome fica oculto. Você pode revelar <b>1 dica por vez</b>.
-            As dicas reveladas continuam na tela. Se chegar na 3ª dica e ninguém acertar,
-            revele a resposta e avance para o próximo.
+            Um personagem bíblico deve ser acertado. A equipe da vez vê a 1ª dica — sabe, marca ponto;
+            não sabe, passa a vez pra próxima equipe, que ganha a 2ª dica (vale mais pontos). Se chegar
+            na 3ª dica e ninguém acertar, a resposta é revelada e ninguém pontua.
           </p>
         </div>
 
@@ -96,7 +95,13 @@
           <div class="round-box-value" id="pointsValue">Vale 1 ponto</div>
         </div>
       </div>
-      <div class="text-secondary small" id="statusText">Revele uma dica por vez.</div>
+
+      <div class="round-box round-box--team round-box--team-centered d-none" id="turnBanner">
+        <div class="round-box-team-info">
+          <div class="round-box-value" id="turnBannerTeam">—</div>
+          <div class="round-box-player d-none" id="turnBannerPlayer"></div>
+        </div>
+      </div>
     </div>
 
     <div class="presenter-center">
@@ -115,15 +120,11 @@
       </div>
     </div>
 
-    <!-- QUEM ACERTOU (um botão por equipe ativa — formato "disputa": todas veem
-         as mesmas dicas ao mesmo tempo, quem falar certo primeiro ganha o ponto).
-         Só aparece depois de "Mostrar resposta" — ver renderTeamScoreButtons no game.js. -->
-    <div class="team-score-row d-none" id="teamScoreButtons"></div>
-
     <div class="presenter-bottom">
       <div class="d-flex gap-2 flex-wrap justify-content-center">
         <button id="showHintBtn" class="btn btn-warning fw-semibold">Mostrar dica</button>
-        <button id="showAnswerBtn" class="btn btn-outline-light d-none">Mostrar resposta</button>
+        <button id="correctBtn" class="btn btn-success fw-semibold d-none">✅ Acertou</button>
+        <button id="passBtn" class="btn btn-outline-light d-none">⏭️ Passar a vez</button>
         <button id="nextBtn" class="btn btn-outline-light">Próximo</button>
         <button id="playAgainBtn" class="btn btn-warning fw-semibold d-none">Jogar novamente</button>
       </div>

@@ -1,12 +1,12 @@
 {
   "settings": [],
   "howTo": [
-    "Revele uma dica por vez para o grupo tentar adivinhar.",
-    "Depois da última dica, se ninguém acertar, revele a resposta.",
-    "Clique em Próximo para avançar para o próximo personagem."
+    "A equipe da vez vê a 1ª dica. Acertou, marca ponto; não sabe, clique em Passar a vez.",
+    "Passar a vez mostra a 2ª dica pra próxima equipe, valendo mais pontos.",
+    "Se chegar na 3ª dica e ninguém acertar, a resposta é revelada e ninguém pontua."
   ],
   "tips": [
-    "Atalhos: D (dica), N (próximo).",
+    "Atalhos: D (dica/passar), N (próximo).",
     "Ótimo para jogar em grupo."
   ]
 }

@@ -1,6 +1,5 @@
 import { shuffleArray } from "../../assets/js/utils.js";
 import { Teams } from "../../assets/js/teams.js";
-import { icon } from "../../playgospel-ui/js/core.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
 import { showTeamsBlockFocus } from "../../assets/js/game-focus-tour.js";
@@ -12,8 +11,12 @@ import { mountFullscreenButton } from "../../assets/js/fullscreen-ui.js";
 const ROUND_SIZE = 10;
 
 const scoreBtn = document.getElementById("scoreBtn");
-const teamScoreButtons = document.getElementById("teamScoreButtons");
 const pointsBox = document.getElementById("pointsBox");
+const pointsValue = document.getElementById("pointsValue");
+
+const turnBanner = document.getElementById("turnBanner");
+const turnBannerTeam = document.getElementById("turnBannerTeam");
+const turnBannerPlayer = document.getElementById("turnBannerPlayer");
 
 const setupScreen = document.getElementById("setupScreen");
 const gameScreen = document.getElementById("gameScreen");
@@ -21,7 +24,6 @@ const gameScreen = document.getElementById("gameScreen");
 const startBtn = document.getElementById("startBtn");
 
 const badgeProgress = document.getElementById("badgeProgress");
-const statusText = document.getElementById("statusText");
 
 const hintsList = document.getElementById("hintsList");
 
@@ -29,7 +31,8 @@ const answerBox = document.getElementById("answerBox");
 const answerText = document.getElementById("answerText");
 
 const showHintBtn = document.getElementById("showHintBtn");
-const showAnswerBtn = document.getElementById("showAnswerBtn");
+const correctBtn = document.getElementById("correctBtn");
+const passBtn = document.getElementById("passBtn");
 const nextBtn = document.getElementById("nextBtn");
 const exitBtn = document.getElementById("exitBtn");
 const brandLink = document.getElementById("brandLink");
@@ -43,21 +46,16 @@ const referenceEl = document.getElementById("referenceText");
 let items = [];       // lista base
 let pool = [];        // ordem embaralhada
 let idx = 0;          // qual personagem atual
-let hintIndex = 0;    // quantas dicas já revelamos (0..3)
+let hintIndex = 0;    // quantas dicas já foram reveladas (0..3)
+let attemptValue = 1; // pontos em jogo na dica atual — 1, +1 a cada "Passar a vez"
 let gameOver = false;
-
-// Resposta revelada e ponto já dado nesta rodada — controlam quando os
-// botões "X acertou" aparecem/ficam habilitados (ver renderTeamScoreButtons).
-let answerRevealed = false;
-let pointGiven = false;
 
 document.addEventListener("DOMContentLoaded", async () => {
   await loadData();
   wireUI();
-  renderTeamScoreButtons();
   updateScoreBtn();
   window.addEventListener("bibflix:teams:change", () => {
-    renderTeamScoreButtons();
+    renderTurnBanner();
     updateScoreBtn();
   });
   mountFullscreenButton(document.querySelector(".game-topbar-actions"));
@@ -75,58 +73,30 @@ function updateScoreBtn() {
   pointsBox?.classList.toggle("d-none", !show);
 }
 
-/* ===== Formato "disputa": um botão de pontuação por equipe ativa =====
-   Todas as equipes veem as mesmas dicas ao mesmo tempo; quem administra o
-   jogo clica no botão da equipe que falar a resposta certa primeiro. */
-function escapeHtml(str) {
-  return String(str ?? "").replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-  }[c]));
-}
-
-function teamIconName(team) {
-  return Teams.teamIconNames.includes(team.icon) ? team.icon : "star";
-}
-
-function renderTeamScoreButtons() {
-  // Só aparecem depois que a resposta certa foi revelada na tela — assim
-  // quem administra confere antes de dar o ponto pra equipe certa.
-  if (!teamScoreButtons) return;
-
-  if (!Teams.isEnabled() || !answerRevealed || gameOver) {
-    teamScoreButtons.innerHTML = "";
-    teamScoreButtons.classList.add("d-none");
+/* ===== Vez da equipe (banner) — mesmo padrão dos outros jogos por turno
+   (ver verdadeiro-ou-falso/game.js). ===== */
+function renderTurnBanner() {
+  if (!Teams.isEnabled()) {
+    turnBanner?.classList.add("d-none");
     return;
   }
 
-  const state = Teams.getState();
-  teamScoreButtons.classList.remove("d-none");
+  const t = Teams.currentTeam();
+  turnBanner?.classList.toggle("d-none", !t);
+  if (!t) return;
 
-  teamScoreButtons.innerHTML = state.teams.map((team, index) => `
-    <button
-      type="button"
-      class="qs-team-btn"
-      data-index="${index}"
-      style="--team-color:${escapeHtml(team.color)}"
-      ${pointGiven ? "disabled" : ""}
-    >
-      <span class="qs-team-btn-icon">${icon(teamIconName(team), { size: 16 })}</span>
-      <span>${escapeHtml(team.name)} acertou</span>
-    </button>
-  `).join("");
+  if (turnBannerTeam) turnBannerTeam.textContent = t.name;
+  turnBanner?.style.setProperty("--team-color", t.color || "#F4C430");
 
-  teamScoreButtons.querySelectorAll(".qs-team-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      if (gameOver || pointGiven) return;
+  const player = Teams.currentPlayer();
+  if (turnBannerPlayer) {
+    turnBannerPlayer.textContent = player || "";
+    turnBannerPlayer.classList.toggle("d-none", !player);
+  }
+}
 
-      const index = Number(btn.dataset.index);
-      Teams.setTurn(index);
-      Teams.addPoint(1);
-
-      pointGiven = true;
-      renderTeamScoreButtons();
-    });
-  });
+function updatePointsBox() {
+  if (pointsValue) pointsValue.textContent = `Vale ${attemptValue} ${attemptValue === 1 ? "ponto" : "pontos"}`;
 }
 
 async function loadData() {
@@ -168,12 +138,17 @@ function wireUI() {
 
   showHintBtn.addEventListener("click", () => {
     if (gameOver) return;
-    revealNextHint();
+    beginFirstHint();
   });
 
-  showAnswerBtn.addEventListener("click", () => {
+  correctBtn.addEventListener("click", () => {
     if (gameOver) return;
-    revealAnswer();
+    onCorrect();
+  });
+
+  passBtn.addEventListener("click", () => {
+    if (gameOver) return;
+    onPass();
   });
 
   nextBtn.addEventListener("click", () => {
@@ -199,7 +174,11 @@ function wireUI() {
 
     if (k === "d") {
       if (gameOver) return;
-      revealNextHint();
+      // Mesma tecla cobre a ação principal do momento: 1ª dica (jogo
+      // parado) ou passar a vez (dica já em andamento) — o que estiver
+      // visível na hora.
+      if (!showHintBtn.classList.contains("d-none")) beginFirstHint();
+      else if (!passBtn.classList.contains("d-none")) onPass();
     }
 
     if (k === "n") {
@@ -214,6 +193,7 @@ function startGame() {
   gameScreen.classList.remove("d-none");
   updateScoreBtn();
   showTeamsBlockFocus();
+  if (Teams.isEnabled()) Teams.setTurn(0);
   restartGame();
 }
 
@@ -243,9 +223,11 @@ function loadCurrentItem() {
   }
 
   hintIndex = 0;
-  statusText.textContent = "Revele uma dica por vez.";
+  attemptValue = 1;
   updateProgress();
   buildHintPlaceholders();
+  renderTurnBanner();
+  updatePointsBox();
 }
 
 function getCurrent() {
@@ -270,62 +252,83 @@ function buildHintPlaceholders() {
   }
 }
 
-function revealNextHint() {
+function maxHintsForCurrent() {
+  const cur = getCurrent();
+  return Math.min((cur?.hints ?? []).length, 3);
+}
+
+// Preenche o marcador "N." que já estava na tela (ver buildHintPlaceholders)
+// em vez de criar um item novo — o jogador já via "1. 2. 3." vazios.
+function revealHintAt(i) {
   const cur = getCurrent();
   if (!cur) return;
-
   const hints = (cur.hints ?? []).slice(0, 3);
-  if (hintIndex >= hints.length) {
-    statusText.textContent = "Todas as dicas já foram exibidas.";
-    // Sem mais dicas pra mostrar — some com o botão, só resta "Mostrar resposta".
-    showHintBtn.classList.add("d-none");
-    showAnswerBtn.classList.remove("d-none");
-    return;
-  }
 
-  // Preenche o marcador "N." que já estava na tela (ver buildHintPlaceholders)
-  // em vez de criar um item novo — o jogador já via "1. 2. 3." vazios.
-  const li = hintsList.children[hintIndex];
+  const li = hintsList.children[i];
   if (li) {
-    li.textContent = hints[hintIndex];
+    li.textContent = hints[i];
     li.classList.remove("hint-pending");
   }
 
   // Esse jogo não tem contagem "3,2,1" (não é por turno cronometrado) —
   // o mesmo som de tick marca o momento de cada dica nova aparecendo.
   playCountdownTick();
+}
 
+// 1ª dica da rodada — mostrada pra equipe que já está na vez (não passa
+// a vez pra ninguém: quem inicia a rodada é sempre quem terminou a
+// rodada anterior, ver onCorrect/onPass).
+function beginFirstHint() {
+  revealHintAt(0);
+  showHintBtn.classList.add("d-none");
+  correctBtn.classList.remove("d-none");
+  passBtn.classList.remove("d-none");
+}
+
+// Equipe da vez acertou: pontua o valor em jogo nessa dica e passa a vez
+// pra próxima equipe começar a próxima rodada (personagem novo).
+function onCorrect() {
+  if (Teams.isEnabled()) {
+    Teams.addPoint(attemptValue);
+    Teams.nextTurn();
+  }
+  finishRound();
+}
+
+// "Passar a vez": time atual não sabe — a próxima dica vale mais e vai
+// pra próxima equipe da sequência (ver Teams.nextTurn). Sem mais dicas
+// pra mostrar, a rodada acaba sem ninguém pontuar.
+function onPass() {
+  if (Teams.isEnabled()) Teams.nextTurn();
+  attemptValue += 1;
   hintIndex += 1;
 
-  if (hintIndex >= hints.length) {
-    statusText.textContent = "Última dica exibida. Se ninguém acertar, mostre a resposta.";
-    showHintBtn.classList.add("d-none");
-    showAnswerBtn.classList.remove("d-none");
+  if (hintIndex < maxHintsForCurrent()) {
+    revealHintAt(hintIndex);
+    renderTurnBanner();
+    updatePointsBox();
   } else {
-    statusText.textContent = `Dica ${hintIndex}/3 exibida.`;
+    finishRound();
   }
 }
 
-function revealAnswer() {
+// Fim da rodada (acertou ou esgotaram as dicas) — mostra a resposta e
+// deixa só "Próximo" disponível. A equipe da vez em Teams (já avançada
+// por onCorrect/onPass) é quem começa a próxima rodada.
+function finishRound() {
   const cur = getCurrent();
   if (!cur) return;
 
   answerText.textContent = cur.name ?? "—";
-
   if (referenceEl) {
     referenceEl.textContent = cur.reference ? `📖 Referência: ${cur.reference}` : "";
   }
-
   answerBox.classList.remove("d-none");
-  statusText.textContent = "Resposta exibida. Clique em Próximo.";
 
-  // Resposta já está na tela — "Mostrar dica"/"Mostrar resposta" não fazem
-  // mais sentido, só resta ir pra próxima rodada (e, com equipes, dar o ponto).
-  showHintBtn.classList.add("d-none");
-  showAnswerBtn.classList.add("d-none");
+  correctBtn.classList.add("d-none");
+  passBtn.classList.add("d-none");
 
-  answerRevealed = true;
-  renderTeamScoreButtons();
+  renderTurnBanner();
 }
 
 function nextItem() {
@@ -338,14 +341,11 @@ function clearRoundUI() {
   answerBox.classList.add("d-none");
   answerText.textContent = "";
 
-  answerRevealed = false;
-  pointGiven = false;
-  renderTeamScoreButtons();
-
   if (referenceEl) referenceEl.textContent = "";
 
   showHintBtn.classList.remove("d-none");
-  showAnswerBtn.classList.add("d-none");
+  correctBtn.classList.add("d-none");
+  passBtn.classList.add("d-none");
 }
 
 function updateProgress() {
@@ -363,10 +363,11 @@ function endGame(text) {
   li.textContent = text;
   hintsList.appendChild(li);
 
-  statusText.textContent = "Encerrado.";
   answerBox.classList.add("d-none");
   showHintBtn.classList.add("d-none");
-  showAnswerBtn.classList.add("d-none");
+  correctBtn.classList.add("d-none");
+  passBtn.classList.add("d-none");
+  turnBanner?.classList.add("d-none");
 
   const total = pool.length || items.length || 0;
   badgeProgress.textContent = `${total}/${total}`;
@@ -379,7 +380,8 @@ function endGame(text) {
 
 function setGameOverUI(isOver) {
   showHintBtn.disabled = isOver;
-  showAnswerBtn.disabled = isOver;
+  correctBtn.disabled = isOver;
+  passBtn.disabled = isOver;
   nextBtn.disabled = isOver;
 
   playAgainBtn.classList.toggle("d-none", !isOver);
