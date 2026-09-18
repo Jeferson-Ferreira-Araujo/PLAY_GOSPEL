@@ -83,6 +83,37 @@
   font-size: clamp(18px, 3.2vw, 36px) !important;
 }
 
+/* Bloco "Rodada" do tamanho do conteúdo, não esticado pra ocupar a linha
+   toda — esse jogo só tem essa caixa no round-topbar (os outros jogos têm
+   mais caixas dividindo o espaço, então o flex:1 padrão de
+   assets/css/game-base.css nunca esticava uma caixa sozinha assim). */
+.round-topbar {
+  flex: 0 0 auto;
+}
+
+.round-topbar .round-box {
+  flex: 0 0 auto;
+}
+
+/* Bloco "vez da equipe" centralizado — mesmo padrão dos outros jogos por
+   turno (ver games/verdadeiro-ou-falso/game.css e afins). Faltava essa
+   regra aqui: a classe já estava no HTML, mas sem estilo próprio caía no
+   padrão de .round-box--team (rótulo à esquerda, texto alinhado à
+   esquerda) em vez de centralizado. */
+.round-box--team-centered {
+  justify-content: center;
+  text-align: center;
+  padding: 10px 22px;
+}
+
+.round-box--team-centered .round-box-team-info {
+  align-items: center;
+}
+
+.round-box--team-centered .round-box-value {
+  font-size: 1.15rem;
+}
+
 /* No mobile, esse jogo só tem 2 blocos no topo (Rodada + equipe da vez) —
    diferente dos outros jogos (categoria/tempo/pontos...), que precisam
    empilhar por padrão (ver .presenter-top em assets/css/game-base.css).
