@@ -141,11 +141,18 @@ function showReadyState() {
   clearCountdown();
   stopTimer();
   timerRow?.classList.add("d-none");
-  setTeamsControlsVisible(false);
   newWordBtn.classList.add("d-none");
 
   wordText.classList.add("d-none");
   readyBtn.classList.toggle("d-none", gameOver);
+
+  // Já dava pra saber quem ganhou o ponto (ver showPointGiven) — o bloco
+  // "vez da equipe" só volta a aparecer agora, com a equipe já avançada
+  // pra rodada nova. Chamado ANTES de setTeamsControlsVisible(false):
+  // renderTeamUI() reexibe "Acertou?" (a equipe ativa), mas nessa fase
+  // de espera ele ainda não deve aparecer — só depois da contagem.
+  renderTeamUI();
+  setTeamsControlsVisible(false);
 }
 
 function beginPrepareCountdown() {
@@ -199,14 +206,38 @@ async function loadWords() {
   updateProgress();
 }
 
-// Ponto dado: some a palavra e os botões de pontuação — só resta o
-// anúncio de quem ganhou e "Nova palavra" esperando o clique pra seguir.
+function escapeHtml(str) {
+  return String(str ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
+}
+
+// Ponto dado: some a palavra, os botões de pontuação e o bloco "vez da
+// equipe" do topo (já mostra o badge da equipe vencedora aqui embaixo,
+// não faz sentido repetir lá em cima) — só resta o anúncio de quem
+// ganhou (badge colorido com ícone, não texto em branco) e "Nova
+// palavra" esperando o clique. O bloco do topo só volta quando a
+// próxima rodada estiver pronta pra começar (ver showReadyState).
 function showPointGiven(team) {
   stopTimer();
   timerRow?.classList.add("d-none");
   wordText.classList.remove("is-countdown");
-  wordText.textContent = team ? `Equipe ${team.name} ganhou 1 ponto` : "";
-  renderTeamUI();
+  turnBanner?.classList.add("d-none");
+  if (correctBtn) correctBtn.style.display = "none";
+
+  if (team) {
+    wordText.innerHTML = `
+      <div class="point-announce">
+        <div class="round-box round-box--team round-box--team-centered point-announce-badge" style="--team-color:${escapeHtml(team.color || "#F4C430")}">
+          <span class="round-box-team-icon">${icon(team.icon || "star", { size: 22 })}</span>
+          <span class="round-box-value">${escapeHtml(team.name)}</span>
+        </div>
+        <div class="point-announce-text">ganhou 1 ponto</div>
+      </div>
+    `;
+  } else {
+    wordText.textContent = "";
+  }
 }
 
 /* =========================
