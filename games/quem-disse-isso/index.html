@@ -55,8 +55,9 @@
         <div class="p-4 rounded-4 bg-black border border-secondary">
           <h1 class="h4 mb-2">Como jogar</h1>
           <p class="text-secondary mb-0">
-            Uma frase bíblica aparecerá na tela. O grupo deve descobrir <b>quem disse</b> essa frase.
-            Use “Revelar” para mostrar a resposta e a referência bíblica. Sem repetição até acabar.
+            Duas equipes disputam cada rodada. Clique em "Começar rodada" quando estiverem prontas —
+            depois da contagem, uma frase bíblica aparece na tela e o par tenta descobrir <b>quem disse</b>
+            essa frase. Use “Revelar” para mostrar a resposta e a referência bíblica. Sem repetição até acabar.
           </p>
         </div>
 
@@ -143,6 +144,7 @@
 
     <!-- Centro: frase + resposta -->
     <div class="presenter-center">
+      <button id="readyBtn" class="btn btn-warning ready-btn d-none" type="button">Começar rodada</button>
       <div class="quote-display stage-text" id="quoteText">CARREGANDO...</div>
 
       <div class="answer d-none" id="answerBox">

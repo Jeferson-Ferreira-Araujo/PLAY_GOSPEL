@@ -31,6 +31,7 @@ const badgeDifficulty = document.getElementById("badgeDifficulty");
 const badgeProgress = document.getElementById("badgeProgress");
 
 const quoteText = document.getElementById("quoteText");
+const readyBtn = document.getElementById("readyBtn");
 
 const answerBox = document.getElementById("answerBox");
 const answerText = document.getElementById("answerText");
@@ -276,6 +277,8 @@ function wireUI() {
     startGame();
   });
 
+  readyBtn.addEventListener("click", () => beginPrepareCountdown());
+
   revealBtn.addEventListener("click", revealAnswer);
 
   nextBtn.addEventListener("click", () => {
@@ -342,11 +345,7 @@ function restartGame() {
   advancePair();
   renderPairRow();
 
-  startPrepareCountdown(() => {
-    loadQuoteAtIndex(idx);
-    timerRow?.classList.remove("d-none");
-    resetAndStartTimer();
-  });
+  showReadyState();
 }
 
 function nextQuote() {
@@ -364,11 +363,7 @@ function nextQuote() {
   advancePair();
   renderPairRow();
 
-  startPrepareCountdown(() => {
-    loadQuoteAtIndex(idx);
-    timerRow?.classList.remove("d-none");
-    resetAndStartTimer();
-  });
+  showReadyState();
 }
 
 function clearCountdown() {
@@ -376,6 +371,31 @@ function clearCountdown() {
     clearInterval(countdownInterval);
     countdownInterval = null;
   }
+}
+
+/* ===== Fase "pronto" — espera confirmar que as equipes do par estão
+   prontas antes de começar a contagem, mesmo padrão dos outros jogos
+   por turno/rodízio (ver games/palavras-misturadas/game.js). O par já
+   apareceu no bloco centralizado do topo (ver renderPairRow) — o botão
+   só ocupa o lugar da frase, sem repetir os nomes de novo aqui. */
+function showReadyState() {
+  clearCountdown();
+  stopTimer();
+  timerRow?.classList.add("d-none");
+
+  quoteText.classList.add("d-none");
+  readyBtn.classList.toggle("d-none", gameOver);
+}
+
+function beginPrepareCountdown() {
+  quoteText.classList.remove("d-none");
+  readyBtn.classList.add("d-none");
+
+  startPrepareCountdown(() => {
+    loadQuoteAtIndex(idx);
+    timerRow?.classList.remove("d-none");
+    resetAndStartTimer();
+  });
 }
 
 /* Contagem "3, 2, 1" antes de cada frase nova — mesmo padrão visual de
@@ -477,7 +497,8 @@ function endGame(text) {
   gameOver = true;
   setGameOverUI(true);
 
-  quoteText.classList.remove("is-countdown");
+  readyBtn.classList.add("d-none");
+  quoteText.classList.remove("is-countdown", "d-none");
   quoteText.textContent = text;
   answerBox.classList.add("d-none");
   timerText.textContent = "";
