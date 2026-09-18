@@ -363,6 +363,10 @@ function clearRoundUI() {
   showHintBtn.classList.remove("d-none");
   correctBtn.classList.add("d-none");
   passBtn.classList.add("d-none");
+  // "Próxima rodada" só deve reaparecer quando a resposta desta rodada
+  // for revelada (finishRound) — sem isso ele ficava visível desde o
+  // início, herdado da rodada anterior.
+  nextBtn.classList.add("d-none");
 }
 
 function updateProgress() {
