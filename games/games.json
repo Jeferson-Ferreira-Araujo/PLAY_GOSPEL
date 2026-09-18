@@ -28,7 +28,7 @@
       "controls": ["Espaço: nova palavra"],
       "version": "0.1.0",
       "route": "games/uma-musica/index.html",
-      "matchType": "rodada",
+      "matchType": "disputa",
 
       "teams": { "required": true }
     },
