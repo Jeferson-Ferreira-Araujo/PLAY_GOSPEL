@@ -122,7 +122,7 @@ function renderTeamUI() {
     turnBannerPlayer.classList.toggle("d-none", !player);
   }
 
-  if (correctBtn) correctBtn.textContent = `Acertou (+${passCount + 1})`;
+  if (correctBtn) correctBtn.textContent = `Acertou? (+${passCount + 1})`;
   if (wrongBtn) wrongBtn.textContent = `Errou (-${passCount + 1})`;
   if (pointsValue) pointsValue.textContent = pointsLabel(passCount + 1);
 
