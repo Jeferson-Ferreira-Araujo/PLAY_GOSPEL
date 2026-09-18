@@ -17,6 +17,41 @@
 import { Teams } from "./teams.js";
 import { shuffleArray } from "./utils.js";
 
+/** Embaralha uma lista agrupando por chave (ex: equipe) e intercalando —
+ * sempre tira do grupo com mais itens restantes, nunca repetindo o grupo
+ * do item anterior — assim a mesma equipe nunca joga 2 rodadas seguidas
+ * (a menos que ela sozinha tenha mais da metade dos itens, caso em que a
+ * repetição é matematicamente inevitável). Um shuffleArray() comum não
+ * garante isso: embaralhar uma sequência já alternada (ex: 0,1,0,1...)
+ * pode facilmente devolver "0,0,..." de novo. */
+function shuffleNoAdjacentRepeats(items, keyFn) {
+  const groups = new Map();
+  for (const item of items) {
+    const key = keyFn(item);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(item);
+  }
+  const queues = [...groups.values()].map((g) => shuffleArray(g));
+
+  const result = [];
+  let lastQueueIndex = -1;
+  while (queues.some((q) => q.length)) {
+    let pick = -1;
+    let bestLen = -1;
+    queues.forEach((q, i) => {
+      if (!q.length || i === lastQueueIndex) return;
+      if (q.length > bestLen) { bestLen = q.length; pick = i; }
+    });
+    // Só cai aqui se o único grupo com itens restantes for o mesmo do
+    // item anterior — repetição inevitável (ex: uma equipe com mais da
+    // metade das pessoas sorteadas).
+    if (pick === -1) pick = queues.findIndex((q) => q.length);
+    result.push(queues[pick].shift());
+    lastQueueIndex = pick;
+  }
+  return result;
+}
+
 /**
  * @param {number} minRounds - rodadas mínimas do jogo (ex: 10 — tamanho
  *   padrão do pool de perguntas). Se houver gente sorteada, a escala pode
@@ -40,31 +75,35 @@ export function buildFairSchedule(minRounds, opts = {}) {
     // rodada por equipe garante turnos iguais; se minRounds não for
     // múltiplo do nº de equipes, sorteia aleatoriamente quais equipes
     // ficam com a rodada extra (em vez de sempre as primeiras do
-    // formulário) — e embaralha a posição de tudo, não só blocos
-    // repetidos em sequência, pra não virar um padrão previsível.
+    // formulário). A intercalação (shuffleNoAdjacentRepeats), não um
+    // shuffle comum, garante que a mesma equipe nunca jogue 2 rodadas
+    // seguidas — só embaralhar tudo no fim destrói a alternação (ex:
+    // "0,1,0,1" embaralhado podia virar "0,0,1,1").
     const teamIndexes = teams.map((_, i) => i);
     const fullCycles = Math.floor(minRounds / teamIndexes.length);
     const remainder = minRounds % teamIndexes.length;
     const extra = shuffleArray(teamIndexes).slice(0, remainder);
 
-    const schedule = [];
+    const raw = [];
     for (let c = 0; c < fullCycles; c++) {
-      teamIndexes.forEach((teamIndex) => schedule.push({ teamIndex, playerName: null }));
+      teamIndexes.forEach((teamIndex) => raw.push({ teamIndex, playerName: null }));
     }
-    extra.forEach((teamIndex) => schedule.push({ teamIndex, playerName: null }));
-    return shuffleArray(schedule);
+    extra.forEach((teamIndex) => raw.push({ teamIndex, playerName: null }));
+    return shuffleNoAdjacentRepeats(raw, (e) => e.teamIndex);
   }
 
-  // Com participantes: cada pessoa entra na escala exatamente 1 vez, em
-  // ordem totalmente aleatória — garante rodadas suficientes pra todo
-  // mundo jogar (o comprimento final pode passar de minRounds; quem
-  // chama decide se corta pelo tamanho do pool de perguntas disponível).
+  // Com participantes: cada pessoa entra na escala exatamente 1 vez —
+  // garante rodadas suficientes pra todo mundo jogar (o comprimento final
+  // pode passar de minRounds; quem chama decide se corta pelo tamanho do
+  // pool de perguntas disponível). Intercalado por equipe (não um shuffle
+  // simples) pra mesma equipe nunca jogar 2 rodadas seguidas, mesmo que
+  // ela tenha mais gente sorteada que as outras.
   const people = [];
   teams.forEach((team, teamIndex) => {
     const members = Array.isArray(team.members) && team.members.length ? team.members : [null];
     members.forEach((playerName) => people.push({ teamIndex, playerName }));
   });
-  return shuffleArray(people);
+  return shuffleNoAdjacentRepeats(people, (e) => e.teamIndex);
 }
 
 /**
