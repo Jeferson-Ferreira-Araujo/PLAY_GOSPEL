@@ -13,14 +13,6 @@
         { "value": 60, "label": "60s" },
         { "value": 90, "label": "90s" }
       ]
-    },
-    {
-      "key": "custom",
-      "type": "word-list",
-      "label": "Palavras extras (opcional)",
-      "placeholder": "Ex: perdão",
-      "default": "",
-      "help": "Essas palavras serão adicionadas à rodada atual."
     }
   ],
   "howTo": [

@@ -28,8 +28,6 @@ const gameScreen = document.getElementById("gameScreen");
 const startBtn = document.getElementById("startBtn");
 const timeSelect = document.getElementById("timeSelect");
 
-const customWordsInput = document.getElementById("customWordsInput");
-
 const wordText = document.getElementById("wordText");
 const badgeProgress = document.getElementById("badgeProgress");
 
@@ -254,7 +252,6 @@ async function loadWords() {
 /* =========================
    AUTO START VIA URL
    ?play=1
-   ?custom=...
    ?time=...
 ========================= */
 async function checkAutoStartFromURL() {
@@ -268,12 +265,6 @@ async function checkAutoStartFromURL() {
   }
 
   const params = new URLSearchParams(window.location.search);
-
-  // se vier custom na URL, preenche o textarea do setup (mesmo que não apareça)
-  const custom = params.get("custom");
-  if (customWordsInput && custom) {
-    customWordsInput.value = decodeURIComponent(custom);
-  }
 
   const time = params.get("time");
   if (time !== null && timeSelect) timeSelect.value = time;
@@ -362,7 +353,8 @@ function wireUI() {
 }
 
 function startGame() {
-  // monta as palavras desta rodada (base + custom do textarea)
+  // monta as palavras desta rodada (função de palavras extras removida
+  // por enquanto — só as da lista base, sem duplicados)
   roundWords = buildRoundWords();
   durationSec = Number(timeSelect?.value || 0);
 
@@ -375,22 +367,7 @@ function startGame() {
 }
 
 function buildRoundWords() {
-  const custom = parseCustomWords(customWordsInput?.value);
-
-  // junta e remove duplicados (case-insensitive)
-  const merged = [...baseWords, ...custom];
-  const deduped = dedupeCaseInsensitive(merged);
-
-  // limpa vazios
-  return deduped.filter(Boolean);
-}
-
-function parseCustomWords(text) {
-  // separa por vírgula, aceita também quebra de linha/; e normaliza espaços
-  return String(text || "")
-    .split(/[,;\n]/g)
-    .map(s => s.trim())
-    .filter(s => s.length > 0);
+  return dedupeCaseInsensitive(baseWords).filter(Boolean);
 }
 
 function dedupeCaseInsensitive(list) {
