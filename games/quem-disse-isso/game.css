@@ -13,6 +13,122 @@
   border-width: 1px;
 }
 
+/* Topo do jogo (desktop/tablet): dificuldade/rodada à esquerda, tempo à
+   direita — mesmo padrão de palavras-misturadas/game.css (sem par de
+   equipes no meio aqui, já que todas jogam ao mesmo tempo nesse jogo). */
+.presenter-top {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.round-topbar {
+  flex: 1 1 auto;
+  justify-content: flex-start;
+}
+
+.round-box {
+  flex: 0 0 auto;
+  padding: 6px 14px;
+}
+
+.round-box-value {
+  font-size: .92rem;
+}
+
+.timer-card {
+  flex: 0 0 auto;
+  padding: 10px 20px;
+}
+
+.timer-wrap {
+  width: 220px;
+}
+
+.timer-card .round-box-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.timer-text {
+  font-size: 1.35rem;
+}
+
+.timer-card .progress {
+  height: 10px;
+}
+
+/* Tablet vertical: 2 linhas fixas em vez de espremer tudo numa só —
+   1ª dificuldade/rodada, 2ª o tempo. */
+@media (min-width: 601px) and (max-width: 1024px) and (orientation: portrait) {
+  .presenter-top {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .round-topbar {
+    width: 100%;
+  }
+
+  .timer-card {
+    width: 100%;
+  }
+
+  .timer-wrap {
+    width: auto;
+  }
+}
+
+/* Mobile: empilha em coluna, cada bloco ocupando a linha toda. */
+@media (max-width: 600px) {
+  .presenter-top {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .round-topbar {
+    width: 100%;
+    flex-wrap: nowrap;
+    min-width: 0;
+  }
+
+  .round-box {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 6px 10px;
+  }
+
+  .round-box-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .timer-card {
+    width: 100%;
+    padding: 8px 14px;
+  }
+
+  .timer-wrap {
+    width: 100%;
+  }
+
+  .timer-text {
+    font-size: 1.1rem;
+  }
+}
+
+/* Mobile deitado: largura sobra, mas altura é curta — encolhe o tempo
+   pra não disputar espaço com o resto (mesmo critério dos outros jogos). */
+@media (max-height: 500px) and (orientation: landscape) {
+  .timer-wrap {
+    width: 90px;
+  }
+}
+
 /* Formato "disputa": um botão de pontuação por equipe ativa — só aparece
    depois de "Revelar" (ver game.js), pra confirmar a resposta antes de
    dar o ponto pra equipe certa. Layout (.team-score-row) vem do

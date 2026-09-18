@@ -15,7 +15,6 @@ const ROUND_SIZE = 10;
 
 const scoreBtn = document.getElementById("scoreBtn");
 const teamScoreButtons = document.getElementById("teamScoreButtons");
-const pointsBox = document.getElementById("pointsBox");
 
 /* ===== Elements (setup) ===== */
 const setupScreen = document.getElementById("setupScreen");
@@ -94,7 +93,6 @@ function updateScoreBtn() {
   if (!scoreBtn) return;
   const show = !gameScreen.classList.contains("d-none") && Teams.isEnabled();
   scoreBtn.classList.toggle("d-none", !show);
-  pointsBox?.classList.toggle("d-none", !show);
 }
 
 /* ===== Formato "disputa": um botão de pontuação por equipe ativa =====
@@ -298,25 +296,28 @@ function clearCountdown() {
   }
 }
 
-/* Contagem "3, 2, 1" antes de cada frase nova — dá tempo do grupo se
-   preparar antes do timer voltar a contar. */
+/* Contagem "3, 2, 1" antes de cada frase nova — mesmo padrão visual de
+   todos os jogos (dígito grande dourado, .stage-text.is-countdown em
+   assets/css/game-base.css) e o mesmo som de tick/"vai". */
 function startPrepareCountdown(onDone) {
   clearCountdown();
   timerRow?.classList.add("d-none");
+  quoteText.classList.add("is-countdown");
 
   let n = 3;
-  quoteText.textContent = `Prepare-se! ${n}`;
+  quoteText.textContent = String(n);
   playCountdownTick();
 
   countdownInterval = setInterval(() => {
     n -= 1;
     if (n > 0) {
-      quoteText.textContent = `Prepare-se! ${n}`;
+      quoteText.textContent = String(n);
       playCountdownTick();
       return;
     }
     clearCountdown();
     playCountdownGo();
+    quoteText.classList.remove("is-countdown");
     onDone();
   }, 1000);
 }
@@ -394,6 +395,7 @@ function endGame(text) {
   gameOver = true;
   setGameOverUI(true);
 
+  quoteText.classList.remove("is-countdown");
   quoteText.textContent = text;
   answerBox.classList.add("d-none");
   timerText.textContent = "";
