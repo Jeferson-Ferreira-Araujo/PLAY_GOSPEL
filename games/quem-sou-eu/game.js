@@ -26,6 +26,7 @@ const startBtn = document.getElementById("startBtn");
 const badgeProgress = document.getElementById("badgeProgress");
 
 const hintsList = document.getElementById("hintsList");
+const hintsSection = document.getElementById("hintsSection");
 
 const answerBox = document.getElementById("answerBox");
 const answerText = document.getElementById("answerText");
@@ -329,6 +330,9 @@ function finishRound() {
     referenceEl.textContent = cur.reference ? `📖 Referência: ${cur.reference}` : "";
   }
   answerBox.classList.remove("d-none");
+  // Some as dicas pra resposta + referência ficarem centralizadas e bem
+  // grandes na tela, sem disputar espaço com o que já foi revelado.
+  hintsSection.classList.add("d-none");
 
   correctBtn.classList.add("d-none");
   passBtn.classList.add("d-none");
@@ -350,6 +354,7 @@ function nextItem() {
 
 function clearRoundUI() {
   hintsList.innerHTML = "";
+  hintsSection.classList.remove("d-none");
   answerBox.classList.add("d-none");
   answerText.textContent = "";
 
