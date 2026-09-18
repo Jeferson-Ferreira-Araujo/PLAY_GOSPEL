@@ -184,9 +184,10 @@ function renderTeamScoreButtons() {
   // Só aparecem depois que a resposta certa foi revelada na tela — assim
   // quem administra confere antes de dar o ponto pra equipe certa.
   // Só as 2 equipes do par atual (ver advancePair) disputam a rodada.
+  // Somem de novo assim que o ponto é dado (ver showPointGiven).
   if (!teamScoreButtons) return;
 
-  if (!Teams.isEnabled() || !answerRevealed || gameOver || !currentPair) {
+  if (!Teams.isEnabled() || !answerRevealed || gameOver || !currentPair || pointGiven) {
     teamScoreButtons.innerHTML = "";
     teamScoreButtons.classList.add("d-none");
     return;
@@ -204,7 +205,6 @@ function renderTeamScoreButtons() {
       class="qd-team-btn"
       data-index="${index}"
       style="--team-color:${escapeHtml(team.color)}"
-      ${pointGiven ? "disabled" : ""}
     >
       <span class="qd-team-btn-icon">${icon(teamIconName(team), { size: 16 })}</span>
       <span>${escapeHtml(team.name)} acertou</span>
@@ -217,13 +217,24 @@ function renderTeamScoreButtons() {
       if (gameOver || pointGiven) return;
 
       const index = Number(btn.dataset.index);
+      const team = state.teams[index];
       Teams.setTurn(index);
       Teams.addPoint(1);
 
       pointGiven = true;
-      renderTeamScoreButtons();
+      showPointGiven(team);
     });
   });
+}
+
+// Ponto dado: some o versículo/frase, a resposta e os botões de
+// pontuação — só resta o anúncio de quem ganhou e "Próxima frase"
+// esperando o clique pra seguir.
+function showPointGiven(team) {
+  answerBox.classList.add("d-none");
+  quoteText.classList.remove("d-none", "is-countdown");
+  quoteText.textContent = team ? `Equipe ${team.name} ganhou 1 ponto` : "";
+  renderTeamScoreButtons();
 }
 
 async function loadData() {
