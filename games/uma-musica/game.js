@@ -26,7 +26,6 @@ const setupScreen = document.getElementById("setupScreen");
 const gameScreen = document.getElementById("gameScreen");
 
 const startBtn = document.getElementById("startBtn");
-const timeSelect = document.getElementById("timeSelect");
 
 const wordText = document.getElementById("wordText");
 const badgeProgress = document.getElementById("badgeProgress");
@@ -45,13 +44,15 @@ const gameOverNotice = document.getElementById("gameOverNotice");
 const timerRow = document.getElementById("presenterTimerRow");
 
 let baseWords = [];       // vem do words.json (fixo)
-let roundWords = [];      // base + custom (só desta rodada)
+let roundWords = [];      // baseWords sem duplicados
 let pool = [];            // pool embaralhado da rodada
 let idx = 0;
 let schedule = [];        // escala justa da partida (ver assets/js/turn-fairness.js)
 let gameOver = false;
 
-let durationSec = 30;
+// Tempo fixo (sem opção de escolha, pra evitar excesso de configurações —
+// ver assets/js/game-focus-tour.js e o histórico de simplificação do site).
+const durationSec = 10;
 let timer = null;
 let countdownInterval = null;
 
@@ -191,7 +192,7 @@ function passTurn() {
   startPrepareCountdown(() => {
     wordText.textContent = w;
     timerRow?.classList.remove("d-none");
-    startTimer(durationSec);
+    startTimer();
     renderTeamUI();
   });
 }
@@ -252,7 +253,6 @@ async function loadWords() {
 /* =========================
    AUTO START VIA URL
    ?play=1
-   ?time=...
 ========================= */
 async function checkAutoStartFromURL() {
   // A tela de configuração ficou só no modal do catálogo (que já barra
@@ -263,11 +263,6 @@ async function checkAutoStartFromURL() {
     window.location.href = "../../index.html#catalogo";
     return;
   }
-
-  const params = new URLSearchParams(window.location.search);
-
-  const time = params.get("time");
-  if (time !== null && timeSelect) timeSelect.value = time;
 
   await maybeShowDrawIntro();
   startGame();
@@ -356,7 +351,6 @@ function startGame() {
   // monta as palavras desta rodada (função de palavras extras removida
   // por enquanto — só as da lista base, sem duplicados)
   roundWords = buildRoundWords();
-  durationSec = Number(timeSelect?.value || 0);
 
   setupScreen.classList.add("d-none");
   gameScreen.classList.remove("d-none");
@@ -426,7 +420,7 @@ function nextWord() {
   startPrepareCountdown(() => {
     wordText.textContent = w;
     timerRow?.classList.remove("d-none");
-    startTimer(durationSec);
+    startTimer();
     resetPassChain();
   });
 }
@@ -491,8 +485,7 @@ function createOrUpdateTimer() {
   });
 }
 
-function startTimer(seconds) {
-  durationSec = Number(seconds || 0);
+function startTimer() {
   createOrUpdateTimer();
   if (!timer) return;
   timer.reset(durationSec);
