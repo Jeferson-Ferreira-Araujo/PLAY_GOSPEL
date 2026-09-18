@@ -30,10 +30,10 @@
     "Escolha a dificuldade e o tempo.",
     "Duas equipes disputam por vez — clique em Começar rodada quando estiverem prontas.",
     "Uma frase bíblica aparece — o par tenta descobrir quem disse.",
-    "Revele a resposta quando quiser e siga pra próxima."
+    "Clique em Acertou? para revelar a resposta e escolher a equipe que ganhou o ponto."
   ],
   "tips": [
     "Excelente para dinâmica em grupo.",
-    "Atalhos: N (próximo), R (revelar)."
+    "Atalhos: A (acertou), N (próxima frase)."
   ]
 }

@@ -298,7 +298,7 @@ function wireUI() {
 
     const k = e.key.toLowerCase();
     if (k === "n") nextBtn.click();
-    if (k === "r") revealBtn.click();
+    if (k === "a") revealBtn.click();
   });
 }
 
@@ -310,7 +310,7 @@ function startGame() {
   showTeamsBlockFocus();
 
   answerBox.classList.add("d-none");
-  revealBtn.textContent = "Revelar";
+  revealBtn.classList.remove("d-none");
 
   restartGame();
 }
@@ -383,6 +383,14 @@ function showReadyState() {
   stopTimer();
   timerRow?.classList.add("d-none");
 
+  // Limpa o resto da rodada anterior (resposta + botões de pontuação) —
+  // senão ficava tudo visível por baixo enquanto espera o "Começar
+  // rodada" da rodada nova.
+  answerBox.classList.add("d-none");
+  revealBtn.classList.add("d-none");
+  nextBtn.classList.add("d-none");
+  teamScoreButtons?.classList.add("d-none");
+
   quoteText.classList.add("d-none");
   readyBtn.classList.toggle("d-none", gameOver);
 }
@@ -436,7 +444,11 @@ async function loadQuoteAtIndex(i) {
   answerText.textContent = "";
   referenceText.textContent = "";
 
-  revealBtn.textContent = "Revelar";
+  revealBtn.classList.remove("d-none");
+  // "Próxima frase" fica visível desde já (não só depois de revelar) —
+  // pode ser que ninguém saiba a resposta e o jogo precisa seguir mesmo
+  // assim.
+  nextBtn.classList.remove("d-none");
 
   answerRevealed = false;
   pointGiven = false;
@@ -473,7 +485,10 @@ function revealAnswer() {
   referenceText.textContent = current.reference ? `📖 ${current.reference}` : "";
 
   answerBox.classList.remove("d-none");
-  revealBtn.textContent = "Resposta revelada";
+  // "✅ Acertou?" já cumpriu seu papel (revelou) — some, deixando só os
+  // botões de pontuação por equipe e "Próxima frase" (que já estava
+  // visível desde o início da rodada).
+  revealBtn.classList.add("d-none");
 
   answerRevealed = true;
   // Depois de revelar não precisa mais contar — esconde o timer até a
@@ -498,6 +513,8 @@ function endGame(text) {
   setGameOverUI(true);
 
   readyBtn.classList.add("d-none");
+  revealBtn.classList.add("d-none");
+  nextBtn.classList.add("d-none");
   quoteText.classList.remove("is-countdown", "d-none");
   quoteText.textContent = text;
   answerBox.classList.add("d-none");
