@@ -1,5 +1,6 @@
 import { shuffleArray, createCountdownTimer } from "../../assets/js/utils.js";
 import { Teams } from "../../assets/js/teams.js";
+import { buildMemberQueues, advanceMemberForTeam } from "../../assets/js/turn-fairness.js";
 import { icon } from "../../playgospel-ui/js/core.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
@@ -15,6 +16,7 @@ const ROUND_SIZE = 10;
 
 const scoreBtn = document.getElementById("scoreBtn");
 const teamScoreButtons = document.getElementById("teamScoreButtons");
+const pairRow = document.getElementById("pairRow");
 
 /* ===== Elements (setup) ===== */
 const setupScreen = document.getElementById("setupScreen");
@@ -65,6 +67,75 @@ let countdownInterval = null;
 let answerRevealed = false;
 let pointGiven = false;
 
+// ===== Rodízio de pares (2 equipes por rodada) =====
+// Com só 2 equipes ativas, o par é sempre o mesmo (as duas). Com 3+, a
+// ordem das equipes é embaralhada uma vez no início da partida e o par
+// avança uma posição a cada rodada (A x B, B x C, C x A, repete...) — um
+// rodízio circular que garante que ninguém fica de fora rodadas seguidas
+// (mesmo padrão de games/palavras-misturadas/game.js).
+let pairOrder = [];
+let pairCursor = -1;
+let currentPair = null; // [índiceEquipeA, índiceEquipeB] ou null antes da 1ª rodada
+let memberQueues = {}; // fila embaralhada de integrantes por equipe (ver assets/js/turn-fairness.js)
+
+function shuffledIndices(n) {
+  const arr = Array.from({ length: n }, (_, i) => i);
+  return shuffleArray(arr);
+}
+
+function initPairing() {
+  const n = Teams.getState().teams.length;
+  pairOrder = shuffledIndices(n);
+  pairCursor = -1;
+  currentPair = null;
+  memberQueues = buildMemberQueues();
+}
+
+// Chamada no início de cada rodada nova: fecha a rodada anterior (troca
+// quem representa cada equipe do par que acabou de jogar, em ordem
+// embaralhada — sem repetir ninguém da equipe até todo mundo dela ter
+// jogado) e decide o próximo par pelo rodízio.
+function advancePair() {
+  const n = Teams.getState().teams.length;
+  if (pairOrder.length !== n) initPairing();
+
+  if (currentPair) {
+    advanceMemberForTeam(memberQueues, currentPair[0]);
+    advanceMemberForTeam(memberQueues, currentPair[1]);
+  }
+
+  pairCursor = (pairCursor + 1) % n;
+  const a = pairOrder[pairCursor % n];
+  const b = pairOrder[(pairCursor + 1) % n];
+  currentPair = [a, b];
+}
+
+function renderPairRow() {
+  if (!pairRow) return;
+  if (!currentPair || gameOver) {
+    pairRow.classList.add("d-none");
+    pairRow.innerHTML = "";
+    return;
+  }
+
+  const state = Teams.getState();
+  pairRow.classList.remove("d-none");
+  pairRow.innerHTML = currentPair.map((teamIndex) => {
+    const team = state.teams[teamIndex];
+    if (!team) return "";
+    const player = Teams.playerOf(teamIndex);
+    return `
+      <div class="qd-pair-team" style="--team-color:${escapeHtml(team.color)}">
+        <span class="qd-pair-team-icon">${icon(teamIconName(team), { size: 18 })}</span>
+        <span class="qd-pair-team-text">
+          <span class="qd-pair-team-name">${escapeHtml(team.name)}</span>
+          ${player ? `<span class="qd-pair-team-player">${escapeHtml(player)}</span>` : ""}
+        </span>
+      </div>
+    `;
+  }).join(`<div class="qd-pair-vs">×</div>`);
+}
+
 /* ===== Init ===== */
 document.addEventListener("DOMContentLoaded", async () => {
   await loadData();
@@ -111,9 +182,10 @@ function teamIconName(team) {
 function renderTeamScoreButtons() {
   // Só aparecem depois que a resposta certa foi revelada na tela — assim
   // quem administra confere antes de dar o ponto pra equipe certa.
+  // Só as 2 equipes do par atual (ver advancePair) disputam a rodada.
   if (!teamScoreButtons) return;
 
-  if (!Teams.isEnabled() || !answerRevealed || gameOver) {
+  if (!Teams.isEnabled() || !answerRevealed || gameOver || !currentPair) {
     teamScoreButtons.innerHTML = "";
     teamScoreButtons.classList.add("d-none");
     return;
@@ -122,7 +194,10 @@ function renderTeamScoreButtons() {
   const state = Teams.getState();
   teamScoreButtons.classList.remove("d-none");
 
-  teamScoreButtons.innerHTML = state.teams.map((team, index) => `
+  teamScoreButtons.innerHTML = currentPair.map((index) => {
+    const team = state.teams[index];
+    if (!team) return "";
+    return `
     <button
       type="button"
       class="qd-team-btn"
@@ -133,7 +208,8 @@ function renderTeamScoreButtons() {
       <span class="qd-team-btn-icon">${icon(teamIconName(team), { size: 16 })}</span>
       <span>${escapeHtml(team.name)} acertou</span>
     </button>
-  `).join("");
+  `;
+  }).join("");
 
   teamScoreButtons.querySelectorAll(".qd-team-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -251,6 +327,8 @@ function restartGame() {
   pool = shuffleArray(list).slice(0, ROUND_SIZE);
   idx = 0;
 
+  initPairing();
+
   if (!pool.length) {
     endGame("SEM FRASES");
     return;
@@ -261,6 +339,8 @@ function restartGame() {
   // voltam quando loadQuoteAtIndex resetar a frase, pra ninguém clicar
   // antes da rodada realmente começar.
   teamScoreButtons?.classList.add("d-none");
+  advancePair();
+  renderPairRow();
 
   startPrepareCountdown(() => {
     loadQuoteAtIndex(idx);
@@ -281,6 +361,8 @@ function nextQuote() {
 
   updateProgress();
   teamScoreButtons?.classList.add("d-none");
+  advancePair();
+  renderPairRow();
 
   startPrepareCountdown(() => {
     loadQuoteAtIndex(idx);
@@ -404,6 +486,7 @@ function endGame(text) {
 
   badgeProgress.textContent = `${pool.length}/${pool.length}`;
   renderTeamScoreButtons();
+  renderPairRow();
 
   showScorePopup({
     title: "🏁 Fim de jogo!",
