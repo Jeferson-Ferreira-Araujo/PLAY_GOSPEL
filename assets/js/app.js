@@ -1056,9 +1056,22 @@ async function openGameModal(game) {
     </div>
   ` : "";
 
+  // Imagem do formato — logo abaixo do rótulo acima (lido antes dela) e
+  // na coluna esquerda, que sobra mais espaço no desktop do que a
+  // coluna do "Como jogar" à direita.
+  const howToImage = document.getElementById("modalHowToImage");
+  if (format?.image) {
+    howToImage.src = format.image;
+    howToImage.alt = `Formato ${format.label}: ${format.sub}`;
+    howToImage.classList.remove("d-none");
+  } else {
+    howToImage.removeAttribute("src");
+    howToImage.classList.add("d-none");
+  }
+
   // carrega config.json e renderiza as seções (só as que existirem de fato)
   const cfg = await loadGameConfig(game);
-  renderModalHowTo(cfg, game);
+  renderModalHowTo(cfg);
   await renderModalSettings(cfg, game);
 
   // botão jogar => URL com querystring
@@ -1145,25 +1158,17 @@ async function resolveDynamicOptions(game, dynamicKey, sourceFile) {
    RENDER CONFIG (async) — só renderiza as seções que o config.json do
    jogo realmente declara (nada de campo/feature inventado).
 ========================= */
-function renderModalHowTo(cfg, game) {
+function renderModalHowTo(cfg) {
   const section = document.getElementById("modalHowToSection");
   const list = document.getElementById("modalHowTo");
-  const image = document.getElementById("modalHowToImage");
   const columns = document.getElementById("modalColumns");
   const items = Array.isArray(cfg?.howTo) ? cfg.howTo : [];
-  const format = MATCH_TYPES[game?.matchType];
 
-  // Imagem do formato (equipe/disputa/rodada) — independe de o jogo ter
-  // texto de "como jogar" no config.json ou não: um jogo novo já mostra a
-  // imagem certa assim que ganha um "matchType" válido em games.json, sem
-  // precisar de mais nada.
-  if (format?.image) {
-    image.src = format.image;
-    image.alt = `Formato ${format.label}: ${format.sub}`;
-    image.classList.remove("d-none");
-  } else {
-    image.removeAttribute("src");
-    image.classList.add("d-none");
+  if (!items.length) {
+    section.classList.add("d-none");
+    list.innerHTML = "";
+    columns?.classList.add("pg-gm-columns--no-right");
+    return;
   }
 
   list.innerHTML = items.map((text, i) => `
@@ -1172,10 +1177,8 @@ function renderModalHowTo(cfg, game) {
       <span>${escapeHtml(text)}</span>
     </li>
   `).join("");
-
-  const hasContent = Boolean(items.length || format?.image);
-  section.classList.toggle("d-none", !hasContent);
-  columns?.classList.toggle("pg-gm-columns--no-right", !hasContent);
+  section.classList.remove("d-none");
+  columns?.classList.remove("pg-gm-columns--no-right");
 }
 
 async function renderModalSettings(cfg, game) {
