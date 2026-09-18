@@ -113,14 +113,17 @@
   min-width: 0;
 }
 
-/* Variante sem ícone/rótulo ("Vez de") — só o nome da equipe (e da
-   pessoa, se sorteada) centralizados dentro da caixa colorida. Mesmo
+/* Variante sem rótulo ("Vez de") — ícone da equipe à esquerda, nome à
+   direita, e "— Nome da pessoa" quando há participante sorteado pra essa
+   rodada (mesmo padrão adotado em todos os jogos por turno). Mesmo
    padrão adotado nos jogos que usam .presenter-top (ver
    assets/css/game-base.css e cada game.css) — aqui portado pro
    round-topbar em flex-wrap dos jogos com .pgui-game-layout. */
 .round-box--team-centered {
+  display: flex;
+  align-items: center;
   justify-content: center;
-  text-align: center;
+  gap: 8px;
   padding: 10px 22px;
   /* Linha própria, sempre — em vez de ficar espremida ao lado das outras
      caixas na mesma fileira (flex-wrap comum), fica centralizada numa
@@ -134,12 +137,34 @@
   display: none;
 }
 
-.round-box--team-centered .round-box-team-info {
-  align-items: center;
+.round-box-team-icon {
+  display: flex;
+  flex: 0 0 auto;
 }
 
+/* flex:0 1 auto (não o flex:1 padrão de .round-box-value, que cresceria
+   pra ocupar o espaço livre da linha toda — flex-basis:100% aqui — e
+   empurraria o nome da pessoa pro canto direito) — mas com min-width:0
+   pra poder encolher com "..." em vez de estourar a caixa quando o nome
+   da equipe/pessoa for comprido. */
 .round-box--team-centered .round-box-value {
+  flex: 0 1 auto;
+  min-width: 0;
   font-size: 1.05rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.round-box--team-centered .round-box-player {
+  flex: 0 1 auto;
+  min-width: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: rgba(11, 18, 32, .65);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .round-box-player {

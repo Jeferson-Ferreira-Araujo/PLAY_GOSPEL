@@ -71,20 +71,40 @@
   height: 10px;
 }
 
-/* Sem ícone/rótulo ("Vez de responder") — só o nome da equipe (e da
-   pessoa, se sorteada) centralizados dentro da caixa colorida. */
+/* Ícone da equipe à esquerda, nome à direita — e "— Nome da pessoa"
+   quando há participante sorteado pra essa rodada (mesmo padrão adotado
+   em todos os jogos por turno). */
 .round-box--team-centered {
+  display: flex;
+  align-items: center;
   justify-content: center;
-  text-align: center;
+  gap: 8px;
   padding: 10px 22px;
 }
 
-.round-box--team-centered .round-box-team-info {
-  align-items: center;
+.round-box-team-icon {
+  display: flex;
+  flex: 0 0 auto;
 }
 
 .round-box--team-centered .round-box-value {
+  flex: 0 1 auto;
+  min-width: 0;
   font-size: 1.15rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.round-box--team-centered .round-box-player {
+  flex: 0 1 auto;
+  min-width: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: rgba(11, 18, 32, .65);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Tablet vertical: a grade de 3 colunas (pontas iguais) fica apertada

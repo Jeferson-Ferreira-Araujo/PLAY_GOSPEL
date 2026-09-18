@@ -8,12 +8,14 @@ import { playCountdownTick, playCountdownGo } from "../../assets/js/countdown-so
 import { mountSoundMuteButton } from "../../assets/js/sound-mute-ui.js";
 import { mountFullscreenButton } from "../../assets/js/fullscreen-ui.js";
 import { watchStageText } from "../../assets/js/fit-text.js";
+import { icon } from "../../playgospel-ui/js/core.js";
 
 // Máximo de rodadas por partida (evita jogar todas as afirmações de uma vez).
 const ROUND_SIZE = 10;
 
 const scoreBtn = document.getElementById("scoreBtn");
 const turnBanner = document.getElementById("turnBanner");
+const turnBannerIcon = document.getElementById("turnBannerIcon");
 const turnBannerTeam = document.getElementById("turnBannerTeam");
 const turnBannerPlayer = document.getElementById("turnBannerPlayer");
 
@@ -110,6 +112,7 @@ function renderTurnBanner() {
   turnBanner?.classList.toggle("d-none", !t);
   if (!t) return;
 
+  if (turnBannerIcon) turnBannerIcon.innerHTML = icon(t.icon || "star", { size: 18 });
   if (turnBannerTeam) turnBannerTeam.textContent = t.name;
   turnBanner?.style.setProperty("--team-color", t.color || "#F4C430");
 
@@ -117,7 +120,7 @@ function renderTurnBanner() {
   // participantes sorteados (ver Teams.currentPlayer em teams.js).
   const player = Teams.currentPlayer();
   if (turnBannerPlayer) {
-    turnBannerPlayer.textContent = player || "";
+    turnBannerPlayer.textContent = player ? `— ${player}` : "";
     turnBannerPlayer.classList.toggle("d-none", !player);
   }
 }

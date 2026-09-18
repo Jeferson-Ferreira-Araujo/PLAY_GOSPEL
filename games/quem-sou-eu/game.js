@@ -1,4 +1,5 @@
 import { shuffleArray } from "../../assets/js/utils.js";
+import { icon } from "../../playgospel-ui/js/core.js";
 import { Teams } from "../../assets/js/teams.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
@@ -12,6 +13,7 @@ const ROUND_SIZE = 10;
 
 const scoreBtn = document.getElementById("scoreBtn");
 const turnBanner = document.getElementById("turnBanner");
+const turnBannerIcon = document.getElementById("turnBannerIcon");
 const turnBannerTeam = document.getElementById("turnBannerTeam");
 const turnBannerPlayer = document.getElementById("turnBannerPlayer");
 
@@ -82,12 +84,13 @@ function renderTurnBanner() {
   turnBanner?.classList.toggle("d-none", !t);
   if (!t) return;
 
+  if (turnBannerIcon) turnBannerIcon.innerHTML = icon(t.icon || "star", { size: 18 });
   if (turnBannerTeam) turnBannerTeam.textContent = t.name;
   turnBanner?.style.setProperty("--team-color", t.color || "#F4C430");
 
   const player = Teams.currentPlayer();
   if (turnBannerPlayer) {
-    turnBannerPlayer.textContent = player || "";
+    turnBannerPlayer.textContent = player ? `— ${player}` : "";
     turnBannerPlayer.classList.toggle("d-none", !player);
   }
 }
@@ -338,6 +341,7 @@ function finishRound() {
   // do personagem que acabou de terminar. No lugar, se alguém acertou,
   // anuncia qual equipe acertou (sem contar pontos — todo acerto vale 1).
   if (roundWinner && turnBanner && turnBannerTeam) {
+    if (turnBannerIcon) turnBannerIcon.innerHTML = icon(roundWinner.icon || "star", { size: 18 });
     turnBannerTeam.textContent = `Equipe ${roundWinner.name} acertou!`;
     turnBanner.style.setProperty("--team-color", roundWinner.color || "#F4C430");
     turnBannerPlayer?.classList.add("d-none");

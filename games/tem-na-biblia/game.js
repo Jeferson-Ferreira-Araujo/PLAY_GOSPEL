@@ -1,6 +1,6 @@
 import { Teams } from '../../assets/js/teams.js';
 import { shuffleArray, createCountdownTimer } from '../../assets/js/utils.js';
-import { renderRanking, confirmDialog } from '../../playgospel-ui/js/playgospel-ui.js';
+import { renderRanking, confirmDialog, icon } from '../../playgospel-ui/js/playgospel-ui.js';
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from '../../assets/js/score-popup.js';
 import { maybeShowDrawIntro } from '../../assets/js/game-intro.js';
 import { showTeamsBlockFocus } from '../../assets/js/game-focus-tour.js';
@@ -37,6 +37,7 @@ const btnResetScores = document.getElementById('btnResetScores');
 const startBtn = document.getElementById('startBtn');
 
 const turnBanner = document.getElementById('turnBanner');
+const turnBannerIcon = document.getElementById('turnBannerIcon');
 const turnBannerTeam = document.getElementById('turnBannerTeam');
 const turnBannerPlayer = document.getElementById('turnBannerPlayer');
 const badgeCategory = document.getElementById('badgeCategory');
@@ -115,12 +116,13 @@ function renderTurnBanner() {
   const t = Teams.currentTeam();
   turnBanner.classList.toggle('d-none', !t);
   if (!t) return;
+  if (turnBannerIcon) turnBannerIcon.innerHTML = icon(t.icon || 'star', { size: 18 });
   turnBannerTeam.textContent = t.name;
   turnBanner.style.setProperty('--team-color', t.color || '#F4C430');
 
   const player = Teams.currentPlayer();
   if (turnBannerPlayer) {
-    turnBannerPlayer.textContent = player || '';
+    turnBannerPlayer.textContent = player ? `— ${player}` : '';
     turnBannerPlayer.classList.toggle('d-none', !player);
   }
 

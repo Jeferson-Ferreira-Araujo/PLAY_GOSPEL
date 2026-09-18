@@ -4,7 +4,7 @@ import { createInstrumentSynth, disposeInstrumentSynth } from '../../assets/js/m
 import { createPreviewPlayer } from '../../assets/js/use-preview-player.js';
 import { buildEmbedUrl } from '../../assets/js/youtube-embed.js';
 import { renderPianoKeyboard } from '../../assets/js/piano-keyboard.js';
-import { renderRanking, confirmDialog, showToast } from '../../playgospel-ui/js/playgospel-ui.js';
+import { renderRanking, confirmDialog, showToast, icon } from '../../playgospel-ui/js/playgospel-ui.js';
 import { showScorePopup, buildExitFooter } from '../../assets/js/score-popup.js';
 import { showTeamsBlockFocus } from '../../assets/js/game-focus-tour.js';
 import { mountSoundMuteButton } from '../../assets/js/sound-mute-ui.js';
@@ -36,6 +36,7 @@ const startBtn = document.getElementById('startBtn');
 const startBlockedMsg = document.getElementById('startBlockedMsg');
 
 const turnBanner = document.getElementById('turnBanner');
+const turnBannerIcon = document.getElementById('turnBannerIcon');
 const turnBannerTeam = document.getElementById('turnBannerTeam');
 const badgeSong = document.getElementById('badgeSong');
 const badgePoints = document.getElementById('badgePoints');
@@ -275,6 +276,7 @@ function renderTurnBanner() {
   const t = Teams.currentTeam();
   turnBanner.classList.toggle('d-none', !t);
   if (!t) return;
+  if (turnBannerIcon) turnBannerIcon.innerHTML = icon(t.icon || 'star', { size: 18 });
   turnBannerTeam.textContent = t.name;
   turnBanner.style.setProperty('--team-color', t.color || '#F4C430');
   updateStickyOffsets();

@@ -1,4 +1,5 @@
 import { createCountdownTimer, shuffleArray } from "../../assets/js/utils.js";
+import { icon } from "../../playgospel-ui/js/core.js";
 import { Teams } from "../../assets/js/teams.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
@@ -18,6 +19,7 @@ const $ = (id) => document.getElementById(id);
 const scoreBtn = $("scoreBtn");
 
 const turnBanner = $("turnBanner");
+const turnBannerIcon = $("turnBannerIcon");
 const turnBannerTeam = $("turnBannerTeam");
 const turnBannerPlayer = $("turnBannerPlayer");
 
@@ -178,6 +180,7 @@ function renderTeamUI() {
   turnBanner?.classList.toggle("d-none", !t);
   if (!t) return;
 
+  if (turnBannerIcon) turnBannerIcon.innerHTML = icon(t.icon || "star", { size: 18 });
   if (turnBannerTeam) turnBannerTeam.textContent = t.name;
   turnBanner?.style.setProperty("--team-color", t.color || "#F4C430");
 
@@ -187,7 +190,7 @@ function renderTeamUI() {
   // não faria sentido travar numa pessoa só.
   if (turnBannerPlayer) {
     const anyoneCanAnswer = Array.isArray(t.members) && t.members.length > 0;
-    turnBannerPlayer.textContent = anyoneCanAnswer ? "Qualquer um pode responder" : "";
+    turnBannerPlayer.textContent = anyoneCanAnswer ? "— Qualquer um pode responder" : "";
     turnBannerPlayer.classList.toggle("d-none", !anyoneCanAnswer);
   }
 }
