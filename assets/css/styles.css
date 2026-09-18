@@ -1019,13 +1019,13 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  order: 2;
+  order: 1;
 }
 
 .pg-gm-col-right {
   display: flex;
   flex-direction: column;
-  order: 1;
+  order: 2;
 }
 
 .pg-gm-col-right .pg-gm-section {
@@ -1261,12 +1261,7 @@
   }
 
   .pg-gm-col-left {
-    order: 1;
     justify-content: center;
-  }
-
-  .pg-gm-col-right {
-    order: 2;
   }
 
   .pg-gm-howto {
