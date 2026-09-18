@@ -50,6 +50,7 @@ let idx = 0;          // qual personagem atual
 let hintIndex = 0;    // quantas dicas já foram reveladas (0..3)
 let attemptValue = 1; // pontos em jogo na dica atual — 1, +1 a cada "Passar a vez"
 let gameOver = false;
+let roundWinner = null; // { team, points } — quem acertou a rodada atual, pra exibir em finishRound()
 
 document.addEventListener("DOMContentLoaded", async () => {
   await loadData();
@@ -295,6 +296,9 @@ function beginFirstHint() {
 // pra próxima equipe começar a próxima rodada (personagem novo).
 function onCorrect() {
   if (Teams.isEnabled()) {
+    // Guarda quem acertou antes de Teams.nextTurn() mudar a equipe da vez —
+    // finishRound() usa isso pra anunciar a equipe vencedora da rodada.
+    roundWinner = { team: Teams.currentTeam(), points: attemptValue };
     Teams.addPoint(attemptValue);
     Teams.nextTurn();
   }
@@ -343,8 +347,16 @@ function finishRound() {
   // A equipe da vez já mudou por baixo (Teams.nextTurn() em onCorrect/
   // onPass) — mas essa próxima equipe só começa a valer na rodada
   // seguinte, não faz sentido mostrar o bloco dela em cima da resposta
-  // do personagem que acabou de terminar.
-  turnBanner?.classList.add("d-none");
+  // do personagem que acabou de terminar. No lugar, se alguém acertou,
+  // anuncia quem ganhou quantos pontos nesta rodada.
+  if (roundWinner && turnBanner && turnBannerTeam) {
+    turnBannerTeam.textContent = `Equipe ${roundWinner.team.name} ganhou ${roundWinner.points} ${roundWinner.points === 1 ? "ponto" : "pontos"}`;
+    turnBanner.style.setProperty("--team-color", roundWinner.team.color || "#F4C430");
+    turnBannerPlayer?.classList.add("d-none");
+    turnBanner.classList.remove("d-none");
+  } else {
+    turnBanner?.classList.add("d-none");
+  }
 }
 
 function nextItem() {
@@ -353,6 +365,7 @@ function nextItem() {
 }
 
 function clearRoundUI() {
+  roundWinner = null;
   hintsList.innerHTML = "";
   hintsSection.classList.remove("d-none");
   answerBox.classList.add("d-none");
