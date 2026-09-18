@@ -5,6 +5,7 @@ import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from '../../ass
 import { maybeShowDrawIntro } from '../../assets/js/game-intro.js';
 import { showTeamsBlockFocus } from '../../assets/js/game-focus-tour.js';
 import { buildMemberQueues, advanceMemberForTeam } from '../../assets/js/turn-fairness.js';
+import { playCountdownTick, playCountdownGo } from '../../assets/js/countdown-sound.js';
 
 /* Alfabeto do jogo: todas as letras menos as difíceis (H, K, Q, W, X, Y, Z). */
 const LETTERS_ALL = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'I', 'J', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'V'];
@@ -41,6 +42,8 @@ const badgeProgress = document.getElementById('badgeProgress');
 
 const playPanel = document.getElementById('playPanel');
 const letterDisplay = document.getElementById('letterDisplay');
+const readyBtn = document.getElementById('readyBtn');
+const timerRow = document.getElementById('answerTimer');
 const timerTime = document.getElementById('timerTime');
 const timerBar = document.getElementById('timerBar');
 
@@ -66,6 +69,7 @@ let processing = false;
 
 let answerTimerCtl = null;
 let memberQueues = {}; // fila embaralhada de integrantes por equipe (ver assets/js/turn-fairness.js)
+let countdownInterval = null;
 
 /* ===== Categoria / tempo (tela de setup) ===== */
 function selectCategory(cat) {
@@ -137,7 +141,58 @@ function drawNextLetter() {
 }
 
 function showLetter() {
+  letterDisplay.classList.remove('ab-letter-display--countdown');
   letterDisplay.textContent = currentLetter;
+}
+
+/* ===== Espera a confirmação de "Começar" antes de cada letra — como as
+   equipes/pessoas revezam, sempre precisa desse momento pra "chamar"
+   quem vai jogar antes da contagem aparecer (mesmo padrão de
+   games/palavras-misturadas/game.js e games/adivinhe-emoji/game.js). */
+function showReadyState() {
+  clearCountdown();
+  answerTimerCtl?.stop();
+  timerRow?.classList.add('d-none');
+
+  letterDisplay.classList.add('d-none');
+  readyBtn.classList.remove('d-none');
+
+  renderTurnBanner();
+}
+
+/* ===== Contagem "3, 2, 1" antes de cada letra — dá tempo da equipe (e
+   pessoa, se sorteada) se preparar antes do cronômetro de resposta
+   começar. */
+function startCountdown() {
+  clearCountdown();
+  readyBtn.classList.add('d-none');
+  letterDisplay.classList.remove('d-none');
+  letterDisplay.classList.add('ab-letter-display--countdown');
+
+  let n = 3;
+  letterDisplay.textContent = String(n);
+  playCountdownTick();
+
+  countdownInterval = setInterval(() => {
+    n -= 1;
+    if (n > 0) {
+      letterDisplay.textContent = String(n);
+      playCountdownTick();
+      return;
+    }
+    clearCountdown();
+    playCountdownGo();
+    showLetter();
+    timerRow?.classList.remove('d-none');
+    startTimerForTurn();
+  }, 1000);
+}
+
+function clearCountdown() {
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+    countdownInterval = null;
+  }
 }
 
 function updateBadgeProgress() {
@@ -177,9 +232,7 @@ function startRoundState() {
   attemptedThisLetter.add(Teams.currentTeam()?.id);
 
   updateBadgeProgress();
-  showLetter();
-  renderTurnBanner();
-  startTimerForTurn();
+  showReadyState();
 }
 
 /** Some a tela de setup e começa a jogar — usado tanto pelo clique em
@@ -236,9 +289,7 @@ function onCorrect() {
   attemptedThisLetter.add(Teams.currentTeam()?.id);
 
   updateBadgeProgress();
-  showLetter();
-  renderTurnBanner();
-  startTimerForTurn();
+  showReadyState();
   processing = false;
 }
 
@@ -262,9 +313,7 @@ function advanceTurnSameLetter() {
   attemptedThisLetter.add(newTeamId);
 
   updateBadgeProgress();
-  showLetter();
-  renderTurnBanner();
-  startTimerForTurn();
+  showReadyState();
   processing = false;
 }
 
@@ -289,10 +338,12 @@ function onWrong() {
 function endRoundNatural() {
   roundActive = false;
   answerTimerCtl.stop();
+  clearCountdown();
 
   correctBtn.classList.add('d-none');
   wrongBtn.classList.add('d-none');
   passBtn.classList.add('d-none');
+  readyBtn.classList.add('d-none');
 
   showScorePopup({
     title: '🏁 Fim de rodada!',
@@ -347,6 +398,7 @@ function wireUI() {
   correctBtn.addEventListener('click', onCorrect);
   wrongBtn.addEventListener('click', onWrong);
   passBtn.addEventListener('click', onPass);
+  readyBtn.addEventListener('click', startCountdown);
 
   restartBtn.addEventListener('click', async () => {
     const confirmed = await confirmDialog({

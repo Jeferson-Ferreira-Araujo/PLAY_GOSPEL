@@ -4,7 +4,7 @@ import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../ass
 import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
 import { showTeamsBlockFocus } from "../../assets/js/game-focus-tour.js";
 import { icon } from "../../playgospel-ui/js/core.js";
-import { playCorrectSound } from "../../assets/js/countdown-sound.js";
+import { playCorrectSound, playCountdownTick, playCountdownGo } from "../../assets/js/countdown-sound.js";
 import { mountSoundMuteButton } from "../../assets/js/sound-mute-ui.js";
 import { mountFullscreenButton } from "../../assets/js/fullscreen-ui.js";
 import { watchStageText } from "../../assets/js/fit-text.js";
@@ -326,16 +326,19 @@ function startCountdown() {
   let n = 3;
   timerText.textContent = "Prepare-se!";
   emojiDisplay.textContent = String(n);
+  playCountdownTick();
 
   countdownInterval = setInterval(() => {
     n -= 1;
 
     if (n > 0) {
       emojiDisplay.textContent = String(n);
+      playCountdownTick();
       return;
     }
 
     clearCountdown();
+    playCountdownGo();
     beginRound();
   }, 1000);
 }
