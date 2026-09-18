@@ -4,6 +4,9 @@ import { icon } from "../../playgospel-ui/js/core.js";
 import { showScorePopup, buildExitFooter, buildPlayAgainFooter } from "../../assets/js/score-popup.js";
 import { maybeShowDrawIntro } from "../../assets/js/game-intro.js";
 import { showTeamsBlockFocus } from "../../assets/js/game-focus-tour.js";
+import { playCountdownTick } from "../../assets/js/countdown-sound.js";
+import { mountSoundMuteButton } from "../../assets/js/sound-mute-ui.js";
+import { mountFullscreenButton } from "../../assets/js/fullscreen-ui.js";
 
 // Máximo de rodadas por partida (evita jogar todos os personagens de uma vez).
 const ROUND_SIZE = 10;
@@ -57,6 +60,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderTeamScoreButtons();
     updateScoreBtn();
   });
+  mountFullscreenButton(document.querySelector(".game-topbar-actions"));
+  mountSoundMuteButton(document.querySelector(".game-topbar-actions"));
   checkAutoStartFromURL(); // ✅ NOVO
 });
 
@@ -285,6 +290,10 @@ function revealNextHint() {
     li.textContent = hints[hintIndex];
     li.classList.remove("hint-pending");
   }
+
+  // Esse jogo não tem contagem "3,2,1" (não é por turno cronometrado) —
+  // o mesmo som de tick marca o momento de cada dica nova aparecendo.
+  playCountdownTick();
 
   hintIndex += 1;
 

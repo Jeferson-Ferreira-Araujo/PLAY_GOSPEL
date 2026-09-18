@@ -7,6 +7,8 @@ import { renderPianoKeyboard } from '../../assets/js/piano-keyboard.js';
 import { renderRanking, confirmDialog, showToast } from '../../playgospel-ui/js/playgospel-ui.js';
 import { showScorePopup, buildExitFooter } from '../../assets/js/score-popup.js';
 import { showTeamsBlockFocus } from '../../assets/js/game-focus-tour.js';
+import { mountSoundMuteButton } from '../../assets/js/sound-mute-ui.js';
+import { mountFullscreenButton } from '../../assets/js/fullscreen-ui.js';
 
 const MAX_PLAYS = 2;      // cliques em "Ouvir" por tentativa (equipe + notas atuais)
 const MIN_DRAW_N = 1;     // sorteio inicial: entre 1 e 5 notas
@@ -859,6 +861,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderTeamsPanel();
   wireUI();
   watchStickyOffsets();
+  mountFullscreenButton(document.querySelector('.pgui-header__actions'));
+  mountSoundMuteButton(document.querySelector('.pgui-header__actions'));
   await loadSongs();
   checkAutoStartFromURL();
 });

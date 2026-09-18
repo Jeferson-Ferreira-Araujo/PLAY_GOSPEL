@@ -6,6 +6,8 @@ import { maybeShowDrawIntro } from '../../assets/js/game-intro.js';
 import { showTeamsBlockFocus } from '../../assets/js/game-focus-tour.js';
 import { buildMemberQueues, advanceMemberForTeam } from '../../assets/js/turn-fairness.js';
 import { playCountdownTick, playCountdownGo } from '../../assets/js/countdown-sound.js';
+import { mountSoundMuteButton } from '../../assets/js/sound-mute-ui.js';
+import { mountFullscreenButton } from '../../assets/js/fullscreen-ui.js';
 
 /* Alfabeto do jogo: todas as letras menos as difíceis (H, K, Q, W, X, Y, Z). */
 const LETTERS_ALL = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'I', 'J', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'V'];
@@ -464,5 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
   wireUI();
   initTimer();
   watchStickyOffsets();
+  mountFullscreenButton(document.querySelector('.pgui-header__actions'));
+  mountSoundMuteButton(document.querySelector('.pgui-header__actions'));
   checkAutoStartFromURL();
 });
