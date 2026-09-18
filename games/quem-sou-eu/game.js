@@ -327,6 +327,9 @@ function finishRound() {
 
   correctBtn.classList.add("d-none");
   passBtn.classList.add("d-none");
+  // "Próximo" só aparece agora — as 3 dicas (ou até menos, se acertou
+  // antes) e a resposta já precisam estar na tela primeiro.
+  nextBtn.classList.remove("d-none");
 
   renderTurnBanner();
 }
