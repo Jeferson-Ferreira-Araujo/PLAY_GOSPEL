@@ -1,9 +1,9 @@
 {
   "settings": [],
   "howTo": [
-    "A equipe da vez vê a 1ª dica. Acertou, marca ponto; não sabe, clique em Passar a vez.",
-    "Passar a vez mostra a 2ª dica pra próxima equipe, valendo mais pontos.",
-    "Se chegar na 3ª dica e ninguém acertar, a resposta é revelada e ninguém pontua."
+    "A equipe da vez vê a 1ª dica. Acertou, marca 1 ponto; não sabe, clique em Passar a vez.",
+    "Passar a vez mostra a próxima dica pra próxima equipe — quem acertar ganha 1 ponto, não importa em qual dica.",
+    "Se chegar na 3ª dica e ninguém acertar, a resposta é revelada e ninguém pontua nem perde."
   ],
   "tips": [
     "Atalhos: D (dica/passar), N (próximo).",

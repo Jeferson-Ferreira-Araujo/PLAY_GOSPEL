@@ -11,9 +11,6 @@ import { mountFullscreenButton } from "../../assets/js/fullscreen-ui.js";
 const ROUND_SIZE = 10;
 
 const scoreBtn = document.getElementById("scoreBtn");
-const pointsBox = document.getElementById("pointsBox");
-const pointsValue = document.getElementById("pointsValue");
-
 const turnBanner = document.getElementById("turnBanner");
 const turnBannerTeam = document.getElementById("turnBannerTeam");
 const turnBannerPlayer = document.getElementById("turnBannerPlayer");
@@ -48,9 +45,8 @@ let items = [];       // lista base
 let pool = [];        // ordem embaralhada
 let idx = 0;          // qual personagem atual
 let hintIndex = 0;    // quantas dicas já foram reveladas (0..3)
-let attemptValue = 1; // pontos em jogo na dica atual — 1, +1 a cada "Passar a vez"
 let gameOver = false;
-let roundWinner = null; // { team, points } — quem acertou a rodada atual, pra exibir em finishRound()
+let roundWinner = null; // equipe que acertou a rodada atual (ou null) — usado em finishRound()
 
 document.addEventListener("DOMContentLoaded", async () => {
   await loadData();
@@ -72,7 +68,6 @@ function updateScoreBtn() {
   if (!scoreBtn) return;
   const show = !gameScreen.classList.contains("d-none") && Teams.isEnabled();
   scoreBtn.classList.toggle("d-none", !show);
-  pointsBox?.classList.toggle("d-none", !show);
 }
 
 /* ===== Vez da equipe (banner) — mesmo padrão dos outros jogos por turno
@@ -95,10 +90,6 @@ function renderTurnBanner() {
     turnBannerPlayer.textContent = player || "";
     turnBannerPlayer.classList.toggle("d-none", !player);
   }
-}
-
-function updatePointsBox() {
-  if (pointsValue) pointsValue.textContent = `Vale ${attemptValue} ${attemptValue === 1 ? "ponto" : "pontos"}`;
 }
 
 async function loadData() {
@@ -225,11 +216,9 @@ function loadCurrentItem() {
   }
 
   hintIndex = 0;
-  attemptValue = 1;
   updateProgress();
   buildHintPlaceholders();
   renderTurnBanner();
-  updatePointsBox();
 }
 
 function getCurrent() {
@@ -292,31 +281,30 @@ function beginFirstHint() {
   passBtn.classList.remove("d-none");
 }
 
-// Equipe da vez acertou: pontua o valor em jogo nessa dica e passa a vez
-// pra próxima equipe começar a próxima rodada (personagem novo).
+// Equipe da vez acertou: sempre 1 ponto, não importa em qual dica (mais
+// dicas revelada = mais fácil, não faz sentido valer mais) — e passa a
+// vez pra próxima equipe começar a próxima rodada (personagem novo).
 function onCorrect() {
   if (Teams.isEnabled()) {
     // Guarda quem acertou antes de Teams.nextTurn() mudar a equipe da vez —
     // finishRound() usa isso pra anunciar a equipe vencedora da rodada.
-    roundWinner = { team: Teams.currentTeam(), points: attemptValue };
-    Teams.addPoint(attemptValue);
+    roundWinner = Teams.currentTeam();
+    Teams.addPoint(1);
     Teams.nextTurn();
   }
   finishRound();
 }
 
-// "Passar a vez": time atual não sabe — a próxima dica vale mais e vai
-// pra próxima equipe da sequência (ver Teams.nextTurn). Sem mais dicas
+// "Passar a vez": time atual não sabe — mostra a próxima dica pra próxima
+// equipe da sequência (ver Teams.nextTurn), sem penalidade. Sem mais dicas
 // pra mostrar, a rodada acaba sem ninguém pontuar.
 function onPass() {
   if (Teams.isEnabled()) Teams.nextTurn();
-  attemptValue += 1;
   hintIndex += 1;
 
   if (hintIndex < maxHintsForCurrent()) {
     revealHintAt(hintIndex);
     renderTurnBanner();
-    updatePointsBox();
   } else {
     finishRound();
   }
@@ -348,10 +336,10 @@ function finishRound() {
   // onPass) — mas essa próxima equipe só começa a valer na rodada
   // seguinte, não faz sentido mostrar o bloco dela em cima da resposta
   // do personagem que acabou de terminar. No lugar, se alguém acertou,
-  // anuncia quem ganhou quantos pontos nesta rodada.
+  // anuncia qual equipe acertou (sem contar pontos — todo acerto vale 1).
   if (roundWinner && turnBanner && turnBannerTeam) {
-    turnBannerTeam.textContent = `Equipe ${roundWinner.team.name} ganhou ${roundWinner.points} ${roundWinner.points === 1 ? "ponto" : "pontos"}`;
-    turnBanner.style.setProperty("--team-color", roundWinner.team.color || "#F4C430");
+    turnBannerTeam.textContent = `Equipe ${roundWinner.name} acertou!`;
+    turnBanner.style.setProperty("--team-color", roundWinner.color || "#F4C430");
     turnBannerPlayer?.classList.add("d-none");
     turnBanner.classList.remove("d-none");
   } else {
