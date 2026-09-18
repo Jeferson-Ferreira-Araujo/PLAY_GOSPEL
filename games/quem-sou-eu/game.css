@@ -83,3 +83,33 @@
   font-size: clamp(18px, 3.2vw, 36px) !important;
 }
 
+/* No mobile, esse jogo só tem 2 blocos no topo (Rodada + equipe da vez) —
+   diferente dos outros jogos (categoria/tempo/pontos...), que precisam
+   empilhar por padrão (ver .presenter-top em assets/css/game-base.css).
+   Aqui cabem lado a lado: Rodada fica só do tamanho do conteúdo, equipe
+   ocupa o resto da linha. */
+@media (max-width: 640px) {
+  .presenter-top {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+  }
+
+  .round-topbar {
+    flex: 0 0 auto;
+    width: auto;
+  }
+
+  .round-topbar .round-box {
+    min-width: 0;
+    width: auto;
+  }
+
+  #turnBanner.round-box--team {
+    order: initial;
+    flex: 1 1 auto;
+    flex-basis: auto;
+    min-width: 0;
+  }
+}
+
