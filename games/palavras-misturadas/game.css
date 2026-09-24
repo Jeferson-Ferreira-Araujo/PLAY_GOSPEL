@@ -4,6 +4,13 @@
   font-size: clamp(36px, 8vw, 140px);
 }
 
+/* Dígito da contagem "5,4,3,2,1" menor que o padrão (.stage-text.is-countdown
+   em game-base.css) — aqui ele divide o centro da tela com o rótulo
+   "Preparem-se" e o bloco grande do par (ver startCountdown em game.js). */
+#scrambledWord.is-countdown {
+  font-size: clamp(70px, 14vw, 180px);
+}
+
 /* Mobile na vertical: "Mostrar resposta" primeiro, "Nova palavra" embaixo
    — o .presenter-bottom empilha em coluna na ordem do HTML a partir daqui
    (ver game-base.css), então só inverter a ordem visual já basta. */
@@ -17,21 +24,23 @@
   }
 }
 
-/* Contagem "3, 2, 1" — estilo (cor + tamanho) compartilhado por todos os
-   jogos, ver .stage-text.is-countdown em assets/css/game-base.css. */
+/* Contagem "5, 4, 3, 2, 1" — estilo (cor + tamanho) compartilhado por
+   todos os jogos, ver .stage-text.is-countdown em assets/css/game-base.css
+   (tamanho reduzido nesta página, ver #scrambledWord.is-countdown acima). */
 
-/* Botão "Começar rodada" — ocupa o lugar da palavra no centro da tela
-   enquanto espera quem vai jogar se organizar (ver setRoundPhase em
-   game.js), então precisa do mesmo destaque que ela teria. */
-.pm-ready-btn {
-  padding: 28px 48px;
-  border-radius: 18px;
-  font-size: clamp(22px, 4vw, 40px);
-  font-weight: 800;
+/* Botões de pontuação ficam na MESMA linha de "Mostrar resposta"/"Nova
+   palavra" (ver index.html — #teamScoreButtons agora é filho do mesmo
+   .presenter-bottom, não uma linha separada acima). O .team-score-row do
+   game-base.css tem padding lateral pensado pra quando era uma linha
+   própria — zera aqui pra não desalinhar do resto dos botões. */
+#teamScoreButtons.team-score-row {
+  padding: 0;
 }
 
 /* Formato "disputa": um botão de pontuação por equipe ativa — todas as
-   equipes veem a mesma palavra, e quem acertar primeiro ganha o ponto. */
+   equipes veem a mesma palavra, e quem acertar primeiro ganha o ponto.
+   Layout de container (.team-score-row) vem do game-base.css; aqui só o
+   estilo do botão em si. */
 .team-score-row {
   flex: 0 0 auto;
   display: flex;
@@ -39,6 +48,48 @@
   justify-content: center;
   gap: 12px;
   padding: 0 16px 4px;
+}
+
+/* Todos os botões de ação da rodada (equipes, "Mostrar resposta", "Nova
+   palavra", "Jogar novamente") com o MESMO efeito de hover — levanta +
+   clareia (mesmo padrão do .pm-team-btn) — em vez de cada um reagir de
+   um jeito (o Bootstrap troca a cor de fundo dos .btn-warning/
+   .btn-outline-light por padrão, diferente do brightness() usado nos
+   botões de equipe). As regras de cor abaixo só travam a cor original no
+   hover/focus pra sobrar só o efeito padronizado. */
+.presenter-bottom .btn {
+  transition: transform .15s ease, filter .15s ease;
+}
+
+.presenter-bottom .btn:hover,
+.presenter-bottom .btn:focus-visible {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.presenter-bottom .btn:active {
+  transform: translateY(0);
+}
+
+.presenter-bottom .btn:disabled {
+  transform: none;
+  filter: none;
+}
+
+.presenter-bottom .btn-warning:hover,
+.presenter-bottom .btn-warning:focus,
+.presenter-bottom .btn-warning:focus-visible {
+  background-color: var(--gold);
+  border-color: var(--gold);
+  color: #0b1220;
+}
+
+.presenter-bottom .btn-outline-light:hover,
+.presenter-bottom .btn-outline-light:focus,
+.presenter-bottom .btn-outline-light:focus-visible {
+  background-color: transparent;
+  border-color: rgba(255, 255, 255, .5);
+  color: var(--text-main);
 }
 
 .pm-team-btn {
@@ -221,6 +272,70 @@
 
   .pm-pair-team-name {
     font-size: .88rem;
+  }
+}
+
+/* Rótulo acima do par em destaque durante a contagem (ver #pairRowBigLabel
+   em startCountdown, game.js) — some de novo junto com o bloco grande
+   assim que a rodada começa de fato. */
+.pm-pair-big-label {
+  font-weight: 900;
+  font-size: clamp(1.6rem, 5vw, 3rem);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--text-main);
+}
+
+/* Par em destaque durante a contagem "5,4,3,2,1" (ver startCountdown em
+   game.js) — mesmo bloco de par do topo (.pm-pair-row), só que grande e
+   centralizado junto com o dígito da contagem; some e volta o bloco
+   pequeno do topo assim que a palavra é carregada. */
+.pm-pair-row--big {
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 24px;
+  /* "stretch" (em vez do align-items:center herdado de .pm-pair-row) —
+     as duas caixas ficam com a mesma altura mesmo quando um nome é bem
+     mais longo que o outro, sem um par mais baixo ficar centralizado
+     desalinhado em relação ao outro. */
+  align-items: stretch;
+}
+
+.pm-pair-row--big .pm-pair-team {
+  padding: 16px 30px;
+  min-width: 200px;
+  border-radius: 20px;
+  gap: 14px;
+  box-sizing: border-box;
+}
+
+.pm-pair-row--big .pm-pair-team-icon {
+  width: 52px;
+  height: 52px;
+}
+
+.pm-pair-row--big .pm-pair-team-name {
+  font-size: clamp(1.3rem, 4vw, 2.4rem);
+}
+
+.pm-pair-row--big .pm-pair-team-player {
+  font-size: clamp(1rem, 2.6vw, 1.5rem);
+}
+
+.pm-pair-row--big .pm-pair-vs {
+  display: flex;
+  align-items: center;
+  font-size: clamp(1.5rem, 4vw, 2.6rem);
+}
+
+@media (max-width: 480px) {
+  .pm-pair-row--big {
+    gap: 12px;
+  }
+
+  .pm-pair-row--big .pm-pair-team {
+    padding: 10px 16px;
+    min-width: 0;
   }
 }
 

@@ -27,7 +27,6 @@ const badgeRound = document.getElementById("badgeRound");
 const timerText = document.getElementById("timerText");
 const timerBar = document.getElementById("timerBar");
 
-const readyBtn = document.getElementById("readyBtn");
 const newWordBtn = document.getElementById("newWordBtn");
 const showAnswerBtn = document.getElementById("showAnswerBtn");
 const exitBtn = document.getElementById("exitBtn");
@@ -39,6 +38,8 @@ const gameOverNotice = document.getElementById("gameOverNotice");
 const scoreBtn = document.getElementById("scoreBtn");
 const teamScoreButtons = document.getElementById("teamScoreButtons");
 const pairRow = document.getElementById("pairRow");
+const pairRowBig = document.getElementById("pairRowBig");
+const pairRowBigLabel = document.getElementById("pairRowBigLabel");
 
 /* ===== STATE ===== */
 let data = null;
@@ -97,17 +98,12 @@ function advancePair() {
   currentPair = [a, b];
 }
 
-function renderPairRow() {
-  if (!pairRow) return;
-  if (!currentPair || gameOver) {
-    pairRow.classList.add("d-none");
-    pairRow.innerHTML = "";
-    return;
-  }
-
+// Monta o HTML do par (equipe x equipe) — usado tanto no bloco pequeno do
+// topo (#pairRow) quanto no bloco grande centralizado durante a contagem
+// (#pairRowBig, ver startCountdown), pra não duplicar a marcação.
+function pairTeamsHtml() {
   const state = Teams.getState();
-  pairRow.classList.remove("d-none");
-  pairRow.innerHTML = currentPair.map((teamIndex) => {
+  return currentPair.map((teamIndex) => {
     const team = state.teams[teamIndex];
     if (!team) return "";
     const player = Teams.playerOf(teamIndex);
@@ -123,13 +119,31 @@ function renderPairRow() {
   }).join(`<div class="pm-pair-vs">×</div>`);
 }
 
+function renderPairRow() {
+  const has = Boolean(currentPair) && !gameOver;
+  const html = has ? pairTeamsHtml() : "";
+
+  if (pairRow) {
+    pairRow.classList.toggle("d-none", !has);
+    pairRow.innerHTML = html;
+  }
+
+  if (pairRowBig) {
+    pairRowBig.innerHTML = html;
+    // A visibilidade do bloco grande é controlada pelo startCountdown (só
+    // aparece durante a contagem) — aqui só garante que ele não fique
+    // visível com conteúdo vazio se a rodada/partida acabou.
+    if (!has) pairRowBig.classList.add("d-none");
+  }
+}
+
 let answerRevealed = false;
 let timeExpired = false;
 
-// Fases da rodada: "ready" (par mostrado, esperando confirmação de quem
-// vai jogar), "countdown" (3,2,1 antes da palavra aparecer), "playing"
-// (palavra visível, times podem pontuar) e "ended" (alguém pontuou ou o
-// tempo acabou — só resta clicar em "Nova palavra").
+// Fases da rodada: "countdown" (5,4,3,2,1 antes da palavra aparecer, já
+// com o par em destaque), "playing" (palavra visível, times podem
+// pontuar) e "ended" (alguém pontuou ou o tempo acabou — só resta
+// clicar em "Nova palavra").
 let roundPhase = "idle";
 let countdownInterval = null;
 
@@ -233,21 +247,14 @@ function renderTeamScoreButtons() {
   });
 }
 
-/* ===== Fase da rodada (ready / countdown / playing / ended) ===== */
+/* ===== Fase da rodada (countdown / playing / ended) ===== */
 function setRoundPhase(phase) {
   roundPhase = phase;
 
-  // "ready": o botão "Começar" ocupa o lugar da palavra no centro da
-  // tela (em vez de um texto + botão embaixo) — só um dos dois aparece
-  // por vez.
-  const isReady = phase === "ready" && !gameOver;
-  readyBtn.classList.toggle("d-none", !isReady);
-  scrambledWordEl.classList.toggle("d-none", isReady);
-
-  // Enquanto não dá pra mostrar uma palavra nova (contagem rolando ou
-  // esperando quem vai jogar confirmar), o botão nem aparece — só
-  // desabilitar (cinza) deixava ele ocupando espaço à toa.
-  newWordBtn.classList.toggle("d-none", gameOver || phase === "countdown" || phase === "ready");
+  // Enquanto a contagem rola não dá pra mostrar uma palavra nova — o
+  // botão nem aparece (só desabilitar/cinza deixava ele ocupando espaço
+  // à toa).
+  newWordBtn.classList.toggle("d-none", gameOver || phase === "countdown");
 
   renderTeamScoreButtons();
 }
@@ -331,13 +338,8 @@ function wireUI() {
     startGame();
   });
 
-  readyBtn.addEventListener("click", () => {
-    if (gameOver || roundPhase !== "ready") return;
-    startCountdown();
-  });
-
   newWordBtn.addEventListener("click", () => {
-    if (gameOver || roundPhase === "countdown" || roundPhase === "ready") return;
+    if (gameOver || roundPhase === "countdown") return;
     nextWord();
   });
 
@@ -367,10 +369,6 @@ function wireUI() {
     if (e.code === "Space") {
       e.preventDefault();
       if (gameOver || roundPhase === "countdown") return;
-      if (roundPhase === "ready") {
-        startCountdown();
-        return;
-      }
       nextWord();
     }
   });
@@ -415,32 +413,16 @@ function nextWord() {
   answerRevealed = false;
   timeExpired = false;
 
-  showReadyState();
+  // Sem passo manual de "Começar" — a contagem já dispara sozinha assim
+  // que a rodada anterior termina.
+  startCountdown();
 }
 
-/* ===== Espera a confirmação de "Pronto!" antes de começar a rodada —
-   como as pessoas revezam (ver advancePair), sempre precisa de um
-   momento pra quem vai jogar se posicionar antes da contagem começar.
-   O botão "Começar" ocupa o lugar da palavra no centro da tela (ver
-   setRoundPhase). O bloco do relógio mostra só o tempo (nada de texto de
-   status nele); avisos de "prepare-se"/"tempo esgotado" vão no centro. */
-function showReadyState() {
-  clearCountdown();
-  stopTimer();
-
-  showAnswerBtn.classList.add("d-none");
-  scrambledWordEl.classList.remove("is-countdown");
-
-  setRoundPhase("ready");
-
-  timerText.textContent = selectedDurationSec > 0 ? `${selectedDurationSec}s` : "Sem tempo";
-  // Cheia aqui (não vazia) — a barra representa o tempo que AINDA resta,
-  // e antes da rodada começar o tempo todo ainda está disponível.
-  timerBar.style.width = selectedDurationSec > 0 ? "100%" : "0%";
-}
-
-/* ===== Contagem "3, 2, 1" antes de cada palavra — dá tempo das equipes
-   se prepararem antes da palavra aparecer na tela. ===== */
+/* ===== Contagem "5, 4, 3, 2, 1" antes de cada palavra — dá tempo das
+   equipes se prepararem, com o par da vez em destaque grande no centro
+   (mesmo conteúdo do bloco pequeno do topo — ver renderPairRow/
+   pairTeamsHtml). Ao fim, o par volta pro tamanho/posição normal e a
+   palavra embaralhada aparece. */
 function startCountdown() {
   clearCountdown();
   stopTimer();
@@ -449,7 +431,16 @@ function startCountdown() {
   showAnswerBtn.classList.add("d-none");
   scrambledWordEl.classList.add("is-countdown");
 
-  let n = 3;
+  timerText.textContent = selectedDurationSec > 0 ? `${selectedDurationSec}s` : "Sem tempo";
+  // Cheia aqui (não vazia) — a barra representa o tempo que AINDA resta,
+  // e antes da rodada começar o tempo todo ainda está disponível.
+  timerBar.style.width = selectedDurationSec > 0 ? "100%" : "0%";
+
+  pairRow?.classList.add("d-none");
+  pairRowBig?.classList.remove("d-none");
+  pairRowBigLabel?.classList.remove("d-none");
+
+  let n = 5;
   scrambledWordEl.textContent = String(n);
   playCountdownTick();
 
@@ -464,6 +455,9 @@ function startCountdown() {
 
     clearCountdown();
     playCountdownGo();
+    pairRowBig?.classList.add("d-none");
+    pairRowBigLabel?.classList.add("d-none");
+    pairRow?.classList.remove("d-none");
     beginRound();
   }, 1000);
 }
@@ -526,6 +520,8 @@ function endGame() {
 
   scrambledWordEl.classList.remove("is-countdown", "d-none");
   scrambledWordEl.textContent = "FIM DE JOGO";
+  pairRowBig?.classList.add("d-none");
+  pairRowBigLabel?.classList.add("d-none");
   setGameOverUI(true);
   renderPairRow();
 
@@ -587,7 +583,6 @@ function scrambleToken(token) {
 
 function setGameOverUI(isOver) {
   newWordBtn.classList.toggle("d-none", isOver);
-  readyBtn.classList.toggle("d-none", isOver || roundPhase !== "ready");
   renderTeamScoreButtons();
 
   playAgainBtn.classList.toggle("d-none", !isOver);

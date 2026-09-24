@@ -8,6 +8,17 @@
   font-size: clamp(40px, 10vw, 150px);
 }
 
+/* Dígito da contagem "5,4,3,2,1" menor que o padrão (.stage-text.is-countdown
+   em game-base.css) — aqui ele divide o centro da tela com o rótulo
+   "Preparem-se" e o bloco grande do par (ver startRound em game.js). */
+#wordText.is-countdown {
+  font-size: clamp(70px, 14vw, 180px);
+  padding: 0;
+  border: none;
+  background: none;
+  box-shadow: none;
+}
+
 /* Topo do jogo (tablet/desktop): rodada à esquerda, par de equipes da
    rodada centralizado na tela, tempo à direita — mesmo padrão de
    palavras-misturadas/game.css e quem-disse-isso/game.css. Grid de 3
@@ -126,6 +137,70 @@
   }
 }
 
+/* Rótulo acima do par em destaque durante a contagem (ver #pairRowBigLabel
+   em startRound, game.js) — some de novo junto com o bloco grande assim
+   que a rodada começa de fato. */
+.um-pair-big-label {
+  font-weight: 900;
+  font-size: clamp(1.6rem, 5vw, 3rem);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--text-main);
+}
+
+/* Par em destaque durante a contagem "5,4,3,2,1" (ver startRound em
+   game.js) — mesmo bloco de par do topo (.um-pair-row), só que grande e
+   centralizado junto com o dígito da contagem; some e volta o bloco
+   pequeno do topo assim que a palavra é revelada. */
+.um-pair-row--big {
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 24px;
+  /* "stretch" (em vez do align-items:center herdado de .um-pair-row) —
+     as duas caixas ficam com a mesma altura mesmo quando um nome é bem
+     mais longo que o outro, sem um par mais baixo ficar centralizado
+     desalinhado em relação ao outro. */
+  align-items: stretch;
+}
+
+.um-pair-row--big .um-pair-team {
+  padding: 16px 30px;
+  min-width: 200px;
+  border-radius: 20px;
+  gap: 14px;
+  box-sizing: border-box;
+}
+
+.um-pair-row--big .um-pair-team-icon {
+  width: 52px;
+  height: 52px;
+}
+
+.um-pair-row--big .um-pair-team-name {
+  font-size: clamp(1.3rem, 4vw, 2.4rem);
+}
+
+.um-pair-row--big .um-pair-team-player {
+  font-size: clamp(1rem, 2.6vw, 1.5rem);
+}
+
+.um-pair-row--big .um-pair-vs {
+  display: flex;
+  align-items: center;
+  font-size: clamp(1.5rem, 4vw, 2.6rem);
+}
+
+@media (max-width: 480px) {
+  .um-pair-row--big {
+    gap: 12px;
+  }
+
+  .um-pair-row--big .um-pair-team {
+    padding: 10px 16px;
+    min-width: 0;
+  }
+}
+
 /* Tablet vertical: a grade de 3 colunas (pontas iguais) fica apertada
    numa tela desse tamanho — 2 linhas fixas em vez disso: 1ª rodada
    sozinha, 2ª o par de equipes e o tempo juntos. */
@@ -196,6 +271,49 @@
   .timer-wrap {
     width: 90px;
   }
+}
+
+/* Botões de pontuação ficam na MESMA linha de "Nova palavra"/"Jogar
+   novamente" (ver index.html — #teamScoreButtons é filho do mesmo
+   flex-row de .presenter-bottom, não uma linha separada acima). O
+   .team-score-row do game-base.css tem padding lateral pensado pra
+   quando era uma linha própria — zera aqui pra não desalinhar do resto
+   dos botões. */
+#teamScoreButtons.team-score-row {
+  padding: 0;
+}
+
+/* Todos os botões de ação da rodada (equipes, "Nova palavra", "Jogar
+   novamente") com o MESMO efeito de hover — levanta + clareia (mesmo
+   padrão do .um-team-btn) — em vez do Bootstrap trocar a cor de fundo
+   do .btn-warning por padrão, diferente do brightness() dos botões de
+   equipe. As regras de cor abaixo só travam a cor original no
+   hover/focus pra sobrar só o efeito padronizado. */
+.presenter-bottom .btn {
+  transition: transform .15s ease, filter .15s ease;
+}
+
+.presenter-bottom .btn:hover,
+.presenter-bottom .btn:focus-visible {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.presenter-bottom .btn:active {
+  transform: translateY(0);
+}
+
+.presenter-bottom .btn:disabled {
+  transform: none;
+  filter: none;
+}
+
+.presenter-bottom .btn-warning:hover,
+.presenter-bottom .btn-warning:focus,
+.presenter-bottom .btn-warning:focus-visible {
+  background-color: var(--gold);
+  border-color: var(--gold);
+  color: #0b1220;
 }
 
 /* Formato "disputa": um botão de pontuação por equipe do par ativo — só

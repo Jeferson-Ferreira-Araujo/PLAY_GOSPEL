@@ -109,6 +109,7 @@
             <li>Frases com espaços (ex: “Atos dos Apóstolos”) também embaralham.</li>
             <li>Use “Mostrar resposta” se estiver usando em grupo.</li>
             <li>Se houver <b>equipes</b> criadas, 2 delas disputam por vez (as demais revezam entre as rodadas). Quando alguém falar a resposta, clique em <b>Mostrar resposta</b> para conferir — só depois disso os botões de pontuação do par da vez aparecem.</li>
+            <li>A contagem já começa sozinha ao avançar de palavra — sem precisar clicar em "Começar".</li>
             <li><b>Espaço</b>: próxima palavra</li>
           </ul>
         </div>
@@ -146,18 +147,22 @@
     </div>
   </div>
 
-  <!-- PALAVRA (ou o botão "Começar", enquanto espera a confirmação de
-       quem vai jogar — só um dos dois aparece por vez, ver game.js) -->
+  <!-- PALAVRA — a contagem "5,4,3,2,1" já começa sozinha ao entrar na
+       rodada (ver startCountdown em game.js), sem passo manual de
+       "Começar". Durante a contagem, o par em destaque grande aparece
+       aqui (mesmo conteúdo do bloco pequeno do topo, ampliado). -->
   <div class="presenter-center">
+    <div class="pm-pair-big-label d-none" id="pairRowBigLabel">Preparem-se</div>
+    <div class="pm-pair-row pm-pair-row--big d-none" id="pairRowBig"></div>
     <div class="scrambled stage-text" id="scrambledWord">CARREGANDO</div>
-    <button id="readyBtn" class="btn btn-warning pm-ready-btn d-none">Começar rodada</button>
   </div>
 
-  <!-- QUEM ACERTOU (um botão por equipe do par da vez) -->
-  <div class="team-score-row d-none" id="teamScoreButtons"></div>
-
-  <!-- CONTROLES -->
+  <!-- CONTROLES (equipes do par + "Mostrar resposta"/"Nova palavra" na
+       mesma linha no desktop — ver game.css) -->
   <div class="presenter-bottom">
+    <!-- QUEM ACERTOU (um botão por equipe do par da vez) -->
+    <div class="team-score-row d-none" id="teamScoreButtons"></div>
+
     <button id="newWordBtn" class="btn btn-warning">Nova palavra</button>
     <button id="showAnswerBtn" class="btn btn-outline-light">Mostrar resposta</button>
 

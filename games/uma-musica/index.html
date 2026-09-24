@@ -53,9 +53,10 @@
         <div class="p-4 rounded-4 bg-black border border-secondary">
           <h1 class="h4 mb-2">Como jogar</h1>
           <p class="text-secondary mb-0">
-            Duas equipes disputam cada rodada. Clique em "Começar rodada" quando estiverem prontas — a mesma
-            palavra aparece pras duas ao mesmo tempo, e quem cantar uma música com essa palavra primeiro marca
-            1 ponto. Sem acerto, siga com <b>Nova palavra</b>. As palavras não se repetem até o jogo ser reiniciado.
+            Duas equipes disputam cada rodada — a contagem já começa sozinha ao avançar de palavra, com o par
+            em destaque na tela. Depois, a mesma palavra aparece pras duas ao mesmo tempo, e quem cantar uma
+            música com essa palavra primeiro marca 1 ponto. Sem acerto, siga com <b>Nova palavra</b>. As
+            palavras não se repetem até o jogo ser reiniciado.
           </p>
         </div>
 
@@ -109,15 +110,22 @@
     </div>
 
     <div class="presenter-center">
-      <button id="readyBtn" class="btn btn-warning ready-btn d-none" type="button">Começar rodada</button>
+      <!-- Par em destaque durante a contagem "5,4,3,2,1" (ver startRound
+           em game.js) — mesmo conteúdo do bloco pequeno do topo
+           (#pairRow), só que grande e centralizado. Some de volta ao
+           tamanho normal assim que a rodada começa de fato. -->
+      <div class="um-pair-big-label d-none" id="pairRowBigLabel">Preparem-se</div>
+      <div class="um-pair-row um-pair-row--big d-none" id="pairRowBig"></div>
+
       <div class="word stage-text" id="wordText">CARREGANDO</div>
     </div>
 
-    <!-- QUEM CANTOU PRIMEIRO (um botão por equipe do par da vez) -->
-    <div class="team-score-row d-none" id="teamScoreButtons"></div>
-
     <div class="presenter-bottom">
       <div class="d-flex gap-2 flex-wrap justify-content-center">
+        <!-- QUEM CANTOU PRIMEIRO (um botão por equipe do par da vez) —
+             mesma linha de "Nova palavra"/"Jogar novamente" no desktop. -->
+        <div class="team-score-row d-none" id="teamScoreButtons"></div>
+
         <button id="newWordBtn" class="btn btn-warning fw-semibold d-none">Nova palavra</button>
 
         <button id="playAgainBtn" class="btn btn-warning fw-semibold d-none">Jogar novamente</button>

@@ -15,6 +15,8 @@ const ROUND_SIZE = 10;
 
 const scoreBtn = document.getElementById("scoreBtn");
 const pairRow = document.getElementById("pairRow");
+const pairRowBig = document.getElementById("pairRowBig");
+const pairRowBigLabel = document.getElementById("pairRowBigLabel");
 const teamScoreButtons = document.getElementById("teamScoreButtons");
 
 const setupScreen = document.getElementById("setupScreen");
@@ -22,7 +24,6 @@ const gameScreen = document.getElementById("gameScreen");
 
 const startBtn = document.getElementById("startBtn");
 
-const readyBtn = document.getElementById("readyBtn");
 const wordText = document.getElementById("wordText");
 const badgeProgress = document.getElementById("badgeProgress");
 
@@ -105,17 +106,12 @@ function teamIconName(team) {
   return Teams.teamIconNames.includes(team.icon) ? team.icon : "star";
 }
 
-function renderPairRow() {
-  if (!pairRow) return;
-  if (!currentPair || gameOver) {
-    pairRow.classList.add("d-none");
-    pairRow.innerHTML = "";
-    return;
-  }
-
+// Monta o HTML do par (equipe x equipe) — usado tanto no bloco pequeno do
+// topo (#pairRow) quanto no bloco grande centralizado durante a contagem
+// (#pairRowBig, ver startRound), pra não duplicar a marcação.
+function pairTeamsHtml() {
   const state = Teams.getState();
-  pairRow.classList.remove("d-none");
-  pairRow.innerHTML = currentPair.map((teamIndex) => {
+  return currentPair.map((teamIndex) => {
     const team = state.teams[teamIndex];
     if (!team) return "";
     const player = Teams.playerOf(teamIndex);
@@ -129,6 +125,24 @@ function renderPairRow() {
       </div>
     `;
   }).join(`<div class="um-pair-vs">×</div>`);
+}
+
+function renderPairRow() {
+  const has = Boolean(currentPair) && !gameOver;
+  const html = has ? pairTeamsHtml() : "";
+
+  if (pairRow) {
+    pairRow.classList.toggle("d-none", !has);
+    pairRow.innerHTML = html;
+  }
+
+  if (pairRowBig) {
+    pairRowBig.innerHTML = html;
+    // A visibilidade do bloco grande é controlada pelo startRound (só
+    // aparece durante a contagem) — aqui só garante que ele não fique
+    // visível com conteúdo vazio se a rodada/partida acabou.
+    if (!has) pairRowBig.classList.add("d-none");
+  }
 }
 
 /* ===== Formato "disputa": um botão de pontuação por equipe do par ativo —
@@ -208,26 +222,30 @@ function clearCountdown() {
   }
 }
 
-/* ===== Fase "pronto" — espera confirmar que as equipes do par estão
-   prontas antes de começar a contagem (mesmo padrão dos outros jogos por
-   rodízio). O par já aparece no bloco centralizado do topo (ver
-   renderPairRow) — o botão só ocupa o lugar da palavra. */
-function showReadyState() {
+/* ===== Início de rodada — sem passo manual de "Começar": a contagem
+   "5,4,3,2,1" já dispara sozinha assim que a rodada anterior termina (ver
+   nextWord), com o par da vez em destaque grande no centro (mesmo
+   conteúdo do bloco pequeno do topo — ver renderPairRow/pairTeamsHtml).
+   Ao fim da contagem, o par volta pro tamanho/posição normal e a palavra
+   é revelada. */
+function startRound() {
+  if (gameOver) return;
+
   clearCountdown();
   stopTimer();
   timerRow?.classList.add("d-none");
   newWordBtn.classList.add("d-none");
   teamScoreButtons?.classList.add("d-none");
 
-  wordText.classList.add("d-none");
-  readyBtn.classList.toggle("d-none", gameOver);
-}
-
-function beginPrepareCountdown() {
+  pairRow?.classList.add("d-none");
+  pairRowBig?.classList.remove("d-none");
+  pairRowBigLabel?.classList.remove("d-none");
   wordText.classList.remove("d-none");
-  readyBtn.classList.add("d-none");
 
   startPrepareCountdown(() => {
+    pairRowBig?.classList.add("d-none");
+    pairRowBigLabel?.classList.add("d-none");
+    pairRow?.classList.remove("d-none");
     wordText.textContent = currentWord;
     timerRow?.classList.remove("d-none");
     startTimer();
@@ -237,8 +255,8 @@ function beginPrepareCountdown() {
   });
 }
 
-/* Contagem "3, 2, 1" antes de cada palavra — mesmo padrão visual de todos
-   os jogos (dígito grande dourado, .stage-text.is-countdown em
+/* Contagem "5, 4, 3, 2, 1" antes de cada palavra — mesmo padrão visual de
+   todos os jogos (dígito grande dourado, .stage-text.is-countdown em
    assets/css/game-base.css) e o mesmo som de tick/"vai". */
 function startPrepareCountdown(onDone) {
   clearCountdown();
@@ -246,7 +264,7 @@ function startPrepareCountdown(onDone) {
   timerRow?.classList.add("d-none");
   wordText.classList.add("is-countdown");
 
-  let n = 3;
+  let n = 5;
   wordText.textContent = String(n);
   playCountdownTick();
 
@@ -336,8 +354,6 @@ function wireUI() {
   startBtn?.addEventListener("click", () => {
     startGame();
   });
-
-  readyBtn.addEventListener("click", () => beginPrepareCountdown());
 
   // "Nova palavra": sem acerto (ou já acertou e só quer seguir) — a
   // rotação de pares continua avançando do mesmo jeito.
@@ -434,7 +450,7 @@ function nextWord() {
   advancePair();
   renderPairRow();
 
-  showReadyState();
+  startRound();
 }
 
 function updateProgress() {
@@ -448,8 +464,9 @@ function endGame(text) {
   clearCountdown();
   gameOver = true;
 
-  readyBtn.classList.add("d-none");
   newWordBtn.classList.add("d-none");
+  pairRowBig?.classList.add("d-none");
+  pairRowBigLabel?.classList.add("d-none");
   wordText.classList.remove("is-countdown", "d-none");
   wordText.textContent = text;
   setGameOverUI(true);
