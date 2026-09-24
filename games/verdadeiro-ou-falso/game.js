@@ -166,7 +166,7 @@ function confirmExit() {
   clearCountdown();
   const goToCatalog = () => { window.location.href = "../../index.html#catalogo"; };
   const shown = showScorePopup({
-    title: "👋 Sair do jogo?",
+    title: "Sair do jogo?",
     footer: buildExitFooter(goToCatalog),
   });
   if (!shown) goToCatalog();

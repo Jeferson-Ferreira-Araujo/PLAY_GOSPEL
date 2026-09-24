@@ -760,14 +760,14 @@ async function confirmExit() {
   const goToCatalog = () => { window.location.href = '../../index.html#catalogo'; };
 
   const shown = showScorePopup({
-    title: '👋 Sair do jogo?',
+    title: 'Sair do jogo?',
     footer: buildExitFooter(goToCatalog),
   });
   if (shown) return;
 
   // Sem equipes ativas não há placar pra mostrar — cai no confirm de sempre.
   const confirmed = await confirmDialog({
-    title: '👋 Sair do jogo?',
+    title: 'Sair do jogo?',
     message: 'Tem certeza que quer sair?',
     confirmLabel: 'Sair',
     cancelLabel: 'Cancelar',

@@ -645,7 +645,7 @@ function exitGame() {
 
 function confirmExit() {
   const shown = showScorePopup({
-    title: "👋 Sair do jogo?",
+    title: "Sair do jogo?",
     footer: buildExitFooter(exitGame),
   });
   if (!shown) exitGame();

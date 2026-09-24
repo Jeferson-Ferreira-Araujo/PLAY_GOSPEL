@@ -191,6 +191,10 @@
   border: 1px solid color-mix(in srgb, var(--team-color, var(--pgui-color-primary)) 25%, transparent);
 }
 
+/* Texto branco + sombra sutil (em vez de --pgui-on-primary, fixo em
+   quase-preto) — em cores de equipe mais claras/pastel (ex: um verde
+   claro) o número quase-preto ficava com contraste ruim contra o
+   círculo. Branco + sombra funciona em qualquer cor de equipe. */
 .pgui-score-popup .pgui-ranking__pos {
   width: 20px;
   height: 20px;
@@ -199,8 +203,10 @@
   align-items: center;
   justify-content: center;
   background: var(--team-color, var(--pgui-color-primary));
-  color: var(--pgui-on-primary);
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .45);
   font-size: 11px;
+  font-weight: 800;
 }
 
 .pgui-score-popup .pgui-ranking__line {
