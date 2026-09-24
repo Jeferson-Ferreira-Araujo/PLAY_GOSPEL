@@ -178,8 +178,8 @@
 }
 
 @keyframes qd-badge-blink {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: .35; transform: scale(1.1); }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
 }
 
 .qd-pair-team-icon {
