@@ -68,6 +68,7 @@
 }
 
 .um-pair-team {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -79,6 +80,33 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, .25);
   flex: 0 0 auto;
   min-width: 130px;
+}
+
+/* Badge "+1" no bloco de quem acabou de marcar o ponto (ver
+   scoredTeamIndex/pairTeamsHtml em game.js) — pisca até "Nova palavra"
+   avançar pra próxima rodada. */
+.um-pair-score-badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #22c55e;
+  color: #fff;
+  font-size: .85rem;
+  font-weight: 900;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, .4);
+  animation: um-badge-blink 0.9s ease-in-out infinite;
+}
+
+@keyframes um-badge-blink {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
 }
 
 .um-pair-team-icon {
@@ -376,56 +404,6 @@
     width: 100%;
     justify-content: center;
   }
-}
-
-/* Ícone da equipe à esquerda, nome à direita — usado pelo anúncio de
-   ponto dado (ver .point-announce-badge abaixo) que reaproveita a
-   mesma marcação de "badge colorido" (round-box--team-centered). */
-.round-box--team-centered {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 22px;
-}
-
-.round-box-team-icon {
-  display: flex;
-  flex: 0 0 auto;
-}
-
-/* Anúncio de ponto dado (ver showPointGiven em game.js) — mostra QUEM
-   ganhou com o mesmo badge colorido (ícone + nome) do bloco de par no
-   topo, em vez de só texto branco solto, pra ficar claro de longe qual
-   equipe pontuou. */
-.point-announce {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 18px;
-}
-
-.point-announce-badge {
-  font-size: clamp(20px, 4vw, 36px);
-  padding: 14px 32px;
-}
-
-.point-announce-badge .round-box-team-icon svg {
-  width: clamp(22px, 3vw, 32px);
-  height: clamp(22px, 3vw, 32px);
-}
-
-.point-announce-badge .round-box-value {
-  font-size: 1em;
-  white-space: normal;
-  text-transform: none;
-}
-
-.point-announce-text {
-  text-transform: none;
-  font-weight: 800;
-  font-size: clamp(22px, 5vw, 48px);
-  color: var(--text-main);
 }
 
 /* Mobile: os botões de ação (equipes + "Nova palavra"/"Jogar novamente")

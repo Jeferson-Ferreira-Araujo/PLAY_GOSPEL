@@ -52,6 +52,11 @@ let countdownInterval = null;
 let currentWord = "";    // palavra sorteada pra rodada atual (mostrada só depois do "Começar rodada")
 let pointGiven = false;  // ponto já dado nesta rodada — evita clique duplo nos botões de equipe
 
+// Índice (dentro de currentPair) de quem marcou o ponto nesta rodada —
+// mostra o badge "+1" piscando no bloco da equipe (ver pairTeamsHtml).
+// Zera ao avançar pra próxima rodada (ver nextWord/restartGame).
+let scoredTeamIndex = null;
+
 // ===== Rodízio de pares (2 equipes por rodada) =====
 // Formato "disputa": as 2 equipes do par veem a mesma palavra ao mesmo
 // tempo, e quem cantar uma música com ela primeiro marca o ponto (ver
@@ -115,6 +120,9 @@ function pairTeamsHtml() {
     const team = state.teams[teamIndex];
     if (!team) return "";
     const player = Teams.playerOf(teamIndex);
+    // Badge "+1" piscando no bloco de quem acabou de marcar o ponto —
+    // fica até avançar pra próxima rodada (ver scoredTeamIndex).
+    const scored = teamIndex === scoredTeamIndex;
     return `
       <div class="um-pair-team" style="--team-color:${escapeHtml(team.color)}">
         <span class="um-pair-team-icon">${icon(teamIconName(team), { size: 18 })}</span>
@@ -122,6 +130,7 @@ function pairTeamsHtml() {
           <span class="um-pair-team-name">${escapeHtml(team.name)}</span>
           ${player ? `<span class="um-pair-team-player">${escapeHtml(player)}</span>` : ""}
         </span>
+        ${scored ? `<span class="um-pair-score-badge">+1</span>` : ""}
       </div>
     `;
   }).join(`<div class="um-pair-vs">×</div>`);
@@ -182,11 +191,11 @@ function renderTeamScoreButtons() {
       if (gameOver || pointGiven) return;
 
       const index = Number(btn.dataset.index);
-      const team = state.teams[index];
       Teams.addPoint(1);
 
       pointGiven = true;
-      showPointGiven(team);
+      scoredTeamIndex = index;
+      markPointGiven();
     });
   });
 }
@@ -292,32 +301,17 @@ async function loadWords() {
   updateProgress();
 }
 
-// Ponto dado: some a palavra, os botões de pontuação e o bloco do par do
-// topo (já mostra o badge da equipe vencedora aqui embaixo, não faz
-// sentido repetir lá em cima) — só resta o anúncio de quem ganhou (badge
-// colorido com ícone, não texto em branco) e "Nova palavra" esperando o
-// clique. O bloco do topo só volta quando a próxima rodada estiver
-// pronta pra começar (ver showReadyState).
-function showPointGiven(team) {
+// Ponto dado: para o tempo e some os botões de pontuação — a palavra
+// continua visível (já foi revelada, não tem por que escondê-la) e o
+// bloco do par no topo ganha o badge "+1" piscando na equipe que
+// marcou (ver scoredTeamIndex/pairTeamsHtml). Só resta "Nova palavra"
+// esperando o clique pra seguir.
+function markPointGiven() {
   stopTimer();
   timerRow?.classList.add("d-none");
   wordText.classList.remove("is-countdown");
-  pairRow?.classList.add("d-none");
   renderTeamScoreButtons();
-
-  if (team) {
-    wordText.innerHTML = `
-      <div class="point-announce">
-        <div class="round-box round-box--team round-box--team-centered point-announce-badge" style="--team-color:${escapeHtml(team.color || "#F4C430")}">
-          <span class="round-box-team-icon">${icon(team.icon || "star", { size: 22 })}</span>
-          <span class="round-box-value">${escapeHtml(team.name)}</span>
-        </div>
-        <div class="point-announce-text">ganhou 1 ponto</div>
-      </div>
-    `;
-  } else {
-    wordText.textContent = "";
-  }
+  renderPairRow();
 }
 
 /* =========================
@@ -447,6 +441,7 @@ function nextWord() {
   idx += 1;
   updateProgress();
 
+  scoredTeamIndex = null;
   advancePair();
   renderPairRow();
 
@@ -463,6 +458,7 @@ function endGame(text) {
   stopTimer();
   clearCountdown();
   gameOver = true;
+  scoredTeamIndex = null;
 
   newWordBtn.classList.add("d-none");
   pairRowBig?.classList.add("d-none");
