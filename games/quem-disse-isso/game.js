@@ -37,7 +37,6 @@ const quoteText = document.getElementById("quoteText");
 const answerBox = document.getElementById("answerBox");
 const answerText = document.getElementById("answerText");
 const referenceText = document.getElementById("referenceText");
-const scoreNote = document.getElementById("scoreNote");
 
 const timerText = document.getElementById("timerText");
 const timerBar = document.getElementById("timerBar");
@@ -233,12 +232,11 @@ function renderTeamScoreButtons() {
       if (gameOver || pointGiven) return;
 
       const index = Number(btn.dataset.index);
-      const team = state.teams[index];
       Teams.setTurn(index);
       Teams.addPoint(1);
 
       pointGiven = true;
-      revealAnswer(team);
+      revealAnswer();
     });
   });
 }
@@ -398,7 +396,6 @@ function startRound() {
   // Limpa o resto da rodada anterior — senão ficava tudo visível por
   // baixo do bloco grande de contagem.
   answerBox.classList.add("d-none");
-  scoreNote?.classList.add("d-none");
   revealBtn.classList.add("d-none");
   nextBtn.classList.add("d-none");
   teamScoreButtons?.classList.add("d-none");
@@ -455,8 +452,6 @@ async function loadQuoteAtIndex(i) {
   answerBox.classList.add("d-none");
   answerText.textContent = "";
   referenceText.textContent = "";
-  scoreNote?.classList.add("d-none");
-  if (scoreNote) scoreNote.innerHTML = "";
 
   revealBtn.classList.remove("d-none");
   // "Próxima frase" fica visível desde já (não só depois de revelar) —
@@ -492,11 +487,11 @@ function reloadCurrentQuoteText() {
   });
 }
 
-// Revela a resposta — chamada tanto pelo botão "Revelar" (sem equipe,
-// só pra conferir) quanto ao clicar direto numa equipe (já com quem
-// acertou, ver renderTeamScoreButtons). Com equipe, mostra um badge
-// colorido logo abaixo da resposta indicando quem marcou o ponto.
-function revealAnswer(team) {
+// Revela a resposta — chamada tanto pelo botão "Ver resposta" quanto ao
+// clicar direto numa equipe (ver renderTeamScoreButtons). Quem marcou o
+// ponto já fica claro pelo botão clicado, então a resposta em si não
+// repete o nome da equipe.
+function revealAnswer() {
   if (!current) return;
 
   answerText.textContent = current.answer ?? "—";
@@ -510,21 +505,6 @@ function revealAnswer(team) {
   // próxima frase começar.
   stopTimer();
   timerRow?.classList.add("d-none");
-
-  if (scoreNote) {
-    if (team) {
-      scoreNote.classList.remove("d-none");
-      scoreNote.innerHTML = `
-        <span class="qd-score-badge" style="--team-color:${escapeHtml(team.color)}">
-          <span class="qd-score-badge-icon">${icon(teamIconName(team), { size: 16 })}</span>
-          <span>${escapeHtml(team.name)} marcou o ponto!</span>
-        </span>
-      `;
-    } else {
-      scoreNote.classList.add("d-none");
-      scoreNote.innerHTML = "";
-    }
-  }
 
   renderTeamScoreButtons();
 }
@@ -550,7 +530,6 @@ function endGame(text) {
   quoteText.classList.remove("is-countdown", "d-none");
   quoteText.textContent = text;
   answerBox.classList.add("d-none");
-  scoreNote?.classList.add("d-none");
   timerText.textContent = "";
   timerBar.style.width = "0%";
   timerRow?.classList.add("d-none");
