@@ -29,6 +29,48 @@
   border-width: 1px;
 }
 
+/* Todos os botões de ação da rodada (equipes, "Ver resposta", "Próxima
+   frase", "Jogar novamente") com o MESMO efeito de hover — levanta +
+   clareia (mesmo padrão do .qd-team-btn) — em vez de cada um reagir de
+   um jeito (o Bootstrap troca a cor de fundo dos .btn-warning/
+   .btn-outline-light por padrão, diferente do brightness() usado nos
+   botões de equipe). As regras de cor abaixo só travam a cor original
+   no hover/focus pra sobrar só o efeito padronizado. */
+.presenter-bottom .btn {
+  transition: transform .15s ease, filter .15s ease;
+}
+
+.presenter-bottom .btn:hover,
+.presenter-bottom .btn:focus-visible {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.presenter-bottom .btn:active {
+  transform: translateY(0);
+}
+
+.presenter-bottom .btn:disabled {
+  transform: none;
+  filter: none;
+}
+
+.presenter-bottom .btn-warning:hover,
+.presenter-bottom .btn-warning:focus,
+.presenter-bottom .btn-warning:focus-visible {
+  background-color: var(--gold);
+  border-color: var(--gold);
+  color: #0b1220;
+}
+
+.presenter-bottom .btn-outline-light:hover,
+.presenter-bottom .btn-outline-light:focus,
+.presenter-bottom .btn-outline-light:focus-visible {
+  background-color: transparent;
+  border-color: rgba(255, 255, 255, .5);
+  color: var(--text-main);
+}
+
 /* Topo do jogo (desktop/tablet): dificuldade/rodada à esquerda, par de
    equipes da rodada centralizado na tela, tempo à direita — mesmo
    padrão de palavras-misturadas/game.css. Grid de 3 colunas iguais
@@ -328,11 +370,11 @@
    em startRound, game.js) — some de novo junto com o bloco grande assim
    que a rodada começa de fato. */
 .qd-pair-big-label {
-  font-weight: 800;
-  font-size: clamp(1rem, 2.6vw, 1.5rem);
+  font-weight: 900;
+  font-size: clamp(1.6rem, 5vw, 3rem);
   letter-spacing: .04em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-main);
 }
 
 /* Par em destaque durante a contagem "3,2,1" (ver startRound em game.js) —
