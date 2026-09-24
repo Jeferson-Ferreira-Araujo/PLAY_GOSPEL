@@ -244,10 +244,20 @@
   }
 }
 
-/* Formato "disputa": um botão de pontuação por equipe ativa — só aparece
-   depois de "Revelar" (ver game.js), pra confirmar a resposta antes de
-   dar o ponto pra equipe certa. Layout (.team-score-row) vem do
-   game-base.css; aqui só o estilo do botão em si. */
+/* Botões de pontuação ficam na MESMA linha de "Ver resposta"/"Próxima
+   frase" (ver index.html — #teamScoreButtons agora é filho do mesmo
+   flex-row de .presenter-bottom, não uma linha separada acima). O
+   .team-score-row do game-base.css tem padding lateral pensado pra
+   quando era uma linha própria — zera aqui pra não desalinhar do resto
+   dos botões. */
+#teamScoreButtons.team-score-row {
+  padding: 0;
+}
+
+/* Formato "disputa": um botão de pontuação por equipe ativa — aparecem
+   desde o início da rodada (ver game.js), na mesma linha de "Ver
+   resposta"/"Próxima frase". Layout de container (.team-score-row) vem
+   do game-base.css; aqui só o estilo do botão em si. */
 .qd-team-btn {
   display: inline-flex;
   align-items: center;

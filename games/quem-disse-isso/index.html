@@ -58,7 +58,7 @@
             Duas equipes disputam cada rodada. Ao clicar em "Próxima frase", a contagem já começa sozinha
             mostrando o par da vez em destaque — depois, uma frase bíblica aparece e o par tenta descobrir
             <b>quem disse</b> essa frase. Assim que uma equipe acertar, clique no botão dela pra já revelar
-            a resposta e marcar o ponto (ou use "Revelar" pra só conferir, sem equipe ainda). Sem repetição até acabar.
+            a resposta e marcar o ponto (ou use "Ver resposta" pra só conferir, sem equipe ainda). Sem repetição até acabar.
           </p>
         </div>
 
@@ -161,16 +161,17 @@
       </div>
     </div>
 
-    <!-- QUEM ACERTOU (um botão por equipe do par da rodada — formato
-         "disputa": as duas veem a mesma frase ao mesmo tempo. Clicar já
-         revela a resposta e dá o ponto pra equipe certa). Fica visível
-         desde o início da rodada, junto com "Revelar" e "Próxima frase". -->
-    <div class="team-score-row d-none" id="teamScoreButtons"></div>
-
     <!-- Rodapé: controles -->
     <div class="presenter-bottom">
-      <div class="d-flex gap-2 flex-wrap justify-content-center">
-        <button id="revealBtn" class="btn btn-outline-light fw-semibold d-none">👁️ Revelar</button>
+      <div class="d-flex gap-2 flex-wrap justify-content-center align-items-center">
+        <!-- QUEM ACERTOU (um botão por equipe do par da rodada — formato
+             "disputa": as duas veem a mesma frase ao mesmo tempo. Clicar já
+             revela a resposta e dá o ponto pra equipe certa). Fica visível
+             desde o início da rodada, na mesma linha de "Ver resposta" e
+             "Próxima frase" (no desktop — quebra em telas estreitas). -->
+        <div class="team-score-row d-none" id="teamScoreButtons"></div>
+
+        <button id="revealBtn" class="btn btn-outline-light fw-semibold d-none">👁️ Ver resposta</button>
         <button id="nextBtn" class="btn btn-warning fw-semibold d-none">Próxima frase</button>
 
         <!-- Fim de jogo -->
