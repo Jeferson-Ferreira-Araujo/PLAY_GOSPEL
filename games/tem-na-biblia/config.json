@@ -25,18 +25,18 @@
   ],
   "howTo": [
     "Escolha a categoria e o tempo por resposta.",
-    "Uma letra aparece — a equipe da vez fala uma palavra do tema que comece com ela.",
-    "Acertou marca ponto e sorteia letra nova; não lembrou passa a vez.",
-    "A rodada acaba quando as letras se esgotam."
+    "Duas equipes disputam a rodada — clique em Prontos pra ver quem representa cada uma e começar.",
+    "Uma letra aparece pra pessoa da vez — acertou marca ponto pra equipe dela e já mostra letra nova.",
+    "Sem resposta a tempo, letra nova aparece pra vez da outra equipe do par, automaticamente."
   ],
   "drawHowTo": [
-    "Uma letra aparece — a equipe da vez fala uma palavra do tema que comece com ela.",
-    "Acertou marca ponto e sorteia letra nova; não lembrou passa a vez.",
+    "Duas equipes disputam a rodada — a pessoa da vez fala uma palavra do tema que comece com a letra.",
+    "Acertou marca ponto pra equipe dela; sem resposta a tempo, passa pra vez da outra equipe.",
     "A rodada acaba quando as letras se esgotam."
   ],
   "tips": [
     "Ideal para jogar em grupo, célula ou culto.",
     "O próprio grupo julga se a palavra vale — não tem verificação automática.",
-    "Se o tempo acabar sem resposta, conta como se tivesse passado."
+    "Com 3+ equipes ativas, o par da vez roda a cada rodada."
   ]
 }

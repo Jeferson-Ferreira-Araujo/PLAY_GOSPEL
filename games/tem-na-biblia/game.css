@@ -17,16 +17,19 @@
   }
 }
 
-/* Contagem "3, 2, 1" — estilo (cor + tamanho) compartilhado por todos os
-   jogos, ver .stage-text.is-countdown em assets/css/game-base.css (aqui
-   herda o mesmo tamanho grande de sempre, sem precisar de override). */
+/* Dígito da contagem "3,2,1" menor que a letra sozinha — aqui ele
+   divide o centro da tela com o rótulo "Preparem-se" e o bloco grande
+   do par nas primeiras vezes (ver .stage-text.is-countdown em
+   game-base.css pro estilo base). */
+#letterDisplay.is-countdown {
+  font-size: clamp(90px, min(30vw, 40vh), 340px);
+}
 
-/* Topo do jogo (tablet/desktop): categoria/letra à esquerda, equipe da
-   vez centralizada na tela, tempo à direita — só faz sentido centralizar
-   aqui porque só uma equipe responde por vez (ver Teams.currentTeam em
-   game.js). Grid de 3 colunas iguais (1fr/auto/1fr): como as pontas têm
-   a mesma largura, a coluna do meio (a equipe) fica sempre no centro
-   exato da tela. */
+/* Topo do jogo (desktop/tablet): categoria/letra à esquerda, par de
+   equipes centralizado na tela, tempo à direita — mesmo padrão de
+   palavras-misturadas/game.css e quem-disse-isso/game.css. Grid de 3
+   colunas iguais (1fr/auto/1fr): como as pontas têm o mesmo tamanho, a
+   coluna do meio (o par) fica sempre no centro exato da tela. */
 .presenter-top {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -60,52 +63,198 @@
   height: 10px;
 }
 
-/* Ícone da equipe à esquerda, nome à direita — e "— Nome da pessoa"
-   quando há participante sorteado pra essa rodada (mesmo padrão adotado
-   em todos os jogos por turno, ex: verdadeiro-ou-falso/game.css). */
-.round-box--team-centered {
+/* Par de equipes da rodada (ver renderPairRow em game.js) — mesmo
+   padrão visual de palavras-misturadas/game.css e quem-disse-isso/game.css
+   (.pm-pair-x, .qd-pair-x), com o prefixo "tb-" deste jogo. Só a 1ª
+   equipe do par (a "ativa") realmente responde a rodada — ver
+   .tb-pair-team--active abaixo. */
+.tb-pair-row {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 10px 22px;
+  gap: 14px;
 }
 
-.round-box-team-icon {
-  display: flex;
+.tb-pair-team {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 8px 18px;
+  border-radius: 14px;
+  background: var(--team-color, var(--gold));
+  color: #0b1220;
+  opacity: .55;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .25);
   flex: 0 0 auto;
+  min-width: 130px;
+  transition: opacity .2s ease, transform .2s ease;
 }
 
-.round-box--team-centered .round-box-value {
-  flex: 0 1 auto;
+/* Equipe que responde a rodada — destaque total (a adversária, exibida
+   só pra dar contexto de quem ela "enfrenta" no rodízio, fica opaca). */
+.tb-pair-team--active {
+  opacity: 1;
+  transform: scale(1.04);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, .85), 0 10px 24px rgba(0, 0, 0, .35);
+}
+
+.tb-pair-turn-badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #fff;
+  color: #0b1220;
+  font-size: .7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, .35);
+}
+
+.tb-pair-team-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, .18);
+}
+
+.tb-pair-team-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
   min-width: 0;
+}
+
+.tb-pair-team-name {
+  font-weight: 800;
   font-size: 1.15rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.round-box--team-centered .round-box-player {
-  flex: 0 1 auto;
-  min-width: 0;
-  font-size: 1.15rem;
+.tb-pair-team-player {
+  font-size: 1.05rem;
   font-weight: 700;
-  color: rgba(11, 18, 32, .65);
+  color: rgba(11, 18, 32, .75);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.tb-pair-vs {
+  flex: 0 0 auto;
+  font-size: 1.7rem;
+  font-weight: 900;
+  color: var(--text-main);
+}
+
+@media (max-width: 480px) {
+  .tb-pair-row {
+    gap: 8px;
+  }
+
+  .tb-pair-team {
+    padding: 6px 12px;
+  }
+
+  .tb-pair-team-name {
+    font-size: .88rem;
+  }
+}
+
+/* Rótulo acima do par em destaque no "Prontos"/contagem (ver
+   #pairRowBigLabel em game.js) — some de novo junto com o bloco grande
+   assim que a letra é revelada. */
+.tb-pair-big-label {
+  font-weight: 900;
+  font-size: clamp(1.6rem, 5vw, 3rem);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--text-main);
+}
+
+/* Par em destaque durante "Prontos"/contagem (ver showReadyState/
+   beginPrepareCountdown em game.js) — mesmo bloco de par do topo
+   (.tb-pair-row), só que grande e centralizado; some e volta o bloco
+   pequeno do topo assim que a letra é revelada. */
+.tb-pair-row--big {
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: stretch;
+}
+
+.tb-pair-row--big .tb-pair-team {
+  padding: 16px 30px;
+  min-width: 200px;
+  border-radius: 20px;
+  gap: 14px;
+  box-sizing: border-box;
+}
+
+.tb-pair-row--big .tb-pair-team-icon {
+  width: 52px;
+  height: 52px;
+}
+
+.tb-pair-row--big .tb-pair-team-name {
+  font-size: clamp(1.3rem, 4vw, 2.4rem);
+}
+
+.tb-pair-row--big .tb-pair-team-player {
+  font-size: clamp(1rem, 2.6vw, 1.5rem);
+}
+
+.tb-pair-row--big .tb-pair-vs {
+  display: flex;
+  align-items: center;
+  font-size: clamp(1.8rem, 5vw, 3.2rem);
+  color: var(--text-main);
+}
+
+.tb-pair-row--big .tb-pair-turn-badge {
+  font-size: .85rem;
+  padding: 4px 12px;
+  top: -14px;
+  right: -14px;
+}
+
+/* Mobile: as duas caixas + "×" não cabiam numa linha só e o flex-wrap
+   quebrava de um jeito estranho. Em coluna, com as duas caixas na
+   largura toda e o "×" central entre elas, fica claro e alinhado. */
+@media (max-width: 480px) {
+  .tb-pair-row--big {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .tb-pair-row--big .tb-pair-team {
+    width: 100%;
+    max-width: 320px;
+    padding: 10px 16px;
+    min-width: 0;
+  }
 }
 
 /* Tablet vertical: a grade de 3 colunas (pontas iguais) fica apertada
-   numa tela desse tamanho — 2 linhas fixas em vez disso: 1ª categoria +
-   letra juntos, 2ª a equipe da vez e o tempo juntos. */
-@media (min-width: 641px) and (max-width: 1024px) and (orientation: portrait) {
+   numa tela desse tamanho — 2 linhas fixas em vez disso. */
+@media (min-width: 601px) and (max-width: 1024px) and (orientation: portrait) {
   .presenter-top {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-areas:
       "info info"
-      "team timer";
+      "pair timer";
     align-items: stretch;
     row-gap: 10px;
   }
@@ -115,8 +264,8 @@
     justify-self: stretch;
   }
 
-  #turnBanner {
-    grid-area: team;
+  .tb-pair-row {
+    grid-area: pair;
     justify-self: stretch;
   }
 
@@ -128,24 +277,48 @@
   .timer-wrap {
     width: auto;
   }
+
+  .tb-pair-vs {
+    display: flex;
+    align-items: center;
+  }
+
+  .round-box-label {
+    font-size: 0;
+  }
 }
 
-/* Mobile: volta a empilhar em coluna (o grid de 3 colunas acima não cabe
-   numa tela estreita) — precisa redeclarar display:flex aqui porque a
-   regra do grid tem a mesma especificidade e vem depois no arquivo. */
-@media (max-width: 640px) {
+/* Mobile: 3 linhas fixas — categoria/letra, par de equipes, tempo. */
+@media (max-width: 600px) {
   .presenter-top {
     display: flex;
     flex-direction: column;
+    gap: 8px;
   }
 
-  .round-box--team-centered {
+  .round-topbar {
     width: 100%;
-    align-self: stretch;
-    padding: 8px 14px;
+    flex-wrap: nowrap;
+    min-width: 0;
+  }
+
+  .round-box {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 6px 10px;
+  }
+
+  .round-box-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .tb-pair-row {
+    width: 100%;
   }
 
   .timer-card {
+    width: 100%;
     padding: 8px 14px;
   }
 
@@ -158,22 +331,83 @@
   }
 }
 
-/* Mobile deitado: largura sobra, mas altura é curta — encolhe o tempo
-   pra não disputar espaço com o resto (mesmo critério dos outros jogos). */
 @media (max-height: 500px) and (orientation: landscape) {
   .timer-wrap {
     width: 90px;
   }
 }
 
-/* Mobile: Acertou/Errou lado a lado numa linha só (são a decisão
-   principal de cada rodada) — Passou/Reiniciar/Encerrar continuam
-   empilhados em linhas cheias (padrão de .presenter-bottom .btn em
-   game-base.css). IDs pesam mais que a regra genérica de largura
-   100%, então isso vale sem precisar de !important. */
+/* Todos os botões de ação da rodada com o MESMO efeito de hover —
+   levanta + clareia — em vez do Bootstrap trocar a cor de fundo dos
+   .btn-success/.btn-outline-light/.btn-warning por padrão. As regras
+   de cor abaixo só travam a cor original no hover/focus pra sobrar só
+   o efeito padronizado. */
+.presenter-bottom .btn {
+  transition: transform .15s ease, filter .15s ease;
+}
+
+.presenter-bottom .btn:hover,
+.presenter-bottom .btn:focus-visible {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.presenter-bottom .btn:active {
+  transform: translateY(0);
+}
+
+.presenter-bottom .btn:disabled {
+  transform: none;
+  filter: none;
+}
+
+.presenter-bottom .btn-warning:hover,
+.presenter-bottom .btn-warning:focus,
+.presenter-bottom .btn-warning:focus-visible {
+  background-color: var(--gold);
+  border-color: var(--gold);
+  color: #0b1220;
+}
+
+.presenter-bottom .btn-outline-light:hover,
+.presenter-bottom .btn-outline-light:focus,
+.presenter-bottom .btn-outline-light:focus-visible {
+  background-color: transparent;
+  border-color: rgba(255, 255, 255, .5);
+  color: var(--text-main);
+}
+
+.presenter-bottom .btn-success:hover,
+.presenter-bottom .btn-success:focus,
+.presenter-bottom .btn-success:focus-visible {
+  background-color: #198754;
+  border-color: #198754;
+  color: #fff;
+}
+
+/* Mobile: os 4 botões de ação (Acertou/Pular/Reiniciar/Encerrar)
+   empilhados em 4 linhas cheias ocupavam altura demais na tela. Em
+   telas estreitas, viram uma grade de 2 colunas — 2 por linha.
+   #actionsRow é o próprio #presenter-bottom aqui, então a
+   especificidade do ID já basta pra vencer o padrão de game-base.css
+   sem precisar de !important. */
 @media (max-width: 640px) {
-  #correctBtn,
-  #wrongBtn {
-    width: calc(50% - 4px);
+  #actionsRow {
+    display: grid;
+    align-items: stretch;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  #actionsRow .btn {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+  }
+
+  /* "Jogar novamente" (fim de jogo) sempre sozinho — ocupa a linha
+     inteira em vez de ficar preso numa coluna só. */
+  #actionsRow #playAgainBtn {
+    grid-column: 1 / -1;
   }
 }

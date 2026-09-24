@@ -53,19 +53,22 @@
         <div class="p-4 rounded-4 bg-black border border-secondary">
           <h1 class="h4 mb-2">Como jogar</h1>
           <p class="text-secondary mb-0">
-            Uma <b>letra</b> aparece na tela. A equipe da vez (e a pessoa, se sorteada) tem que falar, em voz
-            alta, uma palavra do <b>tema</b> escolhido que comece com aquela letra, antes do tempo acabar.
-            <b>Acertou</b>: marca ponto, sorteia letra nova e passa a vez. <b>Passou</b>/<b>Errou</b>: passa a
-            vez com a <b>mesma letra</b> — só troca quando der a volta em todas as equipes sem ninguém acertar.
-            O grupo mesmo decide se a palavra vale, sem verificação automática.
+            Duas equipes disputam cada rodada — ao entrar, o par da vez (e a pessoa sorteada de cada equipe,
+            se houver) aparece em destaque. Clique em <b>Prontos</b> pra começar. Uma <b>letra</b> aparece, e a
+            pessoa da vez fala uma palavra do <b>tema</b> que comece com ela antes do tempo acabar.
+            <b>Acertou</b> marca ponto pra equipe dela; sem resposta a tempo (ou <b>Pular</b>), uma letra nova
+            aparece pra vez da outra equipe do par — automaticamente, sem precisar clicar em Prontos de novo.
           </p>
         </div>
 
         <div class="mt-3 p-4 rounded-4 bg-black border border-secondary">
           <h2 class="h5 mb-3">Configurações</h2>
 
+          <!-- Formato "disputa": só faz sentido com equipes ativas (é dali que
+               vem o par da rodada). Sem equipes, avisa e trava o Iniciar. -->
           <div id="teamsSetupWarning" class="alert alert-warning d-none mb-3">
-            ⚠️ Este jogo é jogado em <b>equipes</b> (vale para 2 jogadores também — cada um é "uma equipe").
+            ⚠️ Este jogo é jogado em <b>equipes</b> — 2 por vez se enfrentam em cada rodada (as demais revezam,
+            se houver mais equipes).
             <br>
             Nenhuma equipe ativa ainda.
             <a class="alert-link" href="../../index.html#catalogo">Crie as equipes no catálogo</a> e volte para esta tela.
@@ -107,7 +110,7 @@
             <li>Ideal para jogar em grupo, célula ou culto.</li>
             <li>O próprio grupo julga se a palavra vale — não tem verificação automática.</li>
             <li>10 letras por partida, sorteadas do alfabeto (sem H, K, Q, W, X, Y, Z).</li>
-            <li>Se o tempo acabar sem resposta, conta como se tivesse passado.</li>
+            <li>Com 3+ equipes ativas, o par da vez roda a cada rodada.</li>
           </ul>
         </div>
       </div>
@@ -128,12 +131,9 @@
         </div>
       </div>
 
-      <!-- VEZ DA EQUIPE (e da pessoa, se sorteada) -->
-      <div class="round-box round-box--team round-box--team-centered d-none" id="turnBanner">
-        <span class="round-box-team-icon" id="turnBannerIcon" aria-hidden="true"></span>
-        <span class="round-box-value" id="turnBannerTeam">—</span>
-        <span class="round-box-player d-none" id="turnBannerPlayer"></span>
-      </div>
+      <!-- PAR DA RODADA (só a 1ª equipe do par responde — quem é a vez
+           fica destacado, ver renderPairRow/game.js) -->
+      <div class="tb-pair-row d-none" id="pairRow"></div>
 
       <div class="timer-card" id="presenterTimerRow">
         <div class="round-box-label"><svg class="round-box-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Tempo</div>
@@ -146,18 +146,21 @@
       </div>
     </div>
 
-    <!-- LETRA (ou o botão "Pronto", enquanto espera a confirmação de
-         quem vai jogar — só um dos dois aparece por vez, ver game.js) -->
+    <!-- LETRA — no início (e só ali), espera confirmar "Prontos" com o par
+         em destaque grande; depois disso, cada letra nova (acertou ou
+         tempo esgotado) já entra sozinha, sem precisar clicar de novo
+         (ver startTurn/game.js). -->
     <div class="presenter-center">
-      <button id="readyBtn" class="btn btn-warning ready-btn d-none" type="button">Pronto</button>
-      <div class="letter stage-text" id="letterDisplay">CARREGANDO</div>
+      <div class="tb-pair-big-label d-none" id="pairRowBigLabel">Preparem-se</div>
+      <div class="tb-pair-row tb-pair-row--big d-none" id="pairRowBig"></div>
+      <button id="readyBtn" class="btn btn-warning ready-btn d-none" type="button">Prontos</button>
+      <div class="letter stage-text d-none" id="letterDisplay">CARREGANDO</div>
     </div>
 
-    <!-- CONTROLES -->
-    <div class="presenter-bottom">
+    <!-- CONTROLES (grade 2x2 no mobile — ver game.css) -->
+    <div class="presenter-bottom" id="actionsRow">
       <button id="correctBtn" class="btn btn-success fw-semibold">✅ Acertou?</button>
-      <button id="wrongBtn" class="btn btn-danger fw-semibold">❌ Errou</button>
-      <button id="passBtn" class="btn btn-warning fw-semibold">⏭️ Passou</button>
+      <button id="skipBtn" class="btn btn-outline-light fw-semibold">⏭️ Pular</button>
       <button id="restartBtn" class="btn btn-outline-light fw-semibold">🔁 Reiniciar</button>
       <button id="endBtn" class="btn btn-outline-light fw-semibold">⏹️ Encerrar</button>
 

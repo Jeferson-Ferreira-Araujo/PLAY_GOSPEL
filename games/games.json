@@ -120,14 +120,14 @@
     {
       "id": "tem-na-biblia",
       "title": "Uma Letra",
-      "description": "Uma letra aparece na tela — a equipe da vez precisa falar uma palavra do tema antes do tempo acabar. Acertou marca ponto e sorteia letra nova; passou passa a vez com a mesma letra.",
+      "description": "Uma letra aparece na tela pra dupla da vez — a pessoa sorteada da equipe fala uma palavra do tema antes do tempo acabar. Acertou marca ponto; sem resposta a tempo, uma letra nova aparece pra vez da outra equipe.",
       "cover": "assets/img/covers/tem-na-biblia.webp",
       "duration": "10-20 min",
       "tags": ["grupo", "equipes", "desafio", "bíblia"],
-      "controls": ["Escolha categoria e tempo", "Acertou / Passou", "Reiniciar / Encerrar"],
+      "controls": ["Escolha categoria e tempo", "Acertou / Pular", "Reiniciar / Encerrar"],
       "version": "0.1.0",
       "route": "games/tem-na-biblia/index.html",
-      "matchType": "rodada",
+      "matchType": "disputa",
 
       "teams": { "required": true }
     },
