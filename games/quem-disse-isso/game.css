@@ -477,11 +477,20 @@
     grid-column: 1 / -1;
   }
 
-  /* Quando só resta "Próxima frase" visível (depois do ponto dado, ou
-     depois de "Ver resposta" sem pontuar), ele também ocupa a linha
-     inteira em vez de ficar colado numa coluna só com metade vazia ao
-     lado. */
+  /* Quando só resta "Próxima frase" visível depois do ponto dado (nem
+     "Ver resposta" nem os botões de equipe aparecem mais), ele ocupa a
+     linha inteira em vez de ficar colado numa coluna só com metade
+     vazia ao lado. */
   #actionsRow:has(#revealBtn.d-none):has(#teamScoreButtons.d-none) #nextBtn {
+    grid-column: 1 / -1;
+  }
+
+  /* Mesma correção pro caso de "Ver resposta" já ter sido clicado mas
+     ninguém ter marcado o ponto ainda: os 2 botões de equipe continuam
+     na 1ª linha, e "Próxima frase" sobra sozinho na 2ª — também precisa
+     ocupar a linha inteira, senão fica preso na coluna esquerda com a
+     direita vazia (ver captura de tela reportada). */
+  #actionsRow:has(#revealBtn.d-none):not(:has(#teamScoreButtons.d-none)) #nextBtn {
     grid-column: 1 / -1;
   }
 }
