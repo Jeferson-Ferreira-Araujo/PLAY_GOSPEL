@@ -1,186 +1,179 @@
-/* =====================================================
-   UMA LETRA — estilos específicos, construídos sobre os
-   tokens e componentes do PlayGospel UI (../../playgospel-ui/).
-   Nada aqui redefine cor/espaçamento/radius do zero — tudo usa
-   var(--pgui-*) para ficar visualmente igual ao resto da plataforma.
-   Estrutura copiada de games/qual-e-a-musica/game.css (mesmo padrão
-   de header sticky + topo do jogo sticky + ranking minimalista +
-   botões sempre na primeira dobra).
-   ===================================================== */
-
-.ab-topheader {
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  padding: 12px 24px;
-  background: var(--pgui-bg-main);
-  border-bottom: 1px solid var(--pgui-border);
-}
-
-.ab-header-logo {
-  height: 28px;
-  width: auto;
-  display: block;
-}
-
-/* Nome do jogo centralizado no header (não colado do lado da logo) —
-   .ab-topheader (sticky) já serve de containing block. Só no desktop:
-   no mobile os itens já quebram linha (.pgui-header vem com
-   flex-wrap:wrap da lib), então o nome fica melhor no fluxo normal. */
-@media (min-width: 641px) {
-  .ab-topheader .pgui-title {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    white-space: nowrap;
-  }
-}
-
-/* .pgui-game-layout tem min-height:100vh (assume que é a página inteira),
-   mas aqui ele fica ABAIXO do .ab-topheader — sem esse ajuste, a altura
-   real da página vira header + 100vh, sempre estourando o viewport em
-   exatamente a altura do header. */
-#gameScreen.pgui-game-layout {
-  min-height: calc(100vh - var(--ab-header-h, 61px));
-}
-
-/* ---- Topo do jogo (categoria/progresso/vez de): fixo logo abaixo do header ---- */
-#gameScreen .pgui-game-layout__topbar {
-  position: sticky;
-  top: var(--ab-header-h, 61px);
-  z-index: 25;
-}
-
-/* ---- Botões sempre visíveis: mesmo se o conteúdo do meio (sidebar de
-   letras, letra gigante) precisar rolar em alguma tela muito baixa, os
-   botões de ação ficam grudados embaixo — rede de segurança além do
-   ajuste de tamanho da letra logo abaixo. */
-#gameScreen .pgui-game-layout__actions {
-  position: sticky;
-  bottom: 0;
-  z-index: 25;
-  background: var(--pgui-bg-main);
-  padding-top: var(--pgui-space-8);
-  padding-bottom: var(--pgui-space-8);
-}
-
-/* Sem sidebars (o placar saiu da tela — vive no botão do header + no
-   popup de fim de rodada), então o jogo inteiro é só topo/letra/ações
-   numa coluna só, mesmo em telas grandes — maior especificidade aqui
-   pra vencer a regra de 3 colunas de layout.css sem precisar tocar na lib. */
-@media (min-width: 768px) {
-  #gameScreen.pgui-game-layout {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "topbar"
-      "main"
-      "actions";
-  }
-}
-
-/* ---- Setup screen: 2 colunas a partir de 900px ---- */
-.ab-setup-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--pgui-space-24);
-  padding-top: var(--pgui-space-32);
-  padding-bottom: var(--pgui-space-64);
-}
-
-@media (min-width: 900px) {
-  .ab-setup-grid { grid-template-columns: 1.1fr .9fr; align-items: start; }
-}
-
-.ab-warning-box {
-  padding: var(--pgui-space-16);
-  border-radius: var(--pgui-radius-lg);
-  border: 1px solid rgba(245, 158, 11, .4);
-  background: rgba(245, 158, 11, .08);
-}
-
-/* ---- Escolha de categoria / tempo (tela de setup) ---- */
-.ab-choice-row {
-  display: flex;
-  gap: var(--pgui-space-12);
-  flex-wrap: wrap;
-}
-
-.ab-choice-btn {
-  min-width: 130px;
-}
-
-.ab-time-btn {
-  min-width: 72px;
-  justify-content: center;
-}
-
-.ab-choice-btn.is-active {
-  border-color: var(--pgui-color-primary);
-  background: rgba(255, 193, 7, .12);
-  color: var(--pgui-color-primary);
-}
-
-.ab-letters-preview {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.ab-letters-preview span {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: var(--pgui-radius-sm);
-  background: rgba(255, 255, 255, .06);
-  color: var(--pgui-text-secondary);
-  font-weight: 700;
-  font-size: var(--pgui-fs-caption);
-}
-
-/* ---- Letra gigante (peça central do jogo; o cronômetro agora mora no
-   topbar, ver .timer-card em playgospel-ui/css/round-box.css) ---- */
-#playPanel.pgui-card-game {
-  padding: var(--pgui-space-16) var(--pgui-space-24);
-}
-
-/* clamp() usando min(vw, vh): numa tela larga mas baixa (desktop comum,
-   ex: 1366x768), 30vw sozinho ficaria enorme e estouraria a altura
-   disponível — o termo vh garante que a letra nunca cresce além do que
-   cabe verticalmente, não só horizontalmente. */
-.ab-letter-display {
+/* Letra gigante (peça central do jogo). clamp() usando min(vw, vh):
+   numa tela larga mas baixa (desktop comum, ex: 1366x768), um valor só
+   em vw ficaria enorme e estouraria a altura disponível — o termo vh
+   garante que a letra nunca cresce além do que cabe verticalmente. */
+.letter {
   font-weight: 900;
   line-height: 1;
   letter-spacing: .01em;
   font-size: clamp(90px, min(26vw, 36vh), 340px);
-  color: var(--pgui-color-primary);
-  text-shadow: 0 0 60px rgba(255, 193, 7, .35);
-  user-select: none;
+  color: var(--gold);
+  text-shadow: 0 0 60px rgba(244, 196, 48, .35);
 }
 
 @media (max-width: 640px) {
-  .ab-letter-display {
+  .letter {
     font-size: clamp(90px, min(38vw, 30vh), 200px);
   }
 }
 
-/* Contagem "3, 2, 1" antes de cada letra — mesmo elemento da letra
-   gigante, só um pouco maior enquanto conta (mesmo padrão de
-   .stage-text.is-countdown em assets/css/game-base.css, usado pelos
-   outros jogos). */
-.ab-letter-display--countdown {
-  font-size: clamp(120px, min(30vw, 40vh), 340px);
+/* Contagem "3, 2, 1" — estilo (cor + tamanho) compartilhado por todos os
+   jogos, ver .stage-text.is-countdown em assets/css/game-base.css (aqui
+   herda o mesmo tamanho grande de sempre, sem precisar de override). */
+
+/* Topo do jogo (tablet/desktop): categoria/letra à esquerda, equipe da
+   vez centralizada na tela, tempo à direita — só faz sentido centralizar
+   aqui porque só uma equipe responde por vez (ver Teams.currentTeam em
+   game.js). Grid de 3 colunas iguais (1fr/auto/1fr): como as pontas têm
+   a mesma largura, a coluna do meio (a equipe) fica sempre no centro
+   exato da tela. */
+.presenter-top {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: 14px;
 }
 
-/* Botão "Começar" — ocupa o lugar da letra enquanto espera a confirmação
-   de quem vai jogar (mesmo padrão de .pm-ready-btn em
-   games/palavras-misturadas/game.css e .ready-btn em
-   assets/css/game-base.css). */
-.ab-ready-btn {
-  padding: 26px 52px;
-  border-radius: 18px;
-  font-size: clamp(22px, 4vw, 38px);
-  font-weight: 800;
+.round-topbar {
+  justify-self: start;
+}
+
+.timer-card {
+  justify-self: end;
+  padding: 10px 20px;
+}
+
+.timer-wrap {
+  width: 220px;
+}
+
+.timer-card .round-box-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.timer-text {
+  font-size: 1.35rem;
+}
+
+.timer-card .progress {
+  height: 10px;
+}
+
+/* Ícone da equipe à esquerda, nome à direita — e "— Nome da pessoa"
+   quando há participante sorteado pra essa rodada (mesmo padrão adotado
+   em todos os jogos por turno, ex: verdadeiro-ou-falso/game.css). */
+.round-box--team-centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
+}
+
+.round-box-team-icon {
+  display: flex;
+  flex: 0 0 auto;
+}
+
+.round-box--team-centered .round-box-value {
+  flex: 0 1 auto;
+  min-width: 0;
+  font-size: 1.15rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.round-box--team-centered .round-box-player {
+  flex: 0 1 auto;
+  min-width: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: rgba(11, 18, 32, .65);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Tablet vertical: a grade de 3 colunas (pontas iguais) fica apertada
+   numa tela desse tamanho — 2 linhas fixas em vez disso: 1ª categoria +
+   letra juntos, 2ª a equipe da vez e o tempo juntos. */
+@media (min-width: 641px) and (max-width: 1024px) and (orientation: portrait) {
+  .presenter-top {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "info info"
+      "team timer";
+    align-items: stretch;
+    row-gap: 10px;
+  }
+
+  .round-topbar {
+    grid-area: info;
+    justify-self: stretch;
+  }
+
+  #turnBanner {
+    grid-area: team;
+    justify-self: stretch;
+  }
+
+  .timer-card {
+    grid-area: timer;
+    justify-self: stretch;
+  }
+
+  .timer-wrap {
+    width: auto;
+  }
+}
+
+/* Mobile: volta a empilhar em coluna (o grid de 3 colunas acima não cabe
+   numa tela estreita) — precisa redeclarar display:flex aqui porque a
+   regra do grid tem a mesma especificidade e vem depois no arquivo. */
+@media (max-width: 640px) {
+  .presenter-top {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .round-box--team-centered {
+    width: 100%;
+    align-self: stretch;
+    padding: 8px 14px;
+  }
+
+  .timer-card {
+    padding: 8px 14px;
+  }
+
+  .timer-wrap {
+    width: 100%;
+  }
+
+  .timer-text {
+    font-size: 1.1rem;
+  }
+}
+
+/* Mobile deitado: largura sobra, mas altura é curta — encolhe o tempo
+   pra não disputar espaço com o resto (mesmo critério dos outros jogos). */
+@media (max-height: 500px) and (orientation: landscape) {
+  .timer-wrap {
+    width: 90px;
+  }
+}
+
+/* Mobile: Acertou/Errou lado a lado numa linha só (são a decisão
+   principal de cada rodada) — Passou/Reiniciar/Encerrar continuam
+   empilhados em linhas cheias (padrão de .presenter-bottom .btn em
+   game-base.css). IDs pesam mais que a regra genérica de largura
+   100%, então isso vale sem precisar de !important. */
+@media (max-width: 640px) {
+  #correctBtn,
+  #wrongBtn {
+    width: calc(50% - 4px);
+  }
 }
