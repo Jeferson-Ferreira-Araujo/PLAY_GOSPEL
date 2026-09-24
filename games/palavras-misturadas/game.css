@@ -256,9 +256,9 @@
 
 .pm-pair-vs {
   flex: 0 0 auto;
-  font-size: 1.3rem;
+  font-size: 1.7rem;
   font-weight: 900;
-  color: var(--text-muted);
+  color: var(--text-main);
 }
 
 @media (max-width: 480px) {
@@ -325,15 +325,24 @@
 .pm-pair-row--big .pm-pair-vs {
   display: flex;
   align-items: center;
-  font-size: clamp(1.5rem, 4vw, 2.6rem);
+  font-size: clamp(1.8rem, 5vw, 3.2rem);
+  color: var(--text-main);
 }
 
+/* Mobile: as duas caixas + "×" não cabiam numa linha só e o flex-wrap
+   quebrava de um jeito estranho (equipe + "×" numa linha, a outra
+   equipe sozinha embaixo). Em coluna, com as duas caixas na largura
+   toda e o "×" central entre elas, fica claro e alinhado. */
 @media (max-width: 480px) {
   .pm-pair-row--big {
-    gap: 12px;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
   }
 
   .pm-pair-row--big .pm-pair-team {
+    width: 100%;
+    max-width: 320px;
     padding: 10px 16px;
     min-width: 0;
   }
@@ -448,5 +457,48 @@
 @media (max-height: 500px) and (orientation: landscape) {
   .timer-wrap {
     width: 90px;
+  }
+}
+
+/* Mobile: os botões de ação (equipes + "Mostrar resposta" + "Nova
+   palavra") empilhados em linhas cheias ocupavam altura demais na
+   tela. Em telas estreitas, viram uma grade de 2 colunas — 2 botões
+   por linha. #teamScoreButtons vira "display:contents" pra suas duas
+   equipes entrarem como itens diretos da grade, sem criar uma caixa
+   própria que ocuparia uma célula inteira sozinha. #actionsRow é o
+   próprio #presenter-bottom aqui (não um wrapper à parte), então a
+   especificidade do ID já basta pra vencer o .presenter-bottom padrão
+   de game-base.css sem precisar de !important. */
+@media (max-width: 640px) {
+  #actionsRow {
+    display: grid;
+    align-items: stretch;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  #teamScoreButtons.team-score-row {
+    display: contents;
+  }
+
+  #actionsRow .btn,
+  #actionsRow .pm-team-btn {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+  }
+
+  /* "Jogar novamente" (fim de jogo) sempre sozinho — ocupa a linha
+     inteira em vez de ficar preso numa coluna só. */
+  #actionsRow #playAgainBtn {
+    grid-column: 1 / -1;
+  }
+
+  /* Quando nem "Mostrar resposta" nem os botões de equipe estão
+     visíveis (tempo esgotado sem ninguém revelar a resposta), só
+     "Nova palavra" sobra — ocupa a linha inteira em vez de ficar preso
+     numa coluna só com a outra vazia. */
+  #actionsRow:has(#showAnswerBtn.d-none):has(#teamScoreButtons.d-none) #newWordBtn {
+    grid-column: 1 / -1;
   }
 }
