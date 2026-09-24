@@ -69,6 +69,11 @@ let countdownInterval = null;
 let answerRevealed = false;
 let pointGiven = false;
 
+// Índice (dentro de currentPair) de quem marcou o ponto nesta rodada —
+// mostra o badge "+1" piscando no bloco da equipe (ver pairTeamsHtml).
+// Zera ao avançar pra próxima rodada (ver nextQuote/restartGame).
+let scoredTeamIndex = null;
+
 // ===== Rodízio de pares (2 equipes por rodada) =====
 // Com só 2 equipes ativas, o par é sempre o mesmo (as duas). Com 3+, a
 // ordem das equipes é embaralhada uma vez no início da partida e o par
@@ -121,6 +126,9 @@ function pairTeamsHtml() {
     const team = state.teams[teamIndex];
     if (!team) return "";
     const player = Teams.playerOf(teamIndex);
+    // Badge "+1" piscando no bloco de quem acabou de marcar o ponto —
+    // fica até avançar pra próxima rodada (ver scoredTeamIndex).
+    const scored = teamIndex === scoredTeamIndex;
     return `
       <div class="qd-pair-team" style="--team-color:${escapeHtml(team.color)}">
         <span class="qd-pair-team-icon">${icon(teamIconName(team), { size: 18 })}</span>
@@ -128,6 +136,7 @@ function pairTeamsHtml() {
           <span class="qd-pair-team-name">${escapeHtml(team.name)}</span>
           ${player ? `<span class="qd-pair-team-player">${escapeHtml(player)}</span>` : ""}
         </span>
+        ${scored ? `<span class="qd-pair-score-badge">+1</span>` : ""}
       </div>
     `;
   }).join(`<div class="qd-pair-vs">×</div>`);
@@ -236,7 +245,9 @@ function renderTeamScoreButtons() {
       Teams.addPoint(1);
 
       pointGiven = true;
+      scoredTeamIndex = index;
       revealAnswer();
+      renderPairRow();
     });
   });
 }
@@ -350,6 +361,7 @@ function restartGame() {
   }
 
   updateProgress();
+  scoredTeamIndex = null;
   advancePair();
   renderPairRow();
 
@@ -367,6 +379,7 @@ function nextQuote() {
   }
 
   updateProgress();
+  scoredTeamIndex = null;
   advancePair();
   renderPairRow();
 
@@ -524,6 +537,7 @@ function endGame(text) {
   clearCountdown();
   gameOver = true;
   setGameOverUI(true);
+  scoredTeamIndex = null;
 
   revealBtn.classList.add("d-none");
   nextBtn.classList.add("d-none");
