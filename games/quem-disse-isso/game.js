@@ -17,6 +17,7 @@ const ROUND_SIZE = 10;
 const scoreBtn = document.getElementById("scoreBtn");
 const teamScoreButtons = document.getElementById("teamScoreButtons");
 const pairRow = document.getElementById("pairRow");
+const pairRowBig = document.getElementById("pairRowBig");
 
 /* ===== Elements (setup) ===== */
 const setupScreen = document.getElementById("setupScreen");
@@ -31,11 +32,11 @@ const badgeDifficulty = document.getElementById("badgeDifficulty");
 const badgeProgress = document.getElementById("badgeProgress");
 
 const quoteText = document.getElementById("quoteText");
-const readyBtn = document.getElementById("readyBtn");
 
 const answerBox = document.getElementById("answerBox");
 const answerText = document.getElementById("answerText");
 const referenceText = document.getElementById("referenceText");
+const scoreNote = document.getElementById("scoreNote");
 
 const timerText = document.getElementById("timerText");
 const timerBar = document.getElementById("timerBar");
@@ -111,17 +112,12 @@ function advancePair() {
   currentPair = [a, b];
 }
 
-function renderPairRow() {
-  if (!pairRow) return;
-  if (!currentPair || gameOver) {
-    pairRow.classList.add("d-none");
-    pairRow.innerHTML = "";
-    return;
-  }
-
+// Monta o HTML do par (equipe x equipe) — usado tanto no bloco pequeno do
+// topo (#pairRow) quanto no bloco grande centralizado durante a contagem
+// (#pairRowBig, ver startRound), pra não duplicar a marcação.
+function pairTeamsHtml() {
   const state = Teams.getState();
-  pairRow.classList.remove("d-none");
-  pairRow.innerHTML = currentPair.map((teamIndex) => {
+  return currentPair.map((teamIndex) => {
     const team = state.teams[teamIndex];
     if (!team) return "";
     const player = Teams.playerOf(teamIndex);
@@ -135,6 +131,24 @@ function renderPairRow() {
       </div>
     `;
   }).join(`<div class="qd-pair-vs">×</div>`);
+}
+
+function renderPairRow() {
+  const has = Boolean(currentPair) && !gameOver;
+  const html = has ? pairTeamsHtml() : "";
+
+  if (pairRow) {
+    pairRow.classList.toggle("d-none", !has);
+    pairRow.innerHTML = html;
+  }
+
+  if (pairRowBig) {
+    pairRowBig.innerHTML = html;
+    // A visibilidade do bloco grande é controlada pelo startRound (só
+    // aparece durante a contagem) — aqui só garante que ele já não fique
+    // visível com conteúdo vazio se a rodada/partida acabou.
+    if (!has) pairRowBig.classList.add("d-none");
+  }
 }
 
 /* ===== Init ===== */
@@ -181,13 +195,14 @@ function teamIconName(team) {
 }
 
 function renderTeamScoreButtons() {
-  // Só aparecem depois que a resposta certa foi revelada na tela — assim
-  // quem administra confere antes de dar o ponto pra equipe certa.
+  // Ficam visíveis desde o início da rodada (junto com "Revelar" e
+  // "Próxima frase") — clicar na equipe que acertou já revela a resposta
+  // e dá o ponto, sem precisar de um passo extra pra "confirmar acerto".
   // Só as 2 equipes do par atual (ver advancePair) disputam a rodada.
-  // Somem de novo assim que o ponto é dado (ver showPointGiven).
+  // Somem assim que o ponto é dado (ver revealAnswer/pointGiven).
   if (!teamScoreButtons) return;
 
-  if (!Teams.isEnabled() || !answerRevealed || gameOver || !currentPair || pointGiven) {
+  if (!Teams.isEnabled() || gameOver || !currentPair || pointGiven) {
     teamScoreButtons.innerHTML = "";
     teamScoreButtons.classList.add("d-none");
     return;
@@ -222,19 +237,9 @@ function renderTeamScoreButtons() {
       Teams.addPoint(1);
 
       pointGiven = true;
-      showPointGiven(team);
+      revealAnswer(team);
     });
   });
-}
-
-// Ponto dado: some o versículo/frase, a resposta e os botões de
-// pontuação — só resta o anúncio de quem ganhou e "Próxima frase"
-// esperando o clique pra seguir.
-function showPointGiven(team) {
-  answerBox.classList.add("d-none");
-  quoteText.classList.remove("d-none", "is-countdown");
-  quoteText.textContent = team ? `Equipe ${team.name} ganhou 1 ponto` : "";
-  renderTeamScoreButtons();
 }
 
 async function loadData() {
@@ -288,9 +293,7 @@ function wireUI() {
     startGame();
   });
 
-  readyBtn.addEventListener("click", () => beginPrepareCountdown());
-
-  revealBtn.addEventListener("click", revealAnswer);
+  revealBtn.addEventListener("click", () => revealAnswer());
 
   nextBtn.addEventListener("click", () => {
     if (!gameOver) nextQuote();
@@ -309,7 +312,7 @@ function wireUI() {
 
     const k = e.key.toLowerCase();
     if (k === "n") nextBtn.click();
-    if (k === "a") revealBtn.click();
+    if (k === "r") revealBtn.click();
   });
 }
 
@@ -321,7 +324,6 @@ function startGame() {
   showTeamsBlockFocus();
 
   answerBox.classList.add("d-none");
-  revealBtn.classList.remove("d-none");
 
   restartGame();
 }
@@ -349,14 +351,10 @@ function restartGame() {
   }
 
   updateProgress();
-  // Esconde os botões de pontuação enquanto conta "Prepare-se!" — só
-  // voltam quando loadQuoteAtIndex resetar a frase, pra ninguém clicar
-  // antes da rodada realmente começar.
-  teamScoreButtons?.classList.add("d-none");
   advancePair();
   renderPairRow();
 
-  showReadyState();
+  startRound();
 }
 
 function nextQuote() {
@@ -370,11 +368,10 @@ function nextQuote() {
   }
 
   updateProgress();
-  teamScoreButtons?.classList.add("d-none");
   advancePair();
   renderPairRow();
 
-  showReadyState();
+  startRound();
 }
 
 function clearCountdown() {
@@ -384,33 +381,34 @@ function clearCountdown() {
   }
 }
 
-/* ===== Fase "pronto" — espera confirmar que as equipes do par estão
-   prontas antes de começar a contagem, mesmo padrão dos outros jogos
-   por turno/rodízio (ver games/palavras-misturadas/game.js). O par já
-   apareceu no bloco centralizado do topo (ver renderPairRow) — o botão
-   só ocupa o lugar da frase, sem repetir os nomes de novo aqui. */
-function showReadyState() {
+/* ===== Início de rodada — sem passo manual de "Começar": a contagem
+   "3,2,1" já dispara sozinha assim que a rodada anterior termina (ver
+   nextQuote/restartGame), com o par da vez em destaque grande no centro
+   (mesmo conteúdo do bloco pequeno do topo — ver renderPairRow/
+   pairTeamsHtml). Ao fim da contagem, o par volta pro tamanho/posição
+   normal e a frase é carregada. */
+function startRound() {
+  if (gameOver) return;
+
   clearCountdown();
   stopTimer();
   timerRow?.classList.add("d-none");
 
-  // Limpa o resto da rodada anterior (resposta + botões de pontuação) —
-  // senão ficava tudo visível por baixo enquanto espera o "Começar
-  // rodada" da rodada nova.
+  // Limpa o resto da rodada anterior — senão ficava tudo visível por
+  // baixo do bloco grande de contagem.
   answerBox.classList.add("d-none");
+  scoreNote?.classList.add("d-none");
   revealBtn.classList.add("d-none");
   nextBtn.classList.add("d-none");
   teamScoreButtons?.classList.add("d-none");
 
-  quoteText.classList.add("d-none");
-  readyBtn.classList.toggle("d-none", gameOver);
-}
-
-function beginPrepareCountdown() {
+  pairRow?.classList.add("d-none");
+  pairRowBig?.classList.remove("d-none");
   quoteText.classList.remove("d-none");
-  readyBtn.classList.add("d-none");
 
   startPrepareCountdown(() => {
+    pairRowBig?.classList.add("d-none");
+    pairRow?.classList.remove("d-none");
     loadQuoteAtIndex(idx);
     timerRow?.classList.remove("d-none");
     resetAndStartTimer();
@@ -454,6 +452,8 @@ async function loadQuoteAtIndex(i) {
   answerBox.classList.add("d-none");
   answerText.textContent = "";
   referenceText.textContent = "";
+  scoreNote?.classList.add("d-none");
+  if (scoreNote) scoreNote.innerHTML = "";
 
   revealBtn.classList.remove("d-none");
   // "Próxima frase" fica visível desde já (não só depois de revelar) —
@@ -489,16 +489,17 @@ function reloadCurrentQuoteText() {
   });
 }
 
-function revealAnswer() {
+// Revela a resposta — chamada tanto pelo botão "Revelar" (sem equipe,
+// só pra conferir) quanto ao clicar direto numa equipe (já com quem
+// acertou, ver renderTeamScoreButtons). Com equipe, mostra um badge
+// colorido logo abaixo da resposta indicando quem marcou o ponto.
+function revealAnswer(team) {
   if (!current) return;
 
   answerText.textContent = current.answer ?? "—";
   referenceText.textContent = current.reference ? `📖 ${current.reference}` : "";
 
   answerBox.classList.remove("d-none");
-  // "✅ Acertou?" já cumpriu seu papel (revelou) — some, deixando só os
-  // botões de pontuação por equipe e "Próxima frase" (que já estava
-  // visível desde o início da rodada).
   revealBtn.classList.add("d-none");
 
   answerRevealed = true;
@@ -506,6 +507,22 @@ function revealAnswer() {
   // próxima frase começar.
   stopTimer();
   timerRow?.classList.add("d-none");
+
+  if (scoreNote) {
+    if (team) {
+      scoreNote.classList.remove("d-none");
+      scoreNote.innerHTML = `
+        <span class="qd-score-badge" style="--team-color:${escapeHtml(team.color)}">
+          <span class="qd-score-badge-icon">${icon(teamIconName(team), { size: 16 })}</span>
+          <span>${escapeHtml(team.name)} marcou o ponto!</span>
+        </span>
+      `;
+    } else {
+      scoreNote.classList.add("d-none");
+      scoreNote.innerHTML = "";
+    }
+  }
+
   renderTeamScoreButtons();
 }
 
@@ -523,12 +540,13 @@ function endGame(text) {
   gameOver = true;
   setGameOverUI(true);
 
-  readyBtn.classList.add("d-none");
   revealBtn.classList.add("d-none");
   nextBtn.classList.add("d-none");
+  pairRowBig?.classList.add("d-none");
   quoteText.classList.remove("is-countdown", "d-none");
   quoteText.textContent = text;
   answerBox.classList.add("d-none");
+  scoreNote?.classList.add("d-none");
   timerText.textContent = "";
   timerBar.style.width = "0%";
   timerRow?.classList.add("d-none");

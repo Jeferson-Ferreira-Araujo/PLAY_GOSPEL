@@ -55,9 +55,10 @@
         <div class="p-4 rounded-4 bg-black border border-secondary">
           <h1 class="h4 mb-2">Como jogar</h1>
           <p class="text-secondary mb-0">
-            Duas equipes disputam cada rodada. Clique em "Começar rodada" quando estiverem prontas —
-            depois da contagem, uma frase bíblica aparece na tela e o par tenta descobrir <b>quem disse</b>
-            essa frase. Use “Revelar” para mostrar a resposta e a referência bíblica. Sem repetição até acabar.
+            Duas equipes disputam cada rodada. Ao clicar em "Próxima frase", a contagem já começa sozinha
+            mostrando o par da vez em destaque — depois, uma frase bíblica aparece e o par tenta descobrir
+            <b>quem disse</b> essa frase. Assim que uma equipe acertar, clique no botão dela pra já revelar
+            a resposta e marcar o ponto (ou use "Revelar" pra só conferir, sem equipe ainda). Sem repetição até acabar.
           </p>
         </div>
 
@@ -105,8 +106,8 @@
           <h2 class="h5 mb-3">Dicas</h2>
           <ul class="text-secondary mb-0">
             <li>Ideal para jogar em grupo, célula ou culto.</li>
-            <li>Após “✅ Acertou?”, confira a referência e clique na equipe que acertou.</li>
-            <li><b>A</b>: acertou • <b>N</b>: próxima frase</li>
+            <li>Clique direto no botão da equipe que acertou pra revelar a resposta e dar o ponto.</li>
+            <li><b>R</b>: revelar • <b>N</b>: próxima frase</li>
           </ul>
         </div>
       </div>
@@ -144,25 +145,31 @@
 
     <!-- Centro: frase + resposta -->
     <div class="presenter-center">
-      <button id="readyBtn" class="btn btn-warning ready-btn d-none" type="button">Começar rodada</button>
+      <!-- Par em destaque durante a contagem "3,2,1" (ver startRound em
+           game.js) — mesmo conteúdo do bloco pequeno do topo (#pairRow),
+           só que grande e centralizado junto com o número da contagem. -->
+      <div class="qd-pair-row qd-pair-row--big d-none" id="pairRowBig"></div>
+
       <div class="quote-display stage-text" id="quoteText">CARREGANDO...</div>
 
       <div class="answer d-none" id="answerBox">
         <div class="text-secondary small">Resposta</div>
         <div class="answer-text" id="answerText"></div>
         <div class="text-secondary small mt-2" id="referenceText"></div>
+        <div class="qd-score-note d-none" id="scoreNote"></div>
       </div>
     </div>
 
-    <!-- QUEM ACERTOU (um botão por equipe ativa — formato "disputa": todas
-         veem a mesma frase ao mesmo tempo, quem falar certo primeiro ganha
-         o ponto). Só aparece depois de "Revelar". -->
+    <!-- QUEM ACERTOU (um botão por equipe do par da rodada — formato
+         "disputa": as duas veem a mesma frase ao mesmo tempo. Clicar já
+         revela a resposta e dá o ponto pra equipe certa). Fica visível
+         desde o início da rodada, junto com "Revelar" e "Próxima frase". -->
     <div class="team-score-row d-none" id="teamScoreButtons"></div>
 
     <!-- Rodapé: controles -->
     <div class="presenter-bottom">
       <div class="d-flex gap-2 flex-wrap justify-content-center">
-        <button id="revealBtn" class="btn btn-success fw-semibold">✅ Acertou?</button>
+        <button id="revealBtn" class="btn btn-outline-light fw-semibold d-none">👁️ Revelar</button>
         <button id="nextBtn" class="btn btn-warning fw-semibold d-none">Próxima frase</button>
 
         <!-- Fim de jogo -->

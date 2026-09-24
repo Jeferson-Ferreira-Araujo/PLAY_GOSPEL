@@ -297,3 +297,78 @@
     justify-content: center;
   }
 }
+
+/* Par em destaque durante a contagem "3,2,1" (ver startRound em game.js) —
+   mesmo bloco de par do topo (.qd-pair-row), só que grande e centralizado
+   junto com o dígito da contagem; some e volta o bloco pequeno do topo
+   assim que a frase é carregada. */
+.qd-pair-row--big {
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.qd-pair-row--big .qd-pair-team {
+  padding: 16px 30px;
+  min-width: 200px;
+  border-radius: 20px;
+  gap: 14px;
+}
+
+.qd-pair-row--big .qd-pair-team-icon {
+  width: 52px;
+  height: 52px;
+}
+
+.qd-pair-row--big .qd-pair-team-name {
+  font-size: clamp(1.3rem, 4vw, 2.4rem);
+}
+
+.qd-pair-row--big .qd-pair-team-player {
+  font-size: clamp(1rem, 2.6vw, 1.5rem);
+}
+
+.qd-pair-row--big .qd-pair-vs {
+  font-size: clamp(1.5rem, 4vw, 2.6rem);
+}
+
+@media (max-width: 480px) {
+  .qd-pair-row--big {
+    gap: 12px;
+  }
+
+  .qd-pair-row--big .qd-pair-team {
+    padding: 10px 16px;
+    min-width: 0;
+  }
+}
+
+/* Nota de quem marcou o ponto (ver revealAnswer em game.js) — badge
+   colorido pequeno logo abaixo da resposta revelada, indicando a equipe
+   sem precisar esconder a resposta atrás de uma tela de anúncio à parte. */
+.qd-score-note {
+  margin-top: 14px;
+}
+
+.qd-score-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: var(--team-color, var(--gold));
+  color: #0b1220;
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.qd-score-badge-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, .18);
+}
