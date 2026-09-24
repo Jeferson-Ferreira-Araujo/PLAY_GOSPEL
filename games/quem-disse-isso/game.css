@@ -3,16 +3,20 @@
   text-align: center;
 }
 
+/* Menor que a frase acima dela (.stage-text, clamp até 100px) — a
+   resposta é só uma palavra curta, então em telas largas o clamp em vw
+   deixava ela visualmente MAIOR que a própria frase (proporção errada
+   entre pergunta e resposta). Escala mais modesta aqui resolve. */
 .answer-text {
   font-weight: 900;
-  font-size: clamp(32px, 6vw, 72px);
+  font-size: clamp(26px, 4.5vw, 56px);
 }
 
 .qd-reference-text {
   margin-top: 8px;
   color: var(--text-muted);
   font-weight: 700;
-  font-size: clamp(18px, 2.6vw, 28px);
+  font-size: clamp(15px, 2.2vw, 22px);
 }
 
 /* Dígito da contagem "3,2,1" menor que o padrão (.stage-text.is-countdown
@@ -427,5 +431,48 @@
   .qd-pair-row--big .qd-pair-team {
     padding: 10px 16px;
     min-width: 0;
+  }
+}
+
+/* Mobile: os botões de ação (equipes + "Ver resposta" + "Próxima frase")
+   empilhados em 4 linhas cheias (padrão herdado de .presenter-bottom .btn
+   em game-base.css) ocupavam altura demais na tela. Em telas estreitas,
+   viram uma grade de 2 colunas — 2 botões por linha — em vez de 1 por
+   linha. #teamScoreButtons vira "display:contents" pra suas duas equipes
+   entrarem como itens diretos da grade (lado a lado com "Ver resposta"/
+   "Próxima frase"), sem criar uma caixa própria que ocuparia uma célula
+   inteira sozinha. #actionsRow precisa de !important pra vencer o
+   .d-flex{display:flex!important} do Bootstrap (mesma especificidade,
+   ganha por vir depois no CSS). */
+@media (max-width: 640px) {
+  #actionsRow {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+  }
+
+  #teamScoreButtons.team-score-row {
+    display: contents;
+  }
+
+  #actionsRow .btn,
+  #actionsRow .qd-team-btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* "Jogar novamente" (fim de jogo) sempre sozinho — ocupa a linha
+     inteira em vez de ficar preso numa coluna só. */
+  #actionsRow #playAgainBtn {
+    grid-column: 1 / -1;
+  }
+
+  /* Quando só resta "Próxima frase" visível (depois do ponto dado, ou
+     depois de "Ver resposta" sem pontuar), ele também ocupa a linha
+     inteira em vez de ficar colado numa coluna só com metade vazia ao
+     lado. */
+  #actionsRow:has(#revealBtn.d-none):has(#teamScoreButtons.d-none) #nextBtn {
+    grid-column: 1 / -1;
   }
 }

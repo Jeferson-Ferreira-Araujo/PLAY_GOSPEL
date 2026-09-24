@@ -162,12 +162,13 @@
 
     <!-- Rodapé: controles -->
     <div class="presenter-bottom">
-      <div class="d-flex gap-2 flex-wrap justify-content-center align-items-center">
+      <div class="d-flex gap-2 flex-wrap justify-content-center align-items-center" id="actionsRow">
         <!-- QUEM ACERTOU (um botão por equipe do par da rodada — formato
              "disputa": as duas veem a mesma frase ao mesmo tempo. Clicar já
              revela a resposta e dá o ponto pra equipe certa). Fica visível
              desde o início da rodada, na mesma linha de "Ver resposta" e
-             "Próxima frase" (no desktop — quebra em telas estreitas). -->
+             "Próxima frase" (no desktop — no mobile vira grade 2x2, ver
+             game.css). -->
         <div class="team-score-row d-none" id="teamScoreButtons"></div>
 
         <button id="revealBtn" class="btn btn-outline-light fw-semibold d-none">Ver resposta</button>
