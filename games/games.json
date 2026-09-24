@@ -127,7 +127,7 @@
       "controls": ["Escolha categoria e tempo", "Acertou / Passou", "Reiniciar / Encerrar"],
       "version": "0.1.0",
       "route": "games/tem-na-biblia/index.html",
-      "matchType": "equipe",
+      "matchType": "rodada",
 
       "teams": { "required": true }
     },
