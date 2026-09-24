@@ -298,6 +298,17 @@
   }
 }
 
+/* Rótulo acima do par em destaque durante a contagem (ver #pairRowBigLabel
+   em startRound, game.js) — some de novo junto com o bloco grande assim
+   que a rodada começa de fato. */
+.qd-pair-big-label {
+  font-weight: 800;
+  font-size: clamp(1rem, 2.6vw, 1.5rem);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
 /* Par em destaque durante a contagem "3,2,1" (ver startRound em game.js) —
    mesmo bloco de par do topo (.qd-pair-row), só que grande e centralizado
    junto com o dígito da contagem; some e volta o bloco pequeno do topo

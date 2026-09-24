@@ -18,6 +18,7 @@ const scoreBtn = document.getElementById("scoreBtn");
 const teamScoreButtons = document.getElementById("teamScoreButtons");
 const pairRow = document.getElementById("pairRow");
 const pairRowBig = document.getElementById("pairRowBig");
+const pairRowBigLabel = document.getElementById("pairRowBigLabel");
 
 /* ===== Elements (setup) ===== */
 const setupScreen = document.getElementById("setupScreen");
@@ -404,10 +405,12 @@ function startRound() {
 
   pairRow?.classList.add("d-none");
   pairRowBig?.classList.remove("d-none");
+  pairRowBigLabel?.classList.remove("d-none");
   quoteText.classList.remove("d-none");
 
   startPrepareCountdown(() => {
     pairRowBig?.classList.add("d-none");
+    pairRowBigLabel?.classList.add("d-none");
     pairRow?.classList.remove("d-none");
     loadQuoteAtIndex(idx);
     timerRow?.classList.remove("d-none");
@@ -543,6 +546,7 @@ function endGame(text) {
   revealBtn.classList.add("d-none");
   nextBtn.classList.add("d-none");
   pairRowBig?.classList.add("d-none");
+  pairRowBigLabel?.classList.add("d-none");
   quoteText.classList.remove("is-countdown", "d-none");
   quoteText.textContent = text;
   answerBox.classList.add("d-none");
