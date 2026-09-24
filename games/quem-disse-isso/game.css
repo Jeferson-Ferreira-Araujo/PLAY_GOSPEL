@@ -423,12 +423,21 @@
   font-size: clamp(1.5rem, 4vw, 2.6rem);
 }
 
+/* Mobile: as duas caixas + "×" não cabiam numa linha só e o flex-wrap
+   quebrava de um jeito estranho (equipe + "×" numa linha, a outra
+   equipe sozinha embaixo, com o "×" grudado do lado errado). Em coluna,
+   com as duas caixas na largura toda e o "×" central entre elas, fica
+   claro e alinhado. */
 @media (max-width: 480px) {
   .qd-pair-row--big {
-    gap: 12px;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
   }
 
   .qd-pair-row--big .qd-pair-team {
+    width: 100%;
+    max-width: 320px;
     padding: 10px 16px;
     min-width: 0;
   }
