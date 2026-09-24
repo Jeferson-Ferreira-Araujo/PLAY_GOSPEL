@@ -415,15 +415,17 @@ function startRound() {
   });
 }
 
-/* Contagem "3, 2, 1" antes de cada frase nova — mesmo padrão visual de
-   todos os jogos (dígito grande dourado, .stage-text.is-countdown em
-   assets/css/game-base.css) e o mesmo som de tick/"vai". */
+/* Contagem "5, 4, 3, 2, 1" antes de cada frase nova — mesmo padrão
+   visual de todos os jogos (dígito grande dourado, .stage-text.is-countdown
+   em assets/css/game-base.css) e o mesmo som de tick/"vai". Mais longa
+   que o padrão (3s) porque agora tem o par de equipes em destaque junto
+   — dá tempo de todo mundo ver quem joga antes da frase aparecer. */
 function startPrepareCountdown(onDone) {
   clearCountdown();
   timerRow?.classList.add("d-none");
   quoteText.classList.add("is-countdown");
 
-  let n = 3;
+  let n = 5;
   quoteText.textContent = String(n);
   playCountdownTick();
 
