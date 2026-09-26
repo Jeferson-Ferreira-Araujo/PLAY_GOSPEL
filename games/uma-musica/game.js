@@ -30,7 +30,7 @@ const badgeProgress = document.getElementById("badgeProgress");
 const timerText = document.getElementById("timerText");
 const timerBar = document.getElementById("timerBar");
 
-const newWordBtn = document.getElementById("newWordBtn");
+const revealBtn = document.getElementById("revealBtn");
 const exitBtn = document.getElementById("exitBtn");
 const brandLink = document.getElementById("brandLink");
 const playAgainBtn = document.getElementById("playAgainBtn");
@@ -46,6 +46,9 @@ let gameOver = false;
 // Tempo fixo (sem opção de escolha, pra evitar excesso de configurações —
 // ver assets/js/game-focus-tour.js e o histórico de simplificação do site).
 const durationSec = 10;
+// Contagem "3,2,1" antes de revelar a palavra (ver startPrepareCountdown) —
+// só depois do clique em "Mostrar Palavra"/"Próxima Palavra", nunca sozinha.
+const PREP_COUNTDOWN_START = 3;
 let timer = null;
 let countdownInterval = null;
 
@@ -66,7 +69,8 @@ let scoredTeamIndex = null;
 // padrão de games/palavras-misturadas/game.js e games/quem-disse-isso/game.js.
 let pairOrder = [];
 let pairCursor = -1;
-let currentPair = null; // [índiceEquipeA, índiceEquipeB] ou null antes da 1ª rodada
+let currentPair = null; // par da rodada ativa (dono dos botões de pontuação) — null antes da 1ª rodada
+let previewPair = null; // par do bloco grande "Preparem-se", já calculado mas ainda não em jogo
 let memberQueues = {};  // fila embaralhada de integrantes por equipe (ver assets/js/turn-fairness.js)
 
 function shuffledIndices(n) {
@@ -82,11 +86,14 @@ function initPairing() {
   memberQueues = buildMemberQueues();
 }
 
-// Chamada no início de cada rodada nova: fecha a rodada anterior (troca
-// quem representa cada equipe do par que acabou de jogar, em ordem
-// embaralhada — sem repetir ninguém da equipe até todo mundo dela ter
-// jogado) e decide o próximo par pelo rodízio.
-function advancePair() {
+// Calcula o próximo par do rodízio (troca quem representa cada equipe do
+// par que acabou de jogar, em ordem embaralhada — sem repetir ninguém da
+// equipe até todo mundo dela ter jogado) SEM tocar em currentPair — o
+// resultado só vira a rodada ativa quando o usuário clicar em "Mostrar
+// Palavra"/"Próxima Palavra" (ver onRevealClick), permitindo mostrar o
+// próximo par em destaque enquanto os botões de pontuação da rodada
+// anterior ainda estão na tela.
+function computeNextPair() {
   const n = Teams.getState().teams.length;
   if (pairOrder.length !== n) initPairing();
 
@@ -98,7 +105,7 @@ function advancePair() {
   pairCursor = (pairCursor + 1) % n;
   const a = pairOrder[pairCursor % n];
   const b = pairOrder[(pairCursor + 1) % n];
-  currentPair = [a, b];
+  return [a, b];
 }
 
 function escapeHtml(str) {
@@ -111,18 +118,19 @@ function teamIconName(team) {
   return Teams.teamIconNames.includes(team.icon) ? team.icon : "star";
 }
 
-// Monta o HTML do par (equipe x equipe) — usado tanto no bloco pequeno do
-// topo (#pairRow) quanto no bloco grande centralizado durante a contagem
-// (#pairRowBig, ver startRound), pra não duplicar a marcação.
-function pairTeamsHtml() {
+// Monta o HTML de um par (equipe x equipe) — usado tanto no bloco pequeno
+// do topo (#pairRow, rodada ativa) quanto no bloco grande centralizado de
+// espera (#pairRowBig, próxima rodada), pra não duplicar a marcação.
+function pairTeamsHtml(pair, { showBadge = false } = {}) {
   const state = Teams.getState();
-  return currentPair.map((teamIndex) => {
+  return pair.map((teamIndex) => {
     const team = state.teams[teamIndex];
     if (!team) return "";
     const player = Teams.playerOf(teamIndex);
     // Badge "+1" piscando no bloco de quem acabou de marcar o ponto —
-    // fica até avançar pra próxima rodada (ver scoredTeamIndex).
-    const scored = teamIndex === scoredTeamIndex;
+    // só no bloco pequeno da rodada ativa, nunca no de espera da próxima
+    // (ver scoredTeamIndex/showBadge).
+    const scored = showBadge && teamIndex === scoredTeamIndex;
     return `
       <div class="um-pair-team" style="--team-color:${escapeHtml(team.color)}">
         <span class="um-pair-team-icon">${icon(teamIconName(team), { size: 18 })}</span>
@@ -136,22 +144,23 @@ function pairTeamsHtml() {
   }).join(`<div class="um-pair-vs">×</div>`);
 }
 
+// Bloco pequeno do topo — sempre a rodada ATIVA (currentPair), inclusive
+// durante o período de espera pra próxima rodada (mantém o "+1" visível
+// se alguém marcou ponto depois que o tempo já tinha acabado).
 function renderPairRow() {
   const has = Boolean(currentPair) && !gameOver;
-  const html = has ? pairTeamsHtml() : "";
+  pairRow?.classList.toggle("d-none", !has);
+  if (pairRow) pairRow.innerHTML = has ? pairTeamsHtml(currentPair, { showBadge: true }) : "";
+}
 
-  if (pairRow) {
-    pairRow.classList.toggle("d-none", !has);
-    pairRow.innerHTML = html;
-  }
-
-  if (pairRowBig) {
-    pairRowBig.innerHTML = html;
-    // A visibilidade do bloco grande é controlada pelo startRound (só
-    // aparece durante a contagem) — aqui só garante que ele não fique
-    // visível com conteúdo vazio se a rodada/partida acabou.
-    if (!has) pairRowBig.classList.add("d-none");
-  }
+// Bloco grande central "Preparem-se" — a PRÓXIMA rodada (previewPair),
+// mostrado sem contagem enquanto se espera o clique em "Mostrar
+// Palavra"/"Próxima Palavra" (ver showPreviewPair).
+function renderPreviewBlock() {
+  const has = Boolean(previewPair);
+  pairRowBig?.classList.toggle("d-none", !has);
+  pairRowBigLabel?.classList.toggle("d-none", !has);
+  if (pairRowBig) pairRowBig.innerHTML = has ? pairTeamsHtml(previewPair) : "";
 }
 
 /* ===== Formato "disputa": um botão de pontuação por equipe do par ativo —
@@ -191,7 +200,11 @@ function renderTeamScoreButtons() {
       if (gameOver || pointGiven) return;
 
       const index = Number(btn.dataset.index);
-      Teams.addPoint(1);
+      // addPointTo (não addPoint+setTurn): soma direto na equipe clicada
+      // sem tocar em st.turn — setTurn tem o efeito colateral de avançar
+      // o memberTurn da equipe que "sai" da vez, o que bagunçaria o
+      // rodízio de integrantes por fila própria deste jogo (memberQueues).
+      Teams.addPointTo(index, 1);
 
       pointGiven = true;
       scoredTeamIndex = index;
@@ -231,49 +244,63 @@ function clearCountdown() {
   }
 }
 
-/* ===== Início de rodada — sem passo manual de "Começar": a contagem
-   "5,4,3,2,1" já dispara sozinha assim que a rodada anterior termina (ver
-   nextWord), com o par da vez em destaque grande no centro (mesmo
-   conteúdo do bloco pequeno do topo — ver renderPairRow/pairTeamsHtml).
-   Ao fim da contagem, o par volta pro tamanho/posição normal e a palavra
-   é revelada. */
-function startRound() {
+/* ===== Espera "Preparem-se" antes de cada rodada — SEM contagem: dá
+   tempo pras duas equipes (ou pessoas sorteadas) do próximo par se
+   preparem antes de qualquer coisa aparecer, com um botão manual
+   ("Mostrar Palavra"/"Próxima Palavra") pra só então iniciar a contagem
+   e revelar a palavra (ver onRevealClick/revealWord). O bloco pequeno do
+   topo (rodada ativa/currentPair) e os botões de pontuação continuam
+   como estavam — é assim que dá pra marcar ponto com atraso depois que
+   o tempo da rodada anterior já acabou (ver finishRound). */
+function showPreviewPair() {
   if (gameOver) return;
+  // Já calculado (ex.: tempo acabou e mostrou o próximo par, mas alguém
+  // ainda marcou ponto depois disso, com atraso) — não recalcula, senão
+  // o rodízio avançaria um par a mais sem ninguém ter jogado ele.
+  if (previewPair) return;
 
   clearCountdown();
   stopTimer();
-  timerRow?.classList.add("d-none");
-  newWordBtn.classList.add("d-none");
-  teamScoreButtons?.classList.add("d-none");
 
-  pairRow?.classList.add("d-none");
-  pairRowBig?.classList.remove("d-none");
-  pairRowBigLabel?.classList.remove("d-none");
-  wordText.classList.remove("d-none");
+  if (idx >= pool.length) {
+    endGame("FIM DE JOGO");
+    return;
+  }
 
-  startPrepareCountdown(() => {
-    pairRowBig?.classList.add("d-none");
-    pairRowBigLabel?.classList.add("d-none");
-    pairRow?.classList.remove("d-none");
-    wordText.textContent = currentWord;
-    timerRow?.classList.remove("d-none");
-    startTimer();
-    pointGiven = false;
-    renderTeamScoreButtons();
-    newWordBtn.classList.remove("d-none");
-  });
+  previewPair = computeNextPair();
+  renderPreviewBlock();
+
+  revealBtn.textContent = idx === 0 ? "Mostrar Palavra" : "Próxima Palavra";
+  revealBtn.classList.remove("d-none");
 }
 
-/* Contagem "5, 4, 3, 2, 1" antes de cada palavra — mesmo padrão visual de
-   todos os jogos (dígito grande dourado, .stage-text.is-countdown em
-   assets/css/game-base.css) e o mesmo som de tick/"vai". */
-function startPrepareCountdown(onDone) {
+// Clique em "Mostrar Palavra"/"Próxima Palavra": a rodada de espera passa
+// a ser a rodada ativa (currentPair) e a contagem "3,2,1" começa.
+function onRevealClick() {
+  if (gameOver || !previewPair) return;
+
+  revealBtn.classList.add("d-none");
+  currentPair = previewPair;
+  previewPair = null;
+  pointGiven = false;
+  scoredTeamIndex = null;
+
+  startPrepareCountdown();
+}
+
+/* Contagem "3, 2, 1" antes de revelar a palavra — mesmo padrão visual dos
+   outros jogos (dígito grande dourado, .stage-text.is-countdown em
+   assets/css/game-base.css) e o mesmo som de tick/"vai". O bloco grande
+   do par (já com o par que vai jogar) continua em tela durante a
+   contagem toda. */
+function startPrepareCountdown() {
   clearCountdown();
   stopTimer();
   timerRow?.classList.add("d-none");
+  wordText.classList.remove("d-none");
   wordText.classList.add("is-countdown");
 
-  let n = 5;
+  let n = PREP_COUNTDOWN_START;
   wordText.textContent = String(n);
   playCountdownTick();
 
@@ -287,8 +314,25 @@ function startPrepareCountdown(onDone) {
     clearCountdown();
     playCountdownGo();
     wordText.classList.remove("is-countdown");
-    onDone();
+    revealWord();
   }, 1000);
+}
+
+// Fim da contagem: some o bloco grande de espera, volta o bloco pequeno
+// do topo (agora com o novo currentPair) e revela a palavra.
+function revealWord() {
+  pairRowBig?.classList.add("d-none");
+  pairRowBigLabel?.classList.add("d-none");
+
+  currentWord = pool[idx];
+  idx += 1;
+  updateProgress();
+
+  renderPairRow();
+  wordText.textContent = currentWord;
+  timerRow?.classList.remove("d-none");
+  startTimer();
+  renderTeamScoreButtons();
 }
 
 async function loadWords() {
@@ -301,17 +345,27 @@ async function loadWords() {
   updateProgress();
 }
 
-// Ponto dado: para o tempo e some os botões de pontuação — a palavra
-// continua visível (já foi revelada, não tem por que escondê-la) e o
-// bloco do par no topo ganha o badge "+1" piscando na equipe que
-// marcou (ver scoredTeamIndex/pairTeamsHtml). Só resta "Nova palavra"
-// esperando o clique pra seguir.
+// Ponto dado: para o tempo, esconde os botões de pontuação (só um ponto
+// por rodada) e o bloco do par no topo ganha o badge "+1" piscando na
+// equipe que marcou (ver scoredTeamIndex/pairTeamsHtml) — e a rodada já
+// se encerra (ver finishRound), sem precisar esperar o tempo acabar.
 function markPointGiven() {
-  stopTimer();
-  timerRow?.classList.add("d-none");
-  wordText.classList.remove("is-countdown");
   renderTeamScoreButtons();
   renderPairRow();
+  finishRound();
+}
+
+// Encerra a rodada ativa (por ponto marcado OU tempo esgotado): some a
+// palavra e o timer, e já mostra o próximo par em destaque — os botões
+// de pontuação da rodada que terminou continuam na tela (se ainda não
+// marcou ponto) pra dar folga a quem cantou mas não deu tempo de clicar.
+function finishRound() {
+  stopTimer();
+  clearCountdown();
+  timerRow?.classList.add("d-none");
+  wordText.classList.add("d-none");
+  wordText.classList.remove("is-countdown");
+  showPreviewPair();
 }
 
 /* =========================
@@ -349,12 +403,10 @@ function wireUI() {
     startGame();
   });
 
-  // "Nova palavra": sem acerto (ou já acertou e só quer seguir) — a
-  // rotação de pares continua avançando do mesmo jeito.
-  newWordBtn.addEventListener("click", () => {
-    if (gameOver) return;
-    nextWord();
-  });
+  // "Mostrar Palavra"/"Próxima Palavra": só existe durante a espera
+  // "Preparem-se" (ver showPreviewPair) — inicia a contagem e revela a
+  // palavra do par que está em destaque.
+  revealBtn.addEventListener("click", onRevealClick);
 
   playAgainBtn.addEventListener("click", () => {
     restartGame(); // reembaralha e reinicia usando as mesmas roundWords
@@ -372,8 +424,8 @@ function wireUI() {
 
     if (e.code === "Space") {
       e.preventDefault();
-      if (gameOver) return;
-      newWordBtn.click();
+      if (gameOver || revealBtn.classList.contains("d-none")) return;
+      revealBtn.click();
     }
   });
 }
@@ -413,39 +465,31 @@ function restartGame() {
   gameOver = false;
   setGameOverUI(false);
 
+  stopTimer();
+  clearCountdown();
+
   initPairing();
+  previewPair = null;
+  scoredTeamIndex = null;
+  pointGiven = false;
 
   // Cada partida sorteia até ROUND_SIZE palavras (evita jogar todas de
   // uma vez).
   pool = shuffleArray(roundWords).slice(0, ROUND_SIZE);
   idx = 0;
+  updateProgress();
 
-  nextWord();
-}
-
-function nextWord() {
-  stopTimer();
-  clearCountdown();
+  pairRow?.classList.add("d-none");
+  timerRow?.classList.add("d-none");
+  wordText.classList.add("d-none");
+  teamScoreButtons?.classList.add("d-none");
 
   if (!pool.length) {
     endGame("SEM PALAVRAS");
     return;
   }
 
-  if (idx >= pool.length) {
-    endGame("FIM DE JOGO");
-    return;
-  }
-
-  currentWord = pool[idx];
-  idx += 1;
-  updateProgress();
-
-  scoredTeamIndex = null;
-  advancePair();
-  renderPairRow();
-
-  startRound();
+  showPreviewPair();
 }
 
 function updateProgress() {
@@ -459,8 +503,9 @@ function endGame(text) {
   clearCountdown();
   gameOver = true;
   scoredTeamIndex = null;
+  previewPair = null;
 
-  newWordBtn.classList.add("d-none");
+  revealBtn.classList.add("d-none");
   pairRowBig?.classList.add("d-none");
   pairRowBigLabel?.classList.add("d-none");
   wordText.classList.remove("is-countdown", "d-none");
@@ -480,7 +525,7 @@ function endGame(text) {
 }
 
 function setGameOverUI(isOver) {
-  newWordBtn.disabled = isOver;
+  revealBtn.disabled = isOver;
 
   playAgainBtn.classList.toggle("d-none", !isOver);
   gameOverNotice.classList.toggle("d-none", !isOver);
@@ -508,7 +553,12 @@ function createOrUpdateTimer() {
     onEnd: () => {
       timerText.textContent = "Tempo!";
       timerBar.style.width = "0%";
-      // quando zera, para; a rodada continua (admin decide quem cantou/segue)
+      // Tempo esgotado sem ponto: a palavra some e já mostra o próximo
+      // par em destaque — os botões de pontuação da rodada que passou
+      // continuam na tela por conta própria (ver finishRound/
+      // renderTeamScoreButtons), pra dar folga a quem cantou mas o
+      // administrador não deu tempo de clicar.
+      if (!pointGiven) finishRound();
     },
   });
 }

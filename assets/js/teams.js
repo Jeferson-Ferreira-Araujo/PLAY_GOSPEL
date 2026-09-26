@@ -295,6 +295,23 @@ export const Teams = {
     return st;
   },
 
+  // Igual a addPoint, mas pra uma equipe qualquer por índice, sem mexer
+  // em st.turn — usado por jogos "disputa" que pontuam um time que não é
+  // necessariamente "a vez" global (ex: par de equipes em rodízio
+  // próprio). Diferente de setTurn(index)+addPoint(), não dispara o
+  // efeito colateral de avançar o memberTurn da equipe que "sai" da vez
+  // (ver advanceMemberTurn), que corromperia o rodízio de integrantes de
+  // jogos que já gerenciam isso por conta própria (ver
+  // assets/js/turn-fairness.js).
+  addPointTo(index, points = 1) {
+    const st = load();
+    const team = st.teams[index];
+    if (!st.enabled || !team) return st;
+    team.score = Number(team.score || 0) + Number(points || 0);
+    save(st);
+    return st;
+  },
+
   scoreLine() {
     const st = load();
     if (!st.enabled) return "";

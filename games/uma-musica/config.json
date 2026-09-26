@@ -1,12 +1,12 @@
 {
   "settings": [],
   "howTo": [
-    "Duas equipes disputam cada rodada — a contagem já começa sozinha, com o par em destaque na tela.",
-    "A mesma palavra aparece pras duas ao mesmo tempo.",
-    "Quem cantar uma música com essa palavra primeiro marca 1 ponto."
+    "Duas equipes disputam cada rodada — o par da vez aparece em destaque, sem tempo, pra se prepararem.",
+    "Quando estiverem prontas, clique em Mostrar Palavra: a contagem de 3 começa e a palavra aparece pras duas.",
+    "Quem cantar uma música com essa palavra primeiro marca 1 ponto. Sem acerto a tempo, clique em Próxima Palavra."
   ],
   "tips": [
-    "Atalho: Espaço = nova palavra",
+    "Atalho: Espaço = mostrar palavra / próxima",
     "Se acabar a lista, clique em Jogar novamente."
   ]
 }
